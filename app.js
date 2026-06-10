@@ -1016,19 +1016,22 @@ const tools = [
     category: "Finance",
     anchor: "finance",
     title: "Rent vs Buy Calculator",
-    description: "Compare renting and buying with mortgage costs, rent growth, home appreciation, investment return, equity, and CSV scenarios.",
+    description: "Compare renting and buying with loan terms, closing costs, rent growth, home appreciation, investment return, equity, and CSV scenarios.",
     fields: [
       { id: "homePrice", label: "Home price", type: "number", value: 450000, step: 5000 },
       { id: "downPayment", label: "Down payment", type: "number", value: 90000, step: 5000 },
       { id: "mortgageRate", label: "Mortgage rate %", type: "number", value: 6.75, step: 0.125 },
+      { id: "loanTerm", label: "Loan term years", type: "number", value: 30, step: 1 },
       { id: "years", label: "Compare years", type: "number", value: 7, step: 1 },
       { id: "rent", label: "Current rent / month", type: "number", value: 2400, step: 50 },
       { id: "rentGrowth", label: "Rent growth % / year", type: "number", value: 3, step: 0.1 },
       { id: "appreciation", label: "Home appreciation % / year", type: "number", value: 3, step: 0.1 },
       { id: "investmentReturn", label: "Investment return % / year", type: "number", value: 5, step: 0.1 },
+      { id: "closingCost", label: "Buyer closing costs %", type: "number", value: 3, step: 0.1 },
       { id: "propertyTax", label: "Property tax % / year", type: "number", value: 1.1, step: 0.05 },
       { id: "maintenance", label: "Maintenance % / year", type: "number", value: 1, step: 0.1 },
       { id: "insurance", label: "Home insurance / month", type: "number", value: 150, step: 10 },
+      { id: "hoa", label: "HOA / other costs / month", type: "number", value: 0, step: 25 },
       { id: "sellingCost", label: "Selling cost %", type: "number", value: 6, step: 0.1 }
     ],
     calculate(values) {
@@ -3165,6 +3168,15 @@ function renderRentVsBuy(values) {
       <td>${row.winner}</td>
     </tr>
   `).join("");
+  const scenarioRows = summary.sensitivityRows.map((row) => `
+    <tr>
+      <td>${row.label}</td>
+      <td>${money(row.rentNetWorth)}</td>
+      <td>${money(row.buyNetWorth)}</td>
+      <td>${money(row.netAdvantage)}</td>
+      <td>${row.winner}</td>
+    </tr>
+  `).join("");
 
   return `
     ${metrics([
@@ -3173,15 +3185,32 @@ function renderRentVsBuy(values) {
       ["Buy net worth", money(summary.buyNetWorth)],
       ["Rent net worth", money(summary.rentNetWorth)],
       ["Break-even year", summary.breakEvenYear ? `Year ${summary.breakEvenYear}` : "Not reached"],
-      ["Monthly mortgage", money(summary.monthlyMortgage)]
+      ["Break-even rent", summary.breakEvenRent ? money(summary.breakEvenRent) : "Not reached"]
     ])}
     <div class="result-grid">
+      <div><span>Monthly mortgage</span><strong>${money(summary.monthlyMortgage)}</strong></div>
+      <div><span>First-year owner cost</span><strong>${money(summary.firstYearOwnerMonthlyCost)}</strong></div>
+      <div><span>Initial cash to buy</span><strong>${money(summary.initialBuyerCash)}</strong></div>
       <div><span>Final home value</span><strong>${money(summary.finalHomeValue)}</strong></div>
       <div><span>Remaining loan</span><strong>${money(summary.remainingLoan)}</strong></div>
       <div><span>Owner equity after selling</span><strong>${money(summary.ownerEquityAfterSale)}</strong></div>
       <div><span>Total rent paid</span><strong>${money(summary.totalRentPaid)}</strong></div>
       <div><span>Total owner cash cost</span><strong>${money(summary.totalOwnerCashCost)}</strong></div>
       <div><span>Investment account</span><strong>${money(summary.renterInvestment)}</strong></div>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Scenario</th>
+            <th>Rent net worth</th>
+            <th>Buy net worth</th>
+            <th>Buy advantage</th>
+            <th>Winner</th>
+          </tr>
+        </thead>
+        <tbody>${scenarioRows}</tbody>
+      </table>
     </div>
     <div class="data-table-wrap">
       <table class="data-table">
@@ -3205,14 +3234,17 @@ function rentVsBuySummary(values) {
   const homePrice = num(values.homePrice);
   const downPayment = Math.max(0, num(values.downPayment));
   const mortgageRate = num(values.mortgageRate) / 100;
+  const loanTerm = Math.max(1, Math.min(50, Math.round(num(values.loanTerm) || 30)));
   const years = Math.max(1, Math.min(40, Math.round(num(values.years))));
   const startingRent = Math.max(0, num(values.rent));
   const rentGrowth = num(values.rentGrowth) / 100;
   const appreciation = num(values.appreciation) / 100;
   const investmentReturn = num(values.investmentReturn) / 100;
+  const closingCost = Math.max(0, num(values.closingCost)) / 100;
   const propertyTax = Math.max(0, num(values.propertyTax)) / 100;
   const maintenance = Math.max(0, num(values.maintenance)) / 100;
   const insuranceMonthly = Math.max(0, num(values.insurance));
+  const hoaMonthly = Math.max(0, num(values.hoa));
   const sellingCost = Math.max(0, num(values.sellingCost)) / 100;
 
   if (homePrice <= 0) return { error: "Enter a positive home price." };
@@ -3220,38 +3252,111 @@ function rentVsBuySummary(values) {
   if (mortgageRate < 0) return { error: "Mortgage rate cannot be negative." };
   if (startingRent <= 0) return { error: "Enter positive monthly rent." };
 
+  const inputs = {
+    homePrice,
+    downPayment,
+    mortgageRate,
+    loanTerm,
+    years,
+    startingRent,
+    rentGrowth,
+    appreciation,
+    investmentReturn,
+    closingCost,
+    propertyTax,
+    maintenance,
+    insuranceMonthly,
+    hoaMonthly,
+    sellingCost
+  };
+  const base = rentVsBuyProjection(inputs);
+  const sensitivityInputs = [
+    ["Base case", {}],
+    ["Rent +10%", { startingRent: startingRent * 1.1 }],
+    ["Rent -10%", { startingRent: startingRent * 0.9 }],
+    ["Appreciation +1%", { appreciation: appreciation + 0.01 }],
+    ["Appreciation -1%", { appreciation: appreciation - 0.01 }],
+    ["Mortgage rate +1%", { mortgageRate: mortgageRate + 0.01 }]
+  ];
+  const sensitivityRows = sensitivityInputs.map(([label, overrides]) => {
+    const scenario = rentVsBuyProjection({ ...inputs, ...overrides });
+    return {
+      label,
+      rentNetWorth: scenario.rentNetWorth,
+      buyNetWorth: scenario.buyNetWorth,
+      netAdvantage: scenario.netAdvantage,
+      winner: scenario.winner
+    };
+  });
+  const breakEvenRent = rentVsBuyBreakEvenRent(inputs);
+  const csvRows = [
+    ["Year", "Rent net worth", "Buy net worth", "Buy advantage", "Winner", "Home value", "Remaining loan", "Renter investment"],
+    ...base.yearlyRows.map((row) => [row.year, row.rentNetWorth, row.buyNetWorth, row.advantage, row.winner, row.homeValue, row.remainingLoan, row.renterInvestment]),
+    [],
+    ["Scenario", "Rent net worth", "Buy net worth", "Buy advantage", "Winner"],
+    ...sensitivityRows.map((row) => [row.label, row.rentNetWorth, row.buyNetWorth, row.netAdvantage, row.winner])
+  ];
+
+  return {
+    ...base,
+    breakEvenRent,
+    sensitivityRows,
+    csv: csvRows.map((row) => row.map(csvEscape).join(",")).join("\n")
+  };
+}
+
+function rentVsBuyProjection(inputs) {
+  const {
+    homePrice,
+    downPayment,
+    mortgageRate,
+    loanTerm,
+    years,
+    startingRent,
+    rentGrowth,
+    appreciation,
+    investmentReturn,
+    closingCost,
+    propertyTax,
+    maintenance,
+    insuranceMonthly,
+    hoaMonthly,
+    sellingCost
+  } = inputs;
   const loanAmount = homePrice - downPayment;
-  const loanMonths = 360;
+  const loanMonths = loanTerm * 12;
   const monthlyRate = mortgageRate / 12;
   const monthlyMortgage = monthlyRate === 0
     ? loanAmount / loanMonths
     : loanAmount * monthlyRate * ((1 + monthlyRate) ** loanMonths) / (((1 + monthlyRate) ** loanMonths) - 1);
+  const closingCosts = homePrice * closingCost;
+  const initialBuyerCash = downPayment + closingCosts;
   let balance = loanAmount;
   let rent = startingRent;
   let homeValue = homePrice;
-  let renterInvestment = downPayment;
+  let renterInvestment = initialBuyerCash;
   let totalRentPaid = 0;
-  let totalOwnerCashCost = downPayment;
+  let totalOwnerCashCost = initialBuyerCash;
   let breakEvenYear = null;
+  let firstYearOwnerCost = 0;
   const yearlyRows = [];
-  const csvRows = [["Year", "Rent net worth", "Buy net worth", "Buy advantage", "Winner", "Home value", "Remaining loan", "Renter investment"]];
 
   for (let year = 1; year <= years; year += 1) {
     let yearlyOwnerCost = 0;
-    let yearlyRent = 0;
     for (let month = 1; month <= 12; month += 1) {
       const interest = balance * monthlyRate;
-      const principal = Math.min(balance, monthlyMortgage - interest);
+      const mortgagePayment = balance > 0.005 ? Math.min(monthlyMortgage, balance + interest) : 0;
+      const principal = Math.min(balance, mortgagePayment - interest);
       balance = Math.max(0, balance - Math.max(0, principal));
-      const ownerCost = monthlyMortgage + (homeValue * propertyTax / 12) + (homeValue * maintenance / 12) + insuranceMonthly;
+      const ownerCost = mortgagePayment + (homeValue * propertyTax / 12) + (homeValue * maintenance / 12) + insuranceMonthly + hoaMonthly;
       yearlyOwnerCost += ownerCost;
-      yearlyRent += rent;
       const monthlyDifference = ownerCost - rent;
       renterInvestment = renterInvestment * (1 + investmentReturn / 12) + Math.max(0, monthlyDifference);
       totalOwnerCashCost += ownerCost;
       totalRentPaid += rent;
       rent *= (1 + rentGrowth / 12);
     }
+    if (year === 1) firstYearOwnerCost = yearlyOwnerCost;
     homeValue *= (1 + appreciation);
     const sellingFees = homeValue * sellingCost;
     const ownerEquityAfterSale = Math.max(0, homeValue - balance - sellingFees);
@@ -3260,9 +3365,8 @@ function rentVsBuySummary(values) {
     const advantage = buyNetWorth - rentNetWorth;
     const winner = advantage >= 0 ? "Buy" : "Rent";
     if (!breakEvenYear && advantage >= 0) breakEvenYear = year;
-    const row = { year, rentNetWorth, buyNetWorth, advantage, winner, homeValue, remainingLoan: balance };
+    const row = { year, rentNetWorth, buyNetWorth, advantage, winner, homeValue, remainingLoan: balance, renterInvestment };
     yearlyRows.push(row);
-    csvRows.push([year, rentNetWorth, buyNetWorth, advantage, winner, homeValue, balance, renterInvestment]);
   }
 
   const last = yearlyRows[yearlyRows.length - 1];
@@ -3275,6 +3379,9 @@ function rentVsBuySummary(values) {
 
   return {
     monthlyMortgage,
+    initialBuyerCash,
+    closingCosts,
+    firstYearOwnerMonthlyCost: firstYearOwnerCost / 12,
     finalHomeValue,
     remainingLoan,
     ownerEquityAfterSale,
@@ -3286,9 +3393,27 @@ function rentVsBuySummary(values) {
     netAdvantage,
     winner: netAdvantage >= 0 ? "Buy" : "Rent",
     breakEvenYear,
-    yearlyRows,
-    csv: csvRows.map((row) => row.map(csvEscape).join(",")).join("\n")
+    yearlyRows
   };
+}
+
+function rentVsBuyBreakEvenRent(inputs) {
+  let low = 0;
+  let high = Math.max(inputs.startingRent * 3, inputs.homePrice / 100);
+  let highProjection = rentVsBuyProjection({ ...inputs, startingRent: high });
+  for (let attempts = 0; attempts < 20 && highProjection.netAdvantage < 0; attempts += 1) {
+    high *= 1.5;
+    highProjection = rentVsBuyProjection({ ...inputs, startingRent: high });
+  }
+  if (highProjection.netAdvantage < 0) return null;
+
+  for (let i = 0; i < 40; i += 1) {
+    const mid = (low + high) / 2;
+    const projection = rentVsBuyProjection({ ...inputs, startingRent: mid });
+    if (projection.netAdvantage >= 0) high = mid;
+    else low = mid;
+  }
+  return high;
 }
 
 function renderTakeHomePay(values) {
