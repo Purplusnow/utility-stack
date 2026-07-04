@@ -6,7 +6,7 @@ The project is intentionally independent from other local projects. It can be ho
 
 ## Current Status
 
-- 72 utility tools
+- 74 utility tools
 - 15 category hub pages
 - Static `/tools/{slug}/` pages
 - Static `/categories/{slug}/` pages
@@ -39,6 +39,7 @@ styles.css              Site styling
 index.html              Static homepage shell
 scripts/build-static.mjs Static page generator
 scripts/verify.mjs      Automated verification
+vendor/                 Vendored browser dependencies for core tool workflows
 tools/                  Generated tool pages
 categories/             Generated category pages
 privacy/                Privacy page
@@ -66,4 +67,3 @@ The site is static. After local development:
 3. Push this repository to GitHub.
 4. Enable GitHub Pages or another static host.
 5. Connect the final domain.
-

@@ -50,21 +50,21 @@ Current flagship clusters:
 - Finance: mortgage, loan, compound interest, tip, sales tax, savings goal, discount.
 - Business: profit margin, break-even, ROI, invoice number, ad revenue.
 - Data and developer: JSON, CSV, regex, password, QR.
-- Image: resize, compress, convert, square maker.
+- Image: resize, compress, convert, asset packs, square maker, pixel art.
 
 ### Phase 1: Stabilize the MVP
 
 - Split tool definitions and renderers out of the single app file.
 - Add tool metadata: slug, search intent, monetization tier, and priority.
 - Improve mobile navigation.
-- Vendor critical dependencies, starting with QR generation.
+- Keep critical dependencies vendored when they are part of a core workflow.
 - Add a repeatable verification script.
 
 ### Phase 2: Build High-Value Tool Clusters
 
 Priority clusters:
 
-- Image tools: compressor, resizer, format converter, square maker, cropper.
+- Image tools: compressor, resizer, format converter, asset pack generator, square maker, pixel art converter, cropper.
 - Data tools: CSV cleaner, CSV column extractor, CSV to JSON, JSON to CSV, JSON file formatter.
 - Document-light tools: invoice generator, receipt generator, quote generator.
 - Developer tools: JSON formatter, JWT decoder, regex tester, cron builder, UUID generator.
@@ -101,6 +101,6 @@ A tool is publishable only if:
 
 - `app.js` is too large and should be split soon.
 - CSV parsing is simple and should be upgraded before promoting CSV tools heavily.
-- QR generation depends on a CDN and should be vendored.
+- Vendored dependencies need explicit notices and verification coverage.
 - Single-page architecture limits SEO growth.
 - Mobile navigation is functional but too tall.

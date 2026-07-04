@@ -1,4 +1,5 @@
 const STORAGE_KEY = "utilitystack_recent_tools";
+let qrLibraryPromise = null;
 
 const tools = [
   {
@@ -128,7 +129,7 @@ const tools = [
     category: "Business",
     anchor: "business",
     title: "Invoice Number Generator",
-    description: "Generate invoice numbers with date formats, padding, separators, next-number previews, and CSV download.",
+    description: "Design invoice numbering policies with date formats, reset rules, check digits, next-number previews, policy notes, and CSV download.",
     fields: [
       { id: "prefix", label: "Prefix", type: "text", value: "INV" },
       { id: "client", label: "Client code", type: "text", value: "ACME" },
@@ -136,7 +137,9 @@ const tools = [
       { id: "padding", label: "Number padding", type: "number", value: 4, step: 1 },
       { id: "count", label: "Generate count", type: "number", value: 5, step: 1 },
       { id: "separator", label: "Separator", type: "select", value: "-", options: [["-", "Dash"], ["_", "Underscore"], ["", "None"]] },
-      { id: "dateFormat", label: "Date format", type: "select", value: "yyyymm", options: [["yyyymm", "YYYYMM"], ["yyyymmdd", "YYYYMMDD"], ["yyyy", "YYYY"], ["none", "No date"]] }
+      { id: "dateFormat", label: "Date format", type: "select", value: "yyyymm", options: [["yyyymm", "YYYYMM"], ["yyyymmdd", "YYYYMMDD"], ["yyyy", "YYYY"], ["none", "No date"]] },
+      { id: "resetRule", label: "Reset rule", type: "select", value: "monthly", options: [["never", "Never reset"], ["monthly", "Reset monthly"], ["yearly", "Reset yearly"], ["client", "Separate by client"]] },
+      { id: "checksum", label: "Check digit", type: "select", value: "none", options: [["none", "None"], ["mod10", "Mod 10 digit"]] }
     ],
     calculate(values) {
       return renderInvoiceNumbers(values);
@@ -146,8 +149,8 @@ const tools = [
     id: "json-formatter",
     category: "Developer",
     anchor: "dev",
-    title: "JSON Formatter",
-    description: "Format, validate, and minify JSON in your browser.",
+    title: "JSON Formatter Inspector",
+    description: "Format, validate, minify, inspect JSON paths, summarize types, and download structured JSON reports in your browser.",
     fields: [
       { id: "json", label: "JSON input", type: "textarea", value: '{"name":"UtilityStack","tools":10}' },
       { id: "mode", label: "Mode", type: "select", value: "pretty", options: [["pretty", "Pretty print"], ["minify", "Minify"]] }
@@ -155,9 +158,9 @@ const tools = [
     calculate(values) {
       try {
         const parsed = JSON.parse(values.json);
-        return output(values.mode === "minify" ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2));
+        return renderJsonInspector(parsed, values.mode === "minify" ? "minify" : "pretty");
       } catch (err) {
-        return error(err.message);
+        return jsonErrorMarkup(String(values.json || ""), err);
       }
     }
   },
@@ -678,7 +681,7 @@ const tools = [
     category: "Data",
     anchor: "data",
     title: "CSV Cleaner",
-    description: "Clean CSV with quoted commas, trim cells, remove empty rows, and download the result.",
+    description: "Clean CSV with quoted commas, trim cells, normalize headers, remove duplicates, profile missing values, and download a quality report.",
     custom: "file-csv-cleaner",
     fields: [],
     calculate() {
@@ -763,7 +766,7 @@ const tools = [
     category: "Image",
     anchor: "image",
     title: "Image Format Converter",
-    description: "Convert images between PNG, JPG, and WebP locally.",
+    description: "Convert images between PNG, JPG, WebP, and AVIF locally with resize, quality, and transparent-background controls.",
     custom: "image-converter",
     fields: [],
     calculate() {
@@ -783,21 +786,42 @@ const tools = [
     }
   },
   {
+    id: "image-asset-pack-generator",
+    category: "Image",
+    anchor: "image",
+    title: "Image Asset Pack Generator",
+    description: "Generate favicon, app icon, Open Graph, social, and launch image packs from one source image locally.",
+    custom: "image-asset-pack",
+    fields: [],
+    calculate() {
+      return "";
+    }
+  },
+  {
+    id: "pixel-art-converter",
+    category: "Image",
+    anchor: "image",
+    title: "Pixel Art Converter",
+    description: "Turn images into pixel art locally with grid size, palette reduction, dithering, export scale, and download controls.",
+    custom: "image-pixel-art",
+    fields: [],
+    calculate() {
+      return "";
+    }
+  },
+  {
     id: "color-palette-generator",
     category: "Image",
     anchor: "image",
-    title: "Color Palette Generator",
-    description: "Generate a small color palette from a base HEX color.",
+    title: "Brand Color System Generator",
+    description: "Generate accessible brand palettes with CSS variables, Tailwind tokens, JSON, contrast checks, and copy-ready swatches.",
     fields: [
-      { id: "hex", label: "Base hex color", type: "text", value: "#2563eb" }
+      { id: "hex", label: "Base hex color", type: "text", value: "#2563eb" },
+      { id: "name", label: "Token prefix", type: "text", value: "brand" },
+      { id: "mode", label: "Palette mode", type: "select", value: "balanced", options: [["balanced", "Balanced UI scale"], ["vivid", "Vivid marketing scale"], ["muted", "Muted SaaS scale"]] }
     ],
     calculate(values) {
-      let hex = String(values.hex || "").trim().replace(/^#/, "");
-      if (hex.length === 3) hex = hex.split("").map((char) => char + char).join("");
-      if (!/^[0-9a-fA-F]{6}$/.test(hex)) return error("Enter a valid 3 or 6 digit hex color.");
-      const channels = [0, 2, 4].map((start) => parseInt(hex.slice(start, start + 2), 16));
-      const shift = (amount) => `#${channels.map((channel) => Math.max(0, Math.min(255, channel + amount)).toString(16).padStart(2, "0")).join("")}`;
-      return output([shift(-40), `#${hex.toLowerCase()}`, shift(40), shift(80)].join("\n"));
+      return renderBrandColorSystem(values);
     }
   },
   {
@@ -1143,22 +1167,18 @@ const tools = [
     category: "Developer",
     anchor: "dev",
     title: "Cron Expression Builder",
-    description: "Build a simple cron expression from common schedules.",
+    description: "Build cron expressions with presets, readable summaries, next run previews, and CSV export.",
     fields: [
-      { id: "schedule", label: "Schedule", type: "select", value: "daily", options: [["hourly", "Every hour"], ["daily", "Every day"], ["weekly", "Every week"], ["monthly", "Every month"]] },
+      { id: "schedule", label: "Schedule", type: "select", value: "weekday", options: [["five", "Every 5 minutes"], ["hourly", "Every hour"], ["daily", "Every day"], ["weekday", "Weekdays"], ["weekly", "Every week"], ["monthly", "Every month"], ["custom", "Custom expression"]] },
+      { id: "customExpression", label: "Custom expression", type: "text", value: "0 9 * * 1-5" },
       { id: "minute", label: "Minute", type: "number", value: 0, step: 1 },
-      { id: "hour", label: "Hour", type: "number", value: 9, step: 1 }
+      { id: "hour", label: "Hour", type: "number", value: 9, step: 1 },
+      { id: "dayOfMonth", label: "Day of month", type: "number", value: 1, step: 1 },
+      { id: "weekday", label: "Weekday", type: "select", value: 1, options: [[1, "Monday"], [2, "Tuesday"], [3, "Wednesday"], [4, "Thursday"], [5, "Friday"], [6, "Saturday"], [0, "Sunday"]] },
+      { id: "previewCount", label: "Next runs", type: "number", value: 8, step: 1 }
     ],
     calculate(values) {
-      const minute = Math.min(59, Math.max(0, Math.floor(num(values.minute))));
-      const hour = Math.min(23, Math.max(0, Math.floor(num(values.hour))));
-      const expression = {
-        hourly: `${minute} * * * *`,
-        daily: `${minute} ${hour} * * *`,
-        weekly: `${minute} ${hour} * * 1`,
-        monthly: `${minute} ${hour} 1 * *`
-      }[values.schedule];
-      return output(expression);
+      return renderCronExpression(values);
     }
   },
   {
@@ -1357,6 +1377,143 @@ function toolPrivacyLevel(tool) {
   if (tool.custom?.startsWith("file-") || tool.custom?.startsWith("image-")) return "local-file";
   if (tool.custom === "qr-code" || sensitiveIds.has(tool.id) || ["Data", "Developer", "Security"].includes(tool.category)) return "private-input";
   return "browser";
+}
+
+function renderBrandColorSystem(values) {
+  const base = normalizeHex(values.hex);
+  if (!base) return error("Enter a valid 3 or 6 digit hex color.");
+  const prefix = slugify(values.name || "brand").replace(/-/g, "") || "brand";
+  const mode = values.mode || "balanced";
+  const palette = brandPalette(base, mode);
+  const tokens = Object.fromEntries(palette.map((item) => [`${prefix}-${item.step}`, item.hex]));
+  const css = brandPaletteCss(prefix, palette);
+  const tailwind = brandPaletteTailwind(prefix, palette);
+  const json = JSON.stringify({ prefix, mode, base, colors: tokens }, null, 2);
+  const contrastRows = [
+    ["Base on white", base, "#ffffff"],
+    ["Base on black", base, "#000000"],
+    ["Dark text on 50", "#111827", palette[0].hex],
+    ["White text on 700", "#ffffff", palette[7].hex],
+    ["White text on 900", "#ffffff", palette[9].hex]
+  ].map(([label, foreground, background]) => {
+    const ratio = contrastRatio(foreground, background);
+    return { label, foreground, background, ratio, status: ratio >= 4.5 ? "AA pass" : ratio >= 3 ? "Large text" : "Low" };
+  });
+
+  return `
+    <div class="brand-system-result">
+      <div class="palette-strip">
+        ${palette.map((item) => `
+          <div class="brand-swatch" style="background:${item.hex}; color:${contrastRatio("#111827", item.hex) >= 4.5 ? "#111827" : "#ffffff"}">
+            <strong>${item.step}</strong>
+            <span>${item.hex}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div class="result-grid">
+        <div><span>Base</span><strong>${base}</strong></div>
+        <div><span>Mode</span><strong>${mode}</strong></div>
+        <div><span>Tokens</span><strong>${palette.length}</strong></div>
+        <div><span>Prefix</span><strong>${prefix}</strong></div>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Check</th><th>Foreground</th><th>Background</th><th>Ratio</th><th>Status</th></tr></thead>
+        <tbody>
+          ${contrastRows.map((row) => `<tr><td>${row.label}</td><td>${row.foreground}</td><td>${row.background}</td><td>${row.ratio.toFixed(2)}:1</td><td>${row.status}</td></tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="metadata-snippet">
+        <span>CSS variables</span>
+        <pre>${escapeHtml(css)}</pre>
+      </div>
+      <div class="download-actions">
+        <a class="download-button" href="${dataHref("text/css", css)}" download="${prefix}-tokens.css">Download CSS variables</a>
+        <a class="download-button secondary" href="${dataHref("application/json", tailwind)}" download="${prefix}-tailwind-colors.json">Download Tailwind tokens</a>
+        <a class="download-button secondary" href="${dataHref("application/json", json)}" download="${prefix}-color-system.json">Download JSON</a>
+      </div>
+    </div>
+  `;
+}
+
+function normalizeHex(value) {
+  let hex = String(value || "").trim().replace(/^#/, "");
+  if (hex.length === 3) hex = hex.split("").map((char) => char + char).join("");
+  return /^[0-9a-fA-F]{6}$/.test(hex) ? `#${hex.toLowerCase()}` : "";
+}
+
+function brandPalette(base, mode) {
+  const hsl = hexToHsl(base);
+  const chroma = mode === "muted" ? 0.55 : mode === "vivid" ? 1.2 : 0.85;
+  const lightness = [96, 90, 82, 70, 58, 48, 40, 32, 24, 16];
+  const saturation = Math.max(12, Math.min(96, hsl.s * chroma));
+  return [50, 100, 200, 300, 400, 500, 600, 700, 800, 900].map((step, index) => ({
+    step,
+    hex: hslToHex(hsl.h, saturation, lightness[index])
+  }));
+}
+
+function brandPaletteCss(prefix, palette) {
+  return [
+    ":root {",
+    ...palette.map((item) => `  --${prefix}-${item.step}: ${item.hex};`),
+    "}"
+  ].join("\n");
+}
+
+function brandPaletteTailwind(prefix, palette) {
+  return JSON.stringify({
+    [prefix]: Object.fromEntries(palette.map((item) => [item.step, item.hex]))
+  }, null, 2);
+}
+
+function hexToHsl(hex) {
+  const [red, green, blue] = hexToRgb(hex).map((value) => value / 255);
+  const max = Math.max(red, green, blue);
+  const min = Math.min(red, green, blue);
+  const lightness = (max + min) / 2;
+  if (max === min) return { h: 0, s: 0, l: lightness * 100 };
+  const delta = max - min;
+  const saturation = lightness > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+  const hue = max === red
+    ? (green - blue) / delta + (green < blue ? 6 : 0)
+    : max === green
+      ? (blue - red) / delta + 2
+      : (red - green) / delta + 4;
+  return { h: hue * 60, s: saturation * 100, l: lightness * 100 };
+}
+
+function hslToHex(hue, saturation, lightness) {
+  const s = saturation / 100;
+  const l = lightness / 100;
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+  const m = l - c / 2;
+  const [red, green, blue] = hue < 60 ? [c, x, 0]
+    : hue < 120 ? [x, c, 0]
+      : hue < 180 ? [0, c, x]
+        : hue < 240 ? [0, x, c]
+          : hue < 300 ? [x, 0, c]
+            : [c, 0, x];
+  return rgbToHex((red + m) * 255, (green + m) * 255, (blue + m) * 255);
+}
+
+function contrastRatio(foreground, background) {
+  const first = relativeLuminance(foreground);
+  const second = relativeLuminance(background);
+  const lighter = Math.max(first, second);
+  const darker = Math.min(first, second);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function relativeLuminance(hex) {
+  return hexToRgb(hex).map((value) => {
+    const channel = value / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+}
+
+function dataHref(type, value) {
+  return `data:${type};charset=utf-8,${encodeURIComponent(value)}`;
 }
 
 function privacyNotice(tool) {
@@ -2199,11 +2356,13 @@ function renderInvoiceNumbers(values) {
   const summary = invoiceNumberSummary(values);
   if (summary.error) return error(summary.error);
   const href = `data:text/csv;charset=utf-8,${encodeURIComponent(summary.csv)}`;
+  const policyHref = `data:text/markdown;charset=utf-8,${encodeURIComponent(summary.policy)}`;
   const rows = summary.items.map((item) => `
     <tr>
       <td>${item.index}</td>
       <td>${escapeHtml(item.number)}</td>
       <td>${escapeHtml(item.nextNumber)}</td>
+      <td>${escapeHtml(item.periodKey)}</td>
     </tr>
   `).join("");
 
@@ -2214,7 +2373,9 @@ function renderInvoiceNumbers(values) {
       ["Generated count", summary.items.length.toLocaleString("en-US")],
       ["Pattern", escapeHtml(summary.pattern)],
       ["Date stamp", escapeHtml(summary.dateStamp || "-")],
-      ["Sequence width", summary.padding]
+      ["Sequence width", summary.padding],
+      ["Reset policy", escapeHtml(summary.resetLabel)],
+      ["Check digit", escapeHtml(summary.checksumLabel)]
     ])}
     <pre class="tool-output">${escapeHtml(summary.items.map((item) => item.number).join("\n"))}</pre>
     <button class="copy-button" type="button" data-copy="${escapeAttr(summary.current)}">Copy current invoice</button>
@@ -2225,12 +2386,20 @@ function renderInvoiceNumbers(values) {
             <th>#</th>
             <th>Invoice number</th>
             <th>Next after this</th>
+            <th>Period key</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <a class="download-button" href="${href}" download="invoice-numbers.csv">Download invoice numbers CSV</a>
+    <div class="metadata-snippet">
+      <span>Numbering policy</span>
+      <pre>${escapeHtml(summary.policy)}</pre>
+    </div>
+    <div class="download-actions">
+      <a class="download-button" href="${href}" download="invoice-numbers.csv">Download invoice numbers CSV</a>
+      <a class="download-button secondary" href="${policyHref}" download="invoice-number-policy.md">Download policy notes</a>
+    </div>
   `;
 }
 
@@ -2240,21 +2409,38 @@ function invoiceNumberSummary(values, today = new Date()) {
   const padding = Math.min(12, Math.max(1, Math.floor(num(values.padding) || 4)));
   const count = Math.min(100, Math.max(1, Math.floor(num(values.count) || 1)));
   const dateStamp = invoiceDateStamp(values.dateFormat, today);
+  const resetRule = ["never", "monthly", "yearly", "client"].includes(values.resetRule) ? values.resetRule : "never";
+  const checksum = values.checksum === "mod10" ? "mod10" : "none";
   const prefix = slugPart(values.prefix);
   const client = slugPart(values.client);
   const parts = [prefix, client, dateStamp].filter(Boolean);
+  const periodKey = invoicePeriodKey(resetRule, values.dateFormat, today, client);
   const items = Array.from({ length: count }, (_, index) => {
-    const number = invoiceNumber(parts, sequence + index, padding, separator);
+    const number = invoiceNumber(parts, sequence + index, padding, separator, checksum);
     return {
       index: index + 1,
       number,
-      nextNumber: invoiceNumber(parts, sequence + index + 1, padding, separator)
+      nextNumber: invoiceNumber(parts, sequence + index + 1, padding, separator, checksum),
+      periodKey
     };
   });
   const csvRows = [
-    ["Index", "Invoice number", "Next invoice number"],
-    ...items.map((item) => [item.index, item.number, item.nextNumber])
+    ["Index", "Invoice number", "Next invoice number", "Period key", "Reset rule", "Check digit"],
+    ...items.map((item) => [item.index, item.number, item.nextNumber, item.periodKey, resetRule, checksum])
   ];
+  const pattern = [...parts, "#".repeat(padding), checksum === "mod10" ? "C" : ""].filter(Boolean).join(separator);
+  const policy = invoicePolicyMarkdown({
+    prefix,
+    client,
+    dateStamp,
+    pattern,
+    padding,
+    resetRule,
+    checksum,
+    periodKey,
+    current: items[0].number,
+    next: items[0].nextNumber
+  });
 
   return {
     current: items[0].number,
@@ -2262,7 +2448,12 @@ function invoiceNumberSummary(values, today = new Date()) {
     items,
     padding,
     dateStamp,
-    pattern: [...parts, "#".repeat(padding)].join(separator),
+    pattern,
+    resetRule,
+    resetLabel: invoiceResetLabel(resetRule),
+    checksum,
+    checksumLabel: checksum === "mod10" ? "Mod 10" : "None",
+    policy,
     csv: csvRows.map((row) => row.map(csvEscape).join(",")).join("\n")
   };
 }
@@ -2277,8 +2468,55 @@ function invoiceDateStamp(format, date) {
   return `${year}${month}`;
 }
 
-function invoiceNumber(parts, sequence, padding, separator) {
-  return [...parts, String(sequence).padStart(padding, "0")].join(separator);
+function invoiceNumber(parts, sequence, padding, separator, checksum = "none") {
+  const core = [...parts, String(sequence).padStart(padding, "0")].join(separator);
+  if (checksum !== "mod10") return core;
+  return [core, invoiceMod10(core)].join(separator);
+}
+
+function invoiceMod10(value) {
+  const digits = String(value).replace(/\D/g, "");
+  const sum = digits.split("").reduce((total, digit, index) => total + Number(digit) * (index % 2 === 0 ? 3 : 1), 0);
+  return String((10 - (sum % 10)) % 10);
+}
+
+function invoicePeriodKey(resetRule, dateFormat, date, client) {
+  if (resetRule === "client") return client ? `client:${client}` : "client:default";
+  if (resetRule === "monthly") return invoiceDateStamp("yyyymm", date);
+  if (resetRule === "yearly") return invoiceDateStamp("yyyy", date);
+  return dateFormat === "none" ? "continuous" : `continuous:${invoiceDateStamp(dateFormat, date)}`;
+}
+
+function invoiceResetLabel(resetRule) {
+  return {
+    never: "Continuous sequence",
+    monthly: "Reset each month",
+    yearly: "Reset each year",
+    client: "Separate sequence per client"
+  }[resetRule] || "Continuous sequence";
+}
+
+function invoicePolicyMarkdown(summary) {
+  return [
+    "# Invoice Numbering Policy",
+    "",
+    `- Pattern: \`${summary.pattern}\``,
+    `- Current invoice: \`${summary.current}\``,
+    `- Next invoice: \`${summary.next}\``,
+    `- Period key: \`${summary.periodKey}\``,
+    `- Reset rule: ${invoiceResetLabel(summary.resetRule)}`,
+    `- Sequence padding: ${summary.padding} digits`,
+    `- Check digit: ${summary.checksum === "mod10" ? "Mod 10" : "None"}`,
+    `- Prefix: ${summary.prefix || "None"}`,
+    `- Client code: ${summary.client || "None"}`,
+    `- Date stamp: ${summary.dateStamp || "None"}`,
+    "",
+    "Operational notes:",
+    "- Keep the next sequence number in one source of truth.",
+    "- Do not reuse skipped or voided invoice numbers unless your accounting policy explicitly allows it.",
+    "- Reset only at the period boundary described above.",
+    "- Store the generated invoice number on the invoice record before sending it to the customer."
+  ].join("\n");
 }
 
 function renderCompoundInterest(values) {
@@ -3842,6 +4080,195 @@ function jwtClaimTimeline(payload) {
   `;
 }
 
+function renderCronExpression(values) {
+  const expression = cronExpressionFromValues(values);
+  const parsed = parseCronExpression(expression);
+  if (parsed.error) {
+    return error(parsed.error);
+  }
+
+  const previewCount = Math.min(24, Math.max(1, Math.floor(num(values.previewCount) || 8)));
+  const nextRuns = cronNextRuns(parsed, previewCount);
+  const csv = [
+    ["run", "local_time", "iso_time"],
+    ...nextRuns.map((date, index) => [index + 1, cronDateLabel(date), date.toISOString()])
+  ].map((row) => row.map(csvEscape).join(",")).join("\n");
+  const csvHref = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`;
+
+  return `
+    ${metrics([
+      ["Expression", `<code>${escapeHtml(expression)}</code>`],
+      ["Summary", cronHumanDescription(parsed.parts)],
+      ["Preview window", nextRuns.length ? `${nextRuns.length} runs` : "No run found in scan window"],
+      ["Timezone", "Browser local time"]
+    ])}
+    <pre class="tool-output">${escapeHtml(expression)}</pre>
+    <button class="copy-button" type="button" data-copy="${escapeAttr(expression)}">Copy cron expression</button>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>Next run</th><th>ISO time</th></tr>
+        </thead>
+        <tbody>
+          ${nextRuns.map((date, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${escapeHtml(cronDateLabel(date))}</td>
+              <td><code>${date.toISOString()}</code></td>
+            </tr>
+          `).join("") || `<tr><td colspan="3">No matching run was found in the next 366 days.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+    <div class="security-note">
+      Standard 5-field cron is shown in browser local time. Some hosts use UTC or add seconds/year fields, so confirm your scheduler's timezone before deployment.
+    </div>
+    <a class="download-button" href="${csvHref}" download="cron-next-runs.csv">Download next runs CSV</a>
+  `;
+}
+
+function cronExpressionFromValues(values) {
+  if (values.schedule === "custom") {
+    return String(values.customExpression || "").trim();
+  }
+  const minute = clampInt(values.minute, 0, 59);
+  const hour = clampInt(values.hour, 0, 23);
+  const dayOfMonth = clampInt(values.dayOfMonth, 1, 31);
+  const weekday = clampInt(values.weekday, 0, 6);
+  const presets = {
+    five: "*/5 * * * *",
+    hourly: `${minute} * * * *`,
+    daily: `${minute} ${hour} * * *`,
+    weekday: `${minute} ${hour} * * 1-5`,
+    weekly: `${minute} ${hour} * * ${weekday}`,
+    monthly: `${minute} ${hour} ${dayOfMonth} * *`
+  };
+  return presets[values.schedule] || presets.daily;
+}
+
+function clampInt(value, min, max) {
+  const parsed = Math.floor(num(value));
+  return Math.min(max, Math.max(min, parsed));
+}
+
+function parseCronExpression(expression) {
+  const parts = String(expression || "").trim().split(/\s+/);
+  if (parts.length !== 5) {
+    return { error: "Enter a standard 5-field cron expression: minute hour day-of-month month weekday." };
+  }
+  const ranges = [[0, 59], [0, 23], [1, 31], [1, 12], [0, 7]];
+  const labels = ["minute", "hour", "day-of-month", "month", "weekday"];
+  const allowed = [];
+  for (let index = 0; index < parts.length; index += 1) {
+    const parsed = cronAllowedValues(parts[index], ranges[index][0], ranges[index][1], labels[index]);
+    if (parsed.error) return parsed;
+    allowed.push(parsed.values);
+  }
+  return { parts, allowed };
+}
+
+function cronAllowedValues(part, min, max, label) {
+  const raw = String(part || "").trim();
+  if (!raw) return { error: `Cron ${label} field is empty.` };
+  const values = new Set();
+  const addValue = (value) => {
+    const normalized = label === "weekday" && value === 7 ? 0 : value;
+    if (normalized < min || normalized > max || !Number.isInteger(normalized)) {
+      return false;
+    }
+    values.add(normalized);
+    return true;
+  };
+
+  for (const chunk of raw.split(",")) {
+    const stepMatch = chunk.match(/^(\*|\d+(?:-\d+)?)\/(\d+)$/);
+    const rangeMatch = chunk.match(/^(\d+)-(\d+)$/);
+    const numberMatch = chunk.match(/^\d+$/);
+    if (chunk === "*") {
+      for (let value = min; value <= max; value += 1) addValue(value);
+    } else if (stepMatch) {
+      const step = Number(stepMatch[2]);
+      if (step < 1) return { error: `Cron ${label} step must be at least 1.` };
+      const [start, end] = stepMatch[1] === "*"
+        ? [min, max]
+        : stepMatch[1].split("-").map((item) => Number(item));
+      if (start > end) return { error: `Cron ${label} range must start before it ends.` };
+      for (let value = start; value <= end; value += step) {
+        if (!addValue(value)) return { error: `Cron ${label} value ${value} is outside ${min}-${max}.` };
+      }
+    } else if (rangeMatch) {
+      const start = Number(rangeMatch[1]);
+      const end = Number(rangeMatch[2]);
+      if (start > end) return { error: `Cron ${label} range must start before it ends.` };
+      for (let value = start; value <= end; value += 1) {
+        if (!addValue(value)) return { error: `Cron ${label} value ${value} is outside ${min}-${max}.` };
+      }
+    } else if (numberMatch) {
+      const value = Number(chunk);
+      if (!addValue(value)) return { error: `Cron ${label} value ${value} is outside ${min}-${max}.` };
+    } else {
+      return { error: `Cron ${label} field supports *, numbers, ranges, lists, and steps.` };
+    }
+  }
+  return { values };
+}
+
+function cronNextRuns(parsed, count) {
+  const runs = [];
+  const cursor = new Date();
+  cursor.setSeconds(0, 0);
+  cursor.setMinutes(cursor.getMinutes() + 1);
+  const maxMinutes = 366 * 24 * 60;
+  for (let offset = 0; offset < maxMinutes && runs.length < count; offset += 1) {
+    if (cronMatches(cursor, parsed.allowed)) {
+      runs.push(new Date(cursor.getTime()));
+    }
+    cursor.setMinutes(cursor.getMinutes() + 1);
+  }
+  return runs;
+}
+
+function cronMatches(date, allowed) {
+  const weekday = date.getDay();
+  const values = [
+    date.getMinutes(),
+    date.getHours(),
+    date.getDate(),
+    date.getMonth() + 1,
+    weekday
+  ];
+  return allowed.every((set, index) => set.has(values[index]));
+}
+
+function cronHumanDescription(parts) {
+  return [
+    cronPartDescription(parts[0], "minute"),
+    cronPartDescription(parts[1], "hour"),
+    cronPartDescription(parts[2], "day"),
+    cronPartDescription(parts[3], "month"),
+    cronPartDescription(parts[4], "weekday")
+  ].join(" · ");
+}
+
+function cronPartDescription(part, label) {
+  if (part === "*") return `every ${label}`;
+  if (/^\*\/\d+$/.test(part)) return `every ${part.slice(2)} ${label}s`;
+  if (/^\d+$/.test(part)) return `${label} ${part}`;
+  if (/^\d+-\d+$/.test(part)) return `${label}s ${part}`;
+  return `${label}s ${part}`;
+}
+
+function cronDateLabel(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
 function markdownToHtml(markdown) {
   const lines = String(markdown || "").replace(/\r\n/g, "\n").split("\n");
   const html = [];
@@ -4080,18 +4507,22 @@ function imageToolMarkup(tool) {
   const isCompressor = tool.custom === "image-compressor";
   const isConverter = tool.custom === "image-converter";
   const isSquare = tool.custom === "image-square";
+  const isAssetPack = tool.custom === "image-asset-pack";
+  const isPixelArt = tool.custom === "image-pixel-art";
   const emptyText = {
     "image-resizer": "Choose an image to resize it locally in your browser.",
     "image-compressor": "Choose an image to compress it locally in your browser.",
     "image-converter": "Choose an image to convert it locally in your browser.",
-    "image-square": "Choose an image to turn it into a centered square."
+    "image-square": "Choose an image to turn it into a centered square.",
+    "image-asset-pack": "Choose a logo or image to generate a launch asset pack.",
+    "image-pixel-art": "Choose an image to convert it into pixel art."
   }[tool.custom];
 
   return `
     <form class="tool-form image-tool-form" id="active-tool-form">
       <label class="file-field">
         <span>Image file</span>
-        <input id="image-file" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp">
+        <input id="image-file" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/avif">
       </label>
       ${isResizer ? `
         <label>
@@ -4134,6 +4565,18 @@ function imageToolMarkup(tool) {
       ` : ""}
       ${isConverter ? `
         <label>
+          <span>Output width</span>
+          <input id="resize-width" name="resizeWidth" type="number" min="1" step="1" placeholder="Keep original">
+        </label>
+        <label>
+          <span>Output height</span>
+          <input id="resize-height" name="resizeHeight" type="number" min="1" step="1" placeholder="Auto">
+        </label>
+        <label class="check-field">
+          <input id="lock-ratio" name="lockRatio" type="checkbox" checked>
+          <span>Keep original ratio</span>
+        </label>
+        <label>
           <span>JPG background</span>
           <input id="jpeg-bg" name="jpegBg" type="text" value="#ffffff">
         </label>
@@ -4163,12 +4606,101 @@ function imageToolMarkup(tool) {
           <input id="square-bg" name="squareBg" type="text" value="#ffffff">
         </label>
       ` : ""}
+      ${isAssetPack ? `
+        <label>
+          <span>Pack</span>
+          <select id="asset-pack" name="assetPack">
+            <option value="launch" selected>Launch kit</option>
+            <option value="favicon">Favicon and app icons</option>
+            <option value="social">Social cards</option>
+            <option value="app">PWA app icons</option>
+          </select>
+        </label>
+        <label>
+          <span>Fit mode</span>
+          <select id="asset-fit" name="assetFit">
+            <option value="contain" selected>Fit with padding</option>
+            <option value="cover">Fill crop</option>
+          </select>
+        </label>
+        <label>
+          <span>Background</span>
+          <input id="asset-bg" name="assetBg" type="text" value="#ffffff">
+        </label>
+        <label>
+          <span>Padding %</span>
+          <input id="asset-padding" name="assetPadding" type="number" min="0" max="45" step="1" value="10">
+        </label>
+        <label>
+          <span>Corner radius %</span>
+          <input id="asset-radius" name="assetRadius" type="number" min="0" max="50" step="1" value="0">
+        </label>
+      ` : ""}
+      ${isPixelArt ? `
+        <label>
+          <span>Preset</span>
+          <select id="pixel-preset" name="pixelPreset">
+            <option value="custom">Custom</option>
+            <option value="avatar">Avatar 64 columns / 6x</option>
+            <option value="icon" selected>Icon 96 columns / 4x</option>
+            <option value="sprite">Sprite 128 columns / 3x</option>
+            <option value="poster">Poster 160 columns / 2x</option>
+          </select>
+        </label>
+        <label>
+          <span>Pixel grid width</span>
+          <input id="pixel-width" name="pixelWidth" type="number" min="8" max="512" step="1" value="96">
+        </label>
+        <label>
+          <span>Export scale</span>
+          <input id="pixel-scale" name="pixelScale" type="number" min="1" max="16" step="1" value="4">
+        </label>
+        <label>
+          <span>Palette</span>
+          <select id="pixel-palette" name="pixelPalette">
+            <option value="0">Keep source colors</option>
+            <option value="6" selected>Retro 216 colors</option>
+            <option value="4">Arcade 64 colors</option>
+            <option value="3">Poster 27 colors</option>
+            <option value="2">Game Boy 8 colors</option>
+          </select>
+        </label>
+        <label class="check-field">
+          <input id="pixel-dither" name="pixelDither" type="checkbox" checked>
+          <span>Use dithering</span>
+        </label>
+        <label class="check-field">
+          <input id="pixel-flatten" name="pixelFlatten" type="checkbox">
+          <span>Flatten transparent background</span>
+        </label>
+        <label>
+          <span>Background</span>
+          <input id="pixel-bg" name="pixelBg" type="text" value="#ffffff">
+        </label>
+        <label class="check-field">
+          <input id="pixel-grid" name="pixelGrid" type="checkbox">
+          <span>Export grid overlay</span>
+        </label>
+        <label>
+          <span>Grid color</span>
+          <input id="pixel-grid-color" name="pixelGridColor" type="text" value="#000000">
+        </label>
+        <label>
+          <span>Sprite columns</span>
+          <input id="pixel-sprite-columns" name="pixelSpriteColumns" type="number" min="1" max="24" step="1" value="1">
+        </label>
+        <label>
+          <span>Sprite rows</span>
+          <input id="pixel-sprite-rows" name="pixelSpriteRows" type="number" min="1" max="24" step="1" value="1">
+        </label>
+      ` : ""}
       <label>
         <span>Format</span>
         <select id="resize-format" name="resizeFormat">
           <option value="image/png" ${!isCompressor && !isConverter ? "selected" : ""}>PNG</option>
           <option value="image/jpeg" ${isCompressor ? "selected" : ""}>JPG</option>
           <option value="image/webp" ${isConverter ? "selected" : ""}>WebP</option>
+          <option value="image/avif">AVIF</option>
         </select>
       </label>
       <label>
@@ -4197,8 +4729,8 @@ function renderImageTool(tool) {
       <div class="how-to">
         <h3>How to use</h3>
         <ol>
-          <li>Choose a PNG, JPG, or WebP image from your device.</li>
-          <li>Adjust output settings for size, quality, or format.</li>
+          <li>Choose a PNG, JPG, WebP, or AVIF image from your device.</li>
+          <li>Adjust output settings for size, quality, format, or pixel style.</li>
           <li>Download the processed image when the preview is ready.</li>
         </ol>
       </div>
@@ -4237,6 +4769,20 @@ function fileToolMarkup(tool) {
             <option value="pretty">Pretty print</option>
             <option value="minify">Minify</option>
           </select>
+        </label>
+      ` : ""}
+      ${tool.custom === "file-csv-cleaner" ? `
+        <label class="check-field">
+          <input id="csv-normalize-headers" name="csvNormalizeHeaders" type="checkbox" checked>
+          <span>Normalize headers</span>
+        </label>
+        <label class="check-field">
+          <input id="csv-remove-duplicates" name="csvRemoveDuplicates" type="checkbox" checked>
+          <span>Remove duplicate rows</span>
+        </label>
+        <label class="check-field">
+          <input id="csv-keep-empty-columns" name="csvKeepEmptyColumns" type="checkbox">
+          <span>Keep empty columns</span>
         </label>
       ` : ""}
       ${tool.custom === "file-csv-columns" ? `
@@ -4418,7 +4964,9 @@ async function updateImageTool() {
     "image-resizer": "Choose an image to resize it locally in your browser.",
     "image-compressor": "Choose an image to compress it locally in your browser.",
     "image-converter": "Choose an image to convert it locally in your browser.",
-    "image-square": "Choose an image to turn it into a centered square."
+    "image-square": "Choose an image to turn it into a centered square.",
+    "image-asset-pack": "Choose a logo or image to generate a launch asset pack.",
+    "image-pixel-art": "Choose an image to convert it into pixel art."
   }[activeTool.custom];
   if (!form || !result || !file) {
     if (result) {
@@ -4448,8 +4996,15 @@ async function updateImageTool() {
     let requestedHeight = Math.floor(num(form.elements.resizeHeight?.value));
     const squareSize = Math.max(16, Math.floor(num(form.elements.squareSize?.value)) || 1080);
     const ratio = image.width / image.height;
+    if (activeTool.custom === "image-asset-pack") {
+      renderImageAssetPack(image, file, form, result, imageUrl).catch((err) => {
+        URL.revokeObjectURL(imageUrl);
+        result.innerHTML = error(err.message || "Could not generate this asset pack.");
+      });
+      return;
+    }
     const keepRatio = form.elements.lockRatio?.checked ?? true;
-    if (activeTool.custom === "image-resizer" && keepRatio) {
+    if ((activeTool.custom === "image-resizer" || activeTool.custom === "image-converter") && keepRatio) {
       if (requestedWidth > 0 && requestedHeight <= 0) requestedHeight = Math.round(requestedWidth / ratio);
       if (requestedHeight > 0 && requestedWidth <= 0) requestedWidth = Math.round(requestedHeight * ratio);
       if (requestedWidth > 0 && requestedHeight > 0 && preset === "custom") requestedHeight = Math.round(requestedWidth / ratio);
@@ -4461,11 +5016,11 @@ async function updateImageTool() {
     }
 
     const shouldLimitWidth = activeTool.custom === "image-compressor" && requestedWidth > 0 && requestedWidth < image.width;
-    const hasWidth = requestedWidth > 0 && activeTool.custom !== "image-converter";
-    const hasHeight = requestedHeight > 0 && activeTool.custom === "image-resizer";
+    const hasWidth = requestedWidth > 0 && activeTool.custom !== "image-pixel-art";
+    const hasHeight = requestedHeight > 0 && (activeTool.custom === "image-resizer" || activeTool.custom === "image-converter");
     let outputWidth = activeTool.custom === "image-square" ? squareSize : shouldLimitWidth ? requestedWidth : hasWidth ? requestedWidth : hasHeight ? Math.round(requestedHeight * ratio) : image.width;
     let outputHeight = activeTool.custom === "image-square" ? squareSize : hasHeight ? requestedHeight : Math.round(outputWidth / ratio);
-    if (activeTool.custom === "image-resizer" && keepRatio) {
+    if ((activeTool.custom === "image-resizer" || activeTool.custom === "image-converter") && keepRatio) {
       if (requestedWidth > 0 && requestedHeight > 0 && preset !== "custom") {
         const scale = Math.min(requestedWidth / image.width, requestedHeight / image.height);
         outputWidth = Math.max(1, Math.round(image.width * scale));
@@ -4486,15 +5041,74 @@ async function updateImageTool() {
       "image-resizer": "resized",
       "image-compressor": "compressed",
       "image-converter": "converted",
-      "image-square": "square"
+      "image-square": "square",
+      "image-pixel-art": "pixel-art"
     }[activeTool.custom];
     const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
+    let pixelPaletteColors = [];
+    let pixelSvgUrl = "";
+    let pixelSvgName = "";
+    let pixelSvgRectCount = 0;
 
     const canvas = document.createElement("canvas");
+  if (activeTool.custom === "image-pixel-art") {
+      applyPixelPreset(form);
+      const pixelWidth = Math.min(512, Math.max(8, Math.floor(num(form.elements.pixelWidth?.value)) || 96));
+      const pixelHeight = Math.max(1, Math.round(pixelWidth / ratio));
+      const exportScale = Math.min(16, Math.max(1, Math.floor(num(form.elements.pixelScale?.value)) || 4));
+      outputWidth = pixelWidth * exportScale;
+      outputHeight = pixelHeight * exportScale;
+    }
     canvas.width = outputWidth;
     canvas.height = outputHeight;
     const context = canvas.getContext("2d");
-    if (activeTool.custom === "image-square") {
+    if (activeTool.custom === "image-pixel-art") {
+      const pixelWidth = Math.min(512, Math.max(8, Math.floor(num(form.elements.pixelWidth?.value)) || 96));
+      const pixelHeight = Math.max(1, Math.round(pixelWidth / ratio));
+      const pixelCanvas = document.createElement("canvas");
+      pixelCanvas.width = pixelWidth;
+      pixelCanvas.height = pixelHeight;
+      const pixelContext = pixelCanvas.getContext("2d");
+      const pixelBg = safeHexColor(form.elements.pixelBg?.value, "#ffffff");
+      const flattenPixelBackground = format === "image/jpeg" || Boolean(form.elements.pixelFlatten?.checked);
+      if (flattenPixelBackground) {
+        pixelContext.fillStyle = pixelBg;
+        pixelContext.fillRect(0, 0, pixelWidth, pixelHeight);
+      }
+      pixelContext.imageSmoothingEnabled = true;
+      pixelContext.drawImage(image, 0, 0, pixelWidth, pixelHeight);
+      const paletteLevels = Math.floor(num(form.elements.pixelPalette?.value));
+      const pixelData = pixelContext.getImageData(0, 0, pixelWidth, pixelHeight);
+      if (paletteLevels > 0) {
+        reducePixelPalette(pixelData, paletteLevels, Boolean(form.elements.pixelDither?.checked));
+      }
+      pixelPaletteColors = extractPaletteColors(pixelData, 16);
+      pixelContext.putImageData(pixelData, 0, 0);
+      if (flattenPixelBackground) {
+        context.fillStyle = pixelBg;
+        context.fillRect(0, 0, outputWidth, outputHeight);
+      }
+      context.imageSmoothingEnabled = false;
+      context.drawImage(pixelCanvas, 0, 0, outputWidth, outputHeight);
+      if (form.elements.pixelGrid?.checked) {
+        drawPixelGrid(context, outputWidth, outputHeight, Math.min(16, Math.max(1, Math.floor(num(form.elements.pixelScale?.value)) || 4)), safeHexColor(form.elements.pixelGridColor?.value, "#000000"));
+      }
+      const spriteColumns = Math.min(24, Math.max(1, Math.floor(num(form.elements.pixelSpriteColumns?.value)) || 1));
+      const spriteRows = Math.min(24, Math.max(1, Math.floor(num(form.elements.pixelSpriteRows?.value)) || 1));
+      const spriteFrame = pixelSpriteFrame(pixelWidth, pixelHeight, spriteColumns, spriteRows, Math.min(16, Math.max(1, Math.floor(num(form.elements.pixelScale?.value)) || 4)));
+      const svgResult = createPixelArtSvg(pixelData, {
+        scale: Math.min(16, Math.max(1, Math.floor(num(form.elements.pixelScale?.value)) || 4)),
+        background: flattenPixelBackground ? pixelBg : "",
+        includeGrid: Boolean(form.elements.pixelGrid?.checked),
+        gridColor: safeHexColor(form.elements.pixelGridColor?.value, "#000000"),
+        spriteColumns,
+        spriteRows
+      });
+      pixelSvgName = `${baseName}-pixel-art-${outputWidth}x${outputHeight}.svg`;
+      pixelSvgUrl = URL.createObjectURL(new Blob([svgResult.svg], { type: "image/svg+xml" }));
+      pixelSvgRectCount = svgResult.rectCount;
+      canvas.dataset.spriteFrame = JSON.stringify(spriteFrame);
+    } else if (activeTool.custom === "image-square") {
       context.fillStyle = /^#[0-9a-fA-F]{3,6}$/.test(form.elements.squareBg?.value || "") ? form.elements.squareBg.value : "#ffffff";
       context.fillRect(0, 0, outputWidth, outputHeight);
       const fitMode = form.elements.squareFit?.value || "contain";
@@ -4545,10 +5159,13 @@ async function updateImageTool() {
         : "No target set";
       const megapixels = (outputWidth * outputHeight / 1000000).toFixed(2);
       const downloadName = `${baseName}-${label}-${outputWidth}x${outputHeight}.${extension}`;
+      const paletteDownloads = activeTool.custom === "image-pixel-art" ? pixelPaletteDownloads(file.name, pixelPaletteColors) : {};
+      const spriteFrame = activeTool.custom === "image-pixel-art" ? JSON.parse(canvas.dataset.spriteFrame || "{}") : {};
+      const spriteHref = activeTool.custom === "image-pixel-art" ? `data:text/csv;charset=utf-8,${encodeURIComponent(spriteFrameCsv(spriteFrame))}` : "";
       result.innerHTML = `
         <div class="image-result">
           <div class="image-preview-wrap">
-            <img src="${resizedUrl}" alt="Processed image preview">
+            <img src="${resizedUrl}" alt="Processed image preview" ${activeTool.custom === "image-pixel-art" ? 'class="is-pixel-art"' : ""}>
           </div>
           <div class="result-grid">
             <div><span>Original</span><strong>${image.width} x ${image.height}</strong></div>
@@ -4566,8 +5183,21 @@ async function updateImageTool() {
             ${activeTool.custom === "image-square" ? `<div><span>Fit mode</span><strong>${form.elements.squareFit?.value === "cover" ? "Fill crop" : "Fit with padding"}</strong></div>` : ""}
             ${activeTool.custom === "image-square" ? `<div><span>Padding</span><strong>${Math.min(45, Math.max(0, num(form.elements.squarePadding?.value)))}%</strong></div>` : ""}
             ${activeTool.custom === "image-square" ? `<div><span>Background</span><strong>${escapeHtml(form.elements.squareBg?.value || "#ffffff")}</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Pixel grid</span><strong>${Math.min(512, Math.max(8, Math.floor(num(form.elements.pixelWidth?.value)) || 96))} columns</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Export scale</span><strong>${Math.min(16, Math.max(1, Math.floor(num(form.elements.pixelScale?.value)) || 4))}x</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Palette</span><strong>${form.elements.pixelPalette?.value === "0" ? "Source colors" : `${form.elements.pixelPalette?.value} levels/channel`}</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Dithering</span><strong>${form.elements.pixelDither?.checked ? "On" : "Off"}</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Grid overlay</span><strong>${form.elements.pixelGrid?.checked ? "Exported" : "Off"}</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Palette colors</span><strong>${pixelPaletteColors.length}</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>SVG cells</span><strong>${pixelSvgRectCount.toLocaleString()}</strong></div>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<div><span>Sprite frame</span><strong>${spriteFrame.frameWidth} x ${spriteFrame.frameHeight}</strong></div>` : ""}
           </div>
-          <a class="download-button" href="${resizedUrl}" download="${escapeAttr(downloadName)}">Download ${label} image</a>
+          ${activeTool.custom === "image-pixel-art" ? renderPaletteSwatches(pixelPaletteColors, paletteDownloads) : ""}
+          <div class="download-actions">
+            <a class="download-button" href="${resizedUrl}" download="${escapeAttr(downloadName)}">Download ${label} image</a>
+            ${activeTool.custom === "image-pixel-art" ? `<a class="download-button secondary" href="${pixelSvgUrl}" download="${escapeAttr(pixelSvgName)}">Download SVG mosaic</a>` : ""}
+            ${activeTool.custom === "image-pixel-art" ? `<a class="download-button secondary" href="${spriteHref}" download="pixel-art-sprite-frames.csv">Download frame CSV</a>` : ""}
+          </div>
         </div>
       `;
     }, format, quality);
@@ -4577,6 +5207,415 @@ async function updateImageTool() {
     result.innerHTML = error("Could not read this image.");
   };
   image.src = imageUrl;
+}
+
+function createPixelArtSvg(imageData, options = {}) {
+  const scale = Math.max(1, Math.floor(options.scale || 1));
+  const width = imageData.width * scale;
+  const height = imageData.height * scale;
+  const rects = [];
+  const { data } = imageData;
+  for (let y = 0; y < imageData.height; y += 1) {
+    for (let x = 0; x < imageData.width; x += 1) {
+      const offset = (y * imageData.width + x) * 4;
+      const alpha = data[offset + 3] / 255;
+      if (alpha < 0.04) continue;
+      const color = rgbToHex(data[offset], data[offset + 1], data[offset + 2]);
+      const opacity = alpha < 0.995 ? ` opacity="${alpha.toFixed(3)}"` : "";
+      rects.push(`<rect x="${x * scale}" y="${y * scale}" width="${scale}" height="${scale}" fill="${color}"${opacity}/>`);
+    }
+  }
+
+  const background = options.background
+    ? `<rect width="100%" height="100%" fill="${safeHexColor(options.background, "#ffffff")}"/>`
+    : "";
+  const grid = options.includeGrid ? pixelSvgGrid(width, height, scale, options.gridColor || "#000000") : "";
+  const sprite = pixelSvgSpriteGuides(width, height, options.spriteColumns || 1, options.spriteRows || 1, options.gridColor || "#000000");
+  return {
+    rectCount: rects.length,
+    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges">${background}${rects.join("")}${grid}${sprite}</svg>`
+  };
+}
+
+function applyPixelPreset(form) {
+  const preset = form.elements.pixelPreset?.value || "custom";
+  if (preset === "custom" || form.dataset.pixelPresetApplied === preset) {
+    return;
+  }
+  const values = {
+    avatar: { width: 64, scale: 6, palette: "4", dither: true, columns: 1, rows: 1 },
+    icon: { width: 96, scale: 4, palette: "6", dither: true, columns: 1, rows: 1 },
+    sprite: { width: 128, scale: 3, palette: "4", dither: false, columns: 4, rows: 1 },
+    poster: { width: 160, scale: 2, palette: "6", dither: true, columns: 1, rows: 1 }
+  }[preset];
+  if (!values) return;
+  form.elements.pixelWidth.value = values.width;
+  form.elements.pixelScale.value = values.scale;
+  form.elements.pixelPalette.value = values.palette;
+  form.elements.pixelDither.checked = values.dither;
+  form.elements.pixelSpriteColumns.value = values.columns;
+  form.elements.pixelSpriteRows.value = values.rows;
+  form.dataset.pixelPresetApplied = preset;
+}
+
+function pixelSvgGrid(width, height, scale, color) {
+  if (scale < 2) return "";
+  const safeColor = safeHexColor(color, "#000000");
+  const lines = [];
+  for (let x = scale; x < width; x += scale) {
+    lines.push(`<path d="M${x + 0.5} 0V${height}" stroke="${safeColor}" stroke-opacity="0.35"/>`);
+  }
+  for (let y = scale; y < height; y += scale) {
+    lines.push(`<path d="M0 ${y + 0.5}H${width}" stroke="${safeColor}" stroke-opacity="0.35"/>`);
+  }
+  return lines.join("");
+}
+
+function pixelSvgSpriteGuides(width, height, columns, rows, color) {
+  const safeColumns = Math.min(24, Math.max(1, Math.floor(columns) || 1));
+  const safeRows = Math.min(24, Math.max(1, Math.floor(rows) || 1));
+  if (safeColumns <= 1 && safeRows <= 1) return "";
+  const safeColor = safeHexColor(color, "#000000");
+  const frameWidth = width / safeColumns;
+  const frameHeight = height / safeRows;
+  const lines = [];
+  for (let column = 1; column < safeColumns; column += 1) {
+    const x = Math.round(frameWidth * column) + 0.5;
+    lines.push(`<path d="M${x} 0V${height}" stroke="${safeColor}" stroke-opacity="0.75" stroke-width="2"/>`);
+  }
+  for (let row = 1; row < safeRows; row += 1) {
+    const y = Math.round(frameHeight * row) + 0.5;
+    lines.push(`<path d="M0 ${y}H${width}" stroke="${safeColor}" stroke-opacity="0.75" stroke-width="2"/>`);
+  }
+  return lines.join("");
+}
+
+function pixelSpriteFrame(pixelWidth, pixelHeight, columns, rows, scale) {
+  const safeColumns = Math.min(24, Math.max(1, Math.floor(columns) || 1));
+  const safeRows = Math.min(24, Math.max(1, Math.floor(rows) || 1));
+  return {
+    columns: safeColumns,
+    rows: safeRows,
+    frameWidth: Math.floor(pixelWidth / safeColumns),
+    frameHeight: Math.floor(pixelHeight / safeRows),
+    exportFrameWidth: Math.floor(pixelWidth * scale / safeColumns),
+    exportFrameHeight: Math.floor(pixelHeight * scale / safeRows)
+  };
+}
+
+function spriteFrameCsv(frame) {
+  return [
+    "columns,rows,pixel_frame_width,pixel_frame_height,export_frame_width,export_frame_height",
+    [frame.columns, frame.rows, frame.frameWidth, frame.frameHeight, frame.exportFrameWidth, frame.exportFrameHeight].join(",")
+  ].join("\n");
+}
+
+function extractPaletteColors(imageData, limit = 16) {
+  const counts = new Map();
+  const { data } = imageData;
+  for (let index = 0; index < data.length; index += 4) {
+    if (data[index + 3] < 16) continue;
+    const color = rgbToHex(data[index], data[index + 1], data[index + 2]);
+    counts.set(color, (counts.get(color) || 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((left, right) => right[1] - left[1])
+    .slice(0, limit)
+    .map(([color, count]) => ({ color, count }));
+}
+
+function rgbToHex(red, green, blue) {
+  return `#${[red, green, blue].map((value) => Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function pixelPaletteDownloads(sourceName, colors) {
+  const palette = {
+    source: sourceName,
+    colors
+  };
+  return {
+    json: `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(palette, null, 2))}`,
+    css: `data:text/css;charset=utf-8,${encodeURIComponent(pixelPaletteCss(colors))}`,
+    gpl: `data:text/plain;charset=utf-8,${encodeURIComponent(pixelPaletteGpl(sourceName, colors))}`
+  };
+}
+
+async function renderImageAssetPack(image, file, form, result, imageUrl) {
+  result.innerHTML = `<div class="upload-empty">Generating asset pack...</div>`;
+  const pack = form.elements.assetPack?.value || "launch";
+  const format = form.elements.resizeFormat?.value || "image/png";
+  const quality = Math.min(1, Math.max(0.01, num(form.elements.resizeQuality?.value) / 100));
+  const extension = format === "image/jpeg" ? "jpg" : format.split("/")[1];
+  const options = {
+    fit: form.elements.assetFit?.value || "contain",
+    background: safeHexColor(form.elements.assetBg?.value, "#ffffff"),
+    paddingPercent: Math.min(45, Math.max(0, num(form.elements.assetPadding?.value))),
+    radiusPercent: Math.min(50, Math.max(0, num(form.elements.assetRadius?.value))),
+    format,
+    quality
+  };
+  const baseName = file.name.replace(/\.[^.]+$/, "") || "image";
+  const assets = await Promise.all(assetPackItems(pack).map((item) => renderAssetPackItem(image, item, options, baseName, extension)));
+  URL.revokeObjectURL(imageUrl);
+
+  const metadata = assetPackMetadata(assets, extension);
+  const metadataHref = `data:text/html;charset=utf-8,${encodeURIComponent(metadata.html)}`;
+  const manifestHref = `data:application/manifest+json;charset=utf-8,${encodeURIComponent(JSON.stringify(metadata.manifest, null, 2))}`;
+  const totalBytes = assets.reduce((sum, asset) => sum + asset.blob.size, 0);
+  result.innerHTML = `
+    <div class="image-result">
+      <div class="result-grid">
+        <div><span>Pack</span><strong>${assetPackLabel(pack)}</strong></div>
+        <div><span>Assets</span><strong>${assets.length}</strong></div>
+        <div><span>Format</span><strong>${extension.toUpperCase()}</strong></div>
+        <div><span>Total size</span><strong>${formatBytes(totalBytes)}</strong></div>
+        <div><span>Fit mode</span><strong>${options.fit === "cover" ? "Fill crop" : "Fit with padding"}</strong></div>
+        <div><span>Background</span><strong>${options.background}</strong></div>
+      </div>
+      <div class="asset-pack-grid">
+        ${assets.map((asset) => `
+          <div class="asset-card">
+            <div class="asset-preview"><img src="${asset.url}" alt="${escapeAttr(asset.label)} preview"></div>
+            <strong>${asset.label}</strong>
+            <span>${asset.width} x ${asset.height} - ${formatBytes(asset.blob.size)}</span>
+            <a class="download-button secondary" href="${asset.url}" download="${escapeAttr(asset.filename)}">Download</a>
+          </div>
+        `).join("")}
+      </div>
+      <div class="metadata-snippet">
+        <span>HTML metadata</span>
+        <pre>${escapeHtml(metadata.html)}</pre>
+      </div>
+      <div class="download-actions">
+        <a class="download-button" href="${metadataHref}" download="asset-pack-metadata.html">Download metadata HTML</a>
+        <a class="download-button secondary" href="${manifestHref}" download="manifest.webmanifest">Download web manifest</a>
+      </div>
+    </div>
+  `;
+}
+
+function assetPackItems(pack) {
+  const items = {
+    favicon: [
+      ["favicon-16", "Favicon 16", 16, 16, "icon"],
+      ["favicon-32", "Favicon 32", 32, 32, "icon"],
+      ["favicon-48", "Favicon 48", 48, 48, "icon"],
+      ["apple-touch-icon", "Apple Touch Icon", 180, 180, "icon"],
+      ["pwa-192", "PWA Icon 192", 192, 192, "icon"],
+      ["pwa-512", "PWA Icon 512", 512, 512, "icon"]
+    ],
+    social: [
+      ["open-graph", "Open Graph", 1200, 630, "social"],
+      ["twitter-card", "Twitter Card", 1200, 675, "social"],
+      ["square-social", "Square Social", 1080, 1080, "social"],
+      ["story", "Story", 1080, 1920, "social"],
+      ["youtube-thumbnail", "YouTube Thumbnail", 1280, 720, "social"]
+    ],
+    app: [
+      ["pwa-192", "PWA Icon 192", 192, 192, "icon"],
+      ["pwa-512", "PWA Icon 512", 512, 512, "icon"],
+      ["maskable-512", "Maskable Icon 512", 512, 512, "maskable"],
+      ["app-store", "App Store Icon", 1024, 1024, "icon"]
+    ]
+  };
+  if (pack === "launch") {
+    return [...items.favicon, ...items.social.slice(0, 3), ...items.app.slice(2)];
+  }
+  return items[pack] || items.favicon;
+}
+
+function assetPackLabel(pack) {
+  return {
+    launch: "Launch kit",
+    favicon: "Favicon and app icons",
+    social: "Social cards",
+    app: "PWA app icons"
+  }[pack] || "Asset pack";
+}
+
+async function renderAssetPackItem(image, item, options, baseName, extension) {
+  const [id, label, width, height, purpose] = item;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  context.fillStyle = options.background;
+  context.fillRect(0, 0, width, height);
+  const padding = options.fit === "cover" ? 0 : Math.min(width, height) * options.paddingPercent / 100;
+  const targetWidth = Math.max(1, width - padding * 2);
+  const targetHeight = Math.max(1, height - padding * 2);
+  const scale = options.fit === "cover"
+    ? Math.max(width / image.width, height / image.height)
+    : Math.min(targetWidth / image.width, targetHeight / image.height);
+  const drawWidth = image.width * scale;
+  const drawHeight = image.height * scale;
+  const drawX = (width - drawWidth) / 2;
+  const drawY = (height - drawHeight) / 2;
+  const radius = Math.min(width, height) * options.radiusPercent / 100;
+  if (radius > 0) {
+    roundedRectPath(context, drawX, drawY, drawWidth, drawHeight, radius);
+    context.save();
+    context.clip();
+    context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+    context.restore();
+  } else {
+    context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+  }
+  const blob = await canvasToBlob(canvas, options.format, options.quality);
+  const url = URL.createObjectURL(blob);
+  return {
+    id,
+    label,
+    width,
+    height,
+    purpose,
+    blob,
+    url,
+    filename: `${baseName}-${id}-${width}x${height}.${extension}`
+  };
+}
+
+function canvasToBlob(canvas, format, quality) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) resolve(blob);
+      else reject(new Error("Could not export this image."));
+    }, format, quality);
+  });
+}
+
+function assetPackMetadata(assets, extension) {
+  const iconAssets = assets.filter((asset) => asset.purpose === "icon" || asset.purpose === "maskable");
+  const og = assets.find((asset) => asset.id === "open-graph");
+  const twitter = assets.find((asset) => asset.id === "twitter-card");
+  const apple = assets.find((asset) => asset.id === "apple-touch-icon");
+  const lines = [
+    apple ? `<link rel="apple-touch-icon" sizes="${apple.width}x${apple.height}" href="/${apple.filename}">` : "",
+    ...iconAssets.map((asset) => `<link rel="icon" type="image/${extension === "jpg" ? "jpeg" : extension}" sizes="${asset.width}x${asset.height}" href="/${asset.filename}">`),
+    og ? `<meta property="og:image" content="/${og.filename}">` : "",
+    twitter ? `<meta name="twitter:image" content="/${twitter.filename}">` : "",
+    `<link rel="manifest" href="/manifest.webmanifest">`
+  ].filter(Boolean);
+  return {
+    html: lines.join("\n"),
+    manifest: {
+      icons: iconAssets.map((asset) => ({
+        src: `/${asset.filename}`,
+        sizes: `${asset.width}x${asset.height}`,
+        type: `image/${extension === "jpg" ? "jpeg" : extension}`,
+        purpose: asset.purpose === "maskable" ? "maskable" : "any"
+      }))
+    }
+  };
+}
+
+function pixelPaletteCss(colors) {
+  return [
+    ":root {",
+    ...colors.map(({ color }, index) => `  --pixel-color-${String(index + 1).padStart(2, "0")}: ${color};`),
+    "}"
+  ].join("\n");
+}
+
+function pixelPaletteGpl(sourceName, colors) {
+  return [
+    "GIMP Palette",
+    `Name: UtilityStack Pixel Palette - ${sourceName || "image"}`,
+    "Columns: 8",
+    "#",
+    ...colors.map(({ color }) => {
+      const [red, green, blue] = hexToRgb(color);
+      return `${red.toString().padStart(3, " ")} ${green.toString().padStart(3, " ")} ${blue.toString().padStart(3, " ")} ${color}`;
+    })
+  ].join("\n");
+}
+
+function hexToRgb(color) {
+  const value = safeHexColor(color, "#000000").slice(1);
+  return [
+    Number.parseInt(value.slice(0, 2), 16),
+    Number.parseInt(value.slice(2, 4), 16),
+    Number.parseInt(value.slice(4, 6), 16)
+  ];
+}
+
+function renderPaletteSwatches(colors, downloads) {
+  if (!colors.length) {
+    return "";
+  }
+  return `
+    <div class="palette-panel">
+      <div class="palette-swatches">
+        ${colors.map(({ color, count }) => `<span class="palette-swatch" title="${color} (${count} pixels)" style="background:${color}"></span>`).join("")}
+      </div>
+      <div class="download-actions">
+        <a class="download-button secondary" href="${downloads.json}" download="pixel-art-palette.json">Download palette JSON</a>
+        <a class="download-button secondary" href="${downloads.css}" download="pixel-art-palette.css">Download palette CSS</a>
+        <a class="download-button secondary" href="${downloads.gpl}" download="pixel-art-palette.gpl">Download GPL palette</a>
+      </div>
+    </div>
+  `;
+}
+
+function drawPixelGrid(context, width, height, scale, color) {
+  if (scale < 2) {
+    return;
+  }
+  context.save();
+  context.strokeStyle = color;
+  context.globalAlpha = 0.35;
+  context.lineWidth = 1;
+  context.beginPath();
+  for (let x = scale; x < width; x += scale) {
+    context.moveTo(x + 0.5, 0);
+    context.lineTo(x + 0.5, height);
+  }
+  for (let y = scale; y < height; y += scale) {
+    context.moveTo(0, y + 0.5);
+    context.lineTo(width, y + 0.5);
+  }
+  context.stroke();
+  context.restore();
+}
+
+function reducePixelPalette(imageData, levels, dither) {
+  const { data, width, height } = imageData;
+  const step = 255 / Math.max(1, levels - 1);
+  const quantize = (value) => Math.round(Math.max(0, Math.min(255, value)) / step) * step;
+  const buffer = new Float32Array(data.length);
+  for (let index = 0; index < data.length; index += 1) {
+    buffer[index] = data[index];
+  }
+
+  const addError = (x, y, channel, amount) => {
+    if (x < 0 || x >= width || y < 0 || y >= height) return;
+    const target = (y * width + x) * 4 + channel;
+    buffer[target] += amount;
+  };
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 4;
+      for (let channel = 0; channel < 3; channel += 1) {
+        const oldValue = buffer[offset + channel];
+        const newValue = quantize(oldValue);
+        const errorValue = oldValue - newValue;
+        buffer[offset + channel] = newValue;
+        if (dither) {
+          addError(x + 1, y, channel, errorValue * 7 / 16);
+          addError(x - 1, y + 1, channel, errorValue * 3 / 16);
+          addError(x, y + 1, channel, errorValue * 5 / 16);
+          addError(x + 1, y + 1, channel, errorValue * 1 / 16);
+        }
+      }
+    }
+  }
+
+  for (let index = 0; index < data.length; index += 4) {
+    data[index] = Math.max(0, Math.min(255, Math.round(buffer[index])));
+    data[index + 1] = Math.max(0, Math.min(255, Math.round(buffer[index + 1])));
+    data[index + 2] = Math.max(0, Math.min(255, Math.round(buffer[index + 2])));
+  }
 }
 
 function formatBytes(bytes) {
@@ -4629,7 +5668,11 @@ async function updateFileTool(options = {}) {
 
   try {
     if (activeTool.custom === "file-csv-cleaner") {
-      renderCsvCleanerResult(sourceText, result);
+      renderCsvCleanerResult(sourceText, result, {
+        normalizeHeaders: Boolean(form.elements.csvNormalizeHeaders?.checked),
+        removeDuplicates: Boolean(form.elements.csvRemoveDuplicates?.checked),
+        keepEmptyColumns: Boolean(form.elements.csvKeepEmptyColumns?.checked)
+      });
       return;
     }
     if (activeTool.custom === "file-csv-columns") {
@@ -4648,9 +5691,9 @@ async function updateFileTool(options = {}) {
   }
 }
 
-function renderCsvCleanerResult(sourceText, result) {
+function renderCsvCleanerResult(sourceText, result, options = {}) {
   const rawRows = parseCsv(sourceText);
-  const rows = rawRows
+  let rows = rawRows
     .map((row) => row.map((cell) => cell.trim()))
     .filter((cells) => cells.some((cell) => cell.length));
   if (!rows.length) {
@@ -4658,13 +5701,111 @@ function renderCsvCleanerResult(sourceText, result) {
     return;
   }
 
+  const originalRowCount = rows.length;
+  const header = rows[0] || [];
+  const body = rows.slice(1);
+  const normalizedHeader = options.normalizeHeaders ? normalizeCsvHeaders(header) : header;
+  const maxColumns = Math.max(...rows.map((row) => row.length), normalizedHeader.length);
+  let keepIndexes = Array.from({ length: maxColumns }, (_, index) => index);
+  if (!options.keepEmptyColumns) {
+    keepIndexes = keepIndexes.filter((index) => index < normalizedHeader.length || body.some((row) => String(row[index] || "").trim()));
+  }
+  const seen = new Set();
+  const cleanedBody = [];
+  let duplicateRows = 0;
+  for (const row of body) {
+    const normalizedRow = keepIndexes.map((index) => row[index] || "");
+    const signature = normalizedRow.join("\u001f");
+    if (options.removeDuplicates && seen.has(signature)) {
+      duplicateRows += 1;
+      continue;
+    }
+    seen.add(signature);
+    cleanedBody.push(normalizedRow);
+  }
+  rows = [
+    keepIndexes.map((index) => normalizedHeader[index] || `column_${index + 1}`),
+    ...cleanedBody
+  ];
+  const profile = csvQualityProfile(rows, {
+    rawRows: rawRows.length,
+    nonEmptyRows: originalRowCount,
+    duplicateRows,
+    removedColumns: maxColumns - keepIndexes.length,
+    normalizedHeaders: options.normalizeHeaders
+  });
   const cleaned = rows.map((cells) => cells.map(csvEscape).join(",")).join("\n");
-  result.innerHTML = fileResultMarkup(cleaned, "cleaned.csv", [
-    ["Rows", rows.length],
-    ["Columns", Math.max(...rows.map((row) => row.length))],
-    ["Empty rows removed", rawRows.length - rows.length],
-    ["Size", formatBytes(new Blob([cleaned]).size)]
-  ]);
+  const csvHref = `data:text/csv;charset=utf-8,${encodeURIComponent(cleaned)}`;
+  const report = JSON.stringify(profile, null, 2);
+  const reportHref = `data:application/json;charset=utf-8,${encodeURIComponent(report)}`;
+  result.innerHTML = `
+    ${metrics([
+      ["Rows", profile.rows],
+      ["Columns", profile.columns],
+      ["Empty rows removed", profile.emptyRowsRemoved],
+      ["Duplicate rows removed", profile.duplicateRows],
+      ["Empty columns removed", profile.removedColumns],
+      ["Missing cells", profile.missingCells],
+      ["Size", formatBytes(new Blob([cleaned]).size)]
+    ])}
+    <pre class="tool-output">${escapeHtml(cleaned)}</pre>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Column</th><th>Missing</th><th>Unique</th><th>Example</th></tr></thead>
+        <tbody>
+          ${profile.columnsProfile.map((column) => `
+            <tr>
+              <td>${escapeHtml(column.name)}</td>
+              <td>${column.missing} (${column.missingRate})</td>
+              <td>${column.unique}</td>
+              <td>${escapeHtml(column.example || "-")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="download-actions">
+      <a class="download-button" href="${csvHref}" download="cleaned.csv">Download cleaned CSV</a>
+      <a class="download-button secondary" href="${reportHref}" download="csv-quality-report.json">Download quality report</a>
+    </div>
+  `;
+}
+
+function normalizeCsvHeaders(headers) {
+  const seen = new Map();
+  return headers.map((header, index) => {
+    const base = slugify(header || `column-${index + 1}`).replace(/-/g, "_") || `column_${index + 1}`;
+    const count = seen.get(base) || 0;
+    seen.set(base, count + 1);
+    return count ? `${base}_${count + 1}` : base;
+  });
+}
+
+function csvQualityProfile(rows, stats) {
+  const headers = rows[0] || [];
+  const body = rows.slice(1);
+  const columnsProfile = headers.map((name, index) => {
+    const values = body.map((row) => row[index] || "");
+    const present = values.filter((value) => String(value).trim().length);
+    return {
+      name,
+      missing: values.length - present.length,
+      missingRate: values.length ? `${Math.round((values.length - present.length) / values.length * 100)}%` : "0%",
+      unique: new Set(present).size,
+      example: present[0] || ""
+    };
+  });
+  return {
+    rows: body.length,
+    columns: headers.length,
+    rawRows: stats.rawRows,
+    emptyRowsRemoved: stats.rawRows - stats.nonEmptyRows,
+    duplicateRows: stats.duplicateRows,
+    removedColumns: stats.removedColumns,
+    normalizedHeaders: stats.normalizedHeaders,
+    missingCells: columnsProfile.reduce((sum, column) => sum + column.missing, 0),
+    columnsProfile
+  };
 }
 
 function renderCsvColumnResult(sourceText, columnsText, result) {
@@ -4696,19 +5837,54 @@ function renderCsvColumnResult(sourceText, columnsText, result) {
 function renderJsonFileResult(sourceText, mode, result) {
   try {
     const parsed = JSON.parse(sourceText);
-    const formatted = mode === "minify" ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2);
-    const summary = jsonSummary(parsed);
-    result.innerHTML = fileResultMarkup(formatted, "formatted.json", [
-      ["Mode", mode === "minify" ? "Minified" : "Pretty"],
-      ["Type", summary.type],
-      ["Top level", summary.topLevel],
-      ["Depth", summary.depth],
-      ["Characters", formatted.length],
-      ["Size", formatBytes(new Blob([formatted]).size)]
-    ]);
+    result.innerHTML = renderJsonInspector(parsed, mode === "minify" ? "minify" : "pretty");
   } catch (err) {
     result.innerHTML = jsonErrorMarkup(sourceText, err);
   }
+}
+
+function renderJsonInspector(parsed, mode) {
+  const formatted = mode === "minify" ? JSON.stringify(parsed) : JSON.stringify(parsed, null, 2);
+  const summary = jsonSummary(parsed);
+  const paths = jsonPaths(parsed).slice(0, 80);
+  const typeCounts = jsonTypeCounts(parsed);
+  const report = {
+    mode,
+    summary,
+    typeCounts,
+    pathCount: jsonPaths(parsed).length,
+    samplePaths: paths
+  };
+  const formattedHref = `data:application/json;charset=utf-8,${encodeURIComponent(formatted)}`;
+  const reportHref = `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(report, null, 2))}`;
+  return `
+    <div class="file-result">
+      ${metrics([
+        ["Mode", mode === "minify" ? "Minified" : "Pretty"],
+        ["Type", summary.type],
+        ["Top level", summary.topLevel],
+        ["Depth", summary.depth],
+        ["Paths", report.pathCount],
+        ["Objects", typeCounts.object],
+        ["Arrays", typeCounts.array],
+        ["Scalars", typeCounts.scalar],
+        ["Size", formatBytes(new Blob([formatted]).size)]
+      ])}
+      <pre class="tool-output">${escapeHtml(formatted)}</pre>
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Path</th><th>Type</th><th>Preview</th></tr></thead>
+          <tbody>
+            ${paths.map((item) => `<tr><td>${escapeHtml(item.path)}</td><td>${item.type}</td><td>${escapeHtml(item.preview)}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+      <div class="download-actions">
+        <a class="download-button" href="${formattedHref}" download="formatted.json">Download formatted JSON</a>
+        <a class="download-button secondary" href="${reportHref}" download="json-inspection-report.json">Download inspection report</a>
+      </div>
+    </div>
+  `;
 }
 
 function renderTextFileStats(sourceText, result) {
@@ -4768,6 +5944,50 @@ function jsonDepth(value) {
     return 1;
   }
   return 1 + Math.max(...children.map(jsonDepth));
+}
+
+function jsonPaths(value, path = "$") {
+  const type = jsonValueType(value);
+  const preview = jsonPreview(value);
+  if (!value || typeof value !== "object") {
+    return [{ path, type, preview }];
+  }
+  const entries = Array.isArray(value)
+    ? value.map((item, index) => [index, item])
+    : Object.entries(value);
+  const current = [{ path, type, preview }];
+  return current.concat(entries.flatMap(([key, child]) => {
+    const childPath = Array.isArray(value) ? `${path}[${key}]` : `${path}.${key}`;
+    return jsonPaths(child, childPath);
+  }));
+}
+
+function jsonTypeCounts(value) {
+  const counts = { object: 0, array: 0, string: 0, number: 0, boolean: 0, null: 0, scalar: 0 };
+  for (const item of jsonPaths(value)) {
+    if (item.type === "object") counts.object += 1;
+    else if (item.type === "array") counts.array += 1;
+    else {
+      counts[item.type] = (counts[item.type] || 0) + 1;
+      counts.scalar += 1;
+    }
+  }
+  return counts;
+}
+
+function jsonValueType(value) {
+  if (Array.isArray(value)) return "array";
+  if (value === null) return "null";
+  return typeof value === "object" ? "object" : typeof value;
+}
+
+function jsonPreview(value) {
+  if (value === null) return "null";
+  if (typeof value === "string") return value.length > 80 ? `${value.slice(0, 77)}...` : value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return `${value.length} items`;
+  if (typeof value === "object") return `${Object.keys(value).length} keys`;
+  return "";
 }
 
 function jsonErrorMarkup(sourceText, err) {
@@ -4874,7 +6094,12 @@ function updateQrTool() {
   }
 
   if (typeof qrcode !== "function") {
-    result.innerHTML = error("QR code library could not be loaded. Check your connection and reload the page.");
+    result.innerHTML = `<div class="upload-empty">Loading QR generator...</div>`;
+    loadQrLibrary()
+      .then(() => updateQrTool())
+      .catch(() => {
+        result.innerHTML = error("QR code library could not be loaded. Reload the page and try again.");
+      });
     return;
   }
 
@@ -4906,6 +6131,27 @@ function updateQrTool() {
   } catch (err) {
     result.innerHTML = error(err.message);
   }
+}
+
+function loadQrLibrary() {
+  if (typeof qrcode === "function") {
+    return Promise.resolve();
+  }
+  if (qrLibraryPromise) {
+    return qrLibraryPromise;
+  }
+
+  const configuredSrc = window.UtilityStackAssets?.qrLibrary || "vendor/qrcode-generator/qrcode.js";
+  qrLibraryPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = configuredSrc;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("QR library load failed."));
+    document.head.appendChild(script);
+  });
+
+  return qrLibraryPromise;
 }
 
 function safeHexColor(value, fallback) {

@@ -9,6 +9,7 @@ const sitemapPath = path.join(root, "sitemap.xml");
 const robotsPath = path.join(root, "robots.txt");
 const privacyPath = path.join(root, "privacy", "index.html");
 const termsPath = path.join(root, "terms", "index.html");
+const qrVendorPath = path.join(root, "vendor", "qrcode-generator", "qrcode.js");
 const appSource = fs.readFileSync(appPath, "utf8");
 const indexSource = fs.readFileSync(indexPath, "utf8");
 
@@ -98,6 +99,7 @@ const sandbox = {
   JSON,
   URLSearchParams,
   Blob: class Blob {},
+  Intl,
   URL: {
     createObjectURL: () => "blob:verify",
     revokeObjectURL: () => {}
@@ -157,11 +159,11 @@ sandbox.window.location = sandbox.location;
 sandbox.globalThis = sandbox;
 
 vm.createContext(sandbox);
-vm.runInContext(`${appSource}\nthis.__verify = { tools, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, jsonSummary, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary };`, sandbox, {
+vm.runInContext(`${appSource}\nthis.__verify = { tools, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary };`, sandbox, {
   filename: "app.js"
 });
 
-const { tools, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, jsonSummary, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary } = sandbox.__verify;
+const { tools, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary } = sandbox.__verify;
 const knownCustomTools = new Set([
   "file-word-counter",
   "file-json-formatter",
@@ -171,7 +173,9 @@ const knownCustomTools = new Set([
   "image-resizer",
   "image-compressor",
   "image-converter",
-  "image-square"
+  "image-square",
+  "image-asset-pack",
+  "image-pixel-art"
 ]);
 
 if (!Array.isArray(tools)) fail("tools must be an array.");
@@ -216,6 +220,9 @@ for (const tool of tools) {
       const toolHtml = fs.readFileSync(toolPage, "utf8");
       if (!toolHtml.includes(tool.title)) fail(`${tool.id} generated page is missing title.`);
       if (!toolHtml.includes("../../app.js?v=")) fail(`${tool.id} generated page must load versioned ../../app.js.`);
+      if (!toolHtml.includes('qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=')) fail(`${tool.id} generated page must configure the vendored QR code library.`);
+      if (toolHtml.includes("cdn.jsdelivr.net/npm/qrcode-generator")) fail(`${tool.id} generated page must not load QR code generation from a CDN.`);
+      if (toolHtml.includes('<script src="../../vendor/qrcode-generator/qrcode.js')) fail(`${tool.id} generated page must lazy-load QR code generation.`);
       if (!toolHtml.includes(`https://utilitystack.github.io/tools/${meta.slug}/`)) fail(`${tool.id} generated page is missing canonical URL.`);
     }
   }
@@ -255,7 +262,10 @@ else if (typeof imageToolMarkup !== "function") fail("imageToolMarkup() must be 
 else {
   const markup = imageToolMarkup(imageConverter);
   if (!markup.includes("jpeg-bg")) fail("Image Format Converter is missing JPG background control.");
+  if (!markup.includes("resize-width")) fail("Image Format Converter is missing output width control.");
+  if (!markup.includes("lock-ratio")) fail("Image Format Converter is missing aspect ratio lock.");
   if (!markup.includes('value="image/webp" selected')) fail("Image Format Converter should default to WebP output.");
+  if (!markup.includes('value="image/avif"')) fail("Image Format Converter should offer AVIF output.");
   ok("Image Format Converter quality controls found");
 }
 
@@ -268,6 +278,44 @@ else {
   if (!markup.includes("square-padding")) fail("Square Image Maker is missing padding control.");
   if (!markup.includes("square-radius")) fail("Square Image Maker is missing corner radius control.");
   ok("Square Image Maker quality controls found");
+}
+
+const imageAssetPack = tools.find((tool) => tool.custom === "image-asset-pack");
+if (!imageAssetPack) fail("Image Asset Pack Generator tool is missing.");
+else if (typeof imageToolMarkup !== "function") fail("imageToolMarkup() must be available.");
+else {
+  const markup = imageToolMarkup(imageAssetPack);
+  if (!markup.includes("asset-pack")) fail("Image Asset Pack Generator is missing pack control.");
+  if (!markup.includes("asset-fit")) fail("Image Asset Pack Generator is missing fit control.");
+  if (!markup.includes("asset-bg")) fail("Image Asset Pack Generator is missing background control.");
+  if (!markup.includes("asset-padding")) fail("Image Asset Pack Generator is missing padding control.");
+  if (!appSource.includes("renderImageAssetPack")) fail("Image Asset Pack Generator should render asset packs.");
+  if (!appSource.includes("Download metadata HTML")) fail("Image Asset Pack Generator should offer metadata HTML download.");
+  if (!appSource.includes("manifest.webmanifest")) fail("Image Asset Pack Generator should offer web manifest download.");
+  ok("Image Asset Pack Generator quality controls found");
+}
+
+const pixelArtConverter = tools.find((tool) => tool.custom === "image-pixel-art");
+if (!pixelArtConverter) fail("Pixel Art Converter tool is missing.");
+else if (typeof imageToolMarkup !== "function") fail("imageToolMarkup() must be available.");
+else {
+  const markup = imageToolMarkup(pixelArtConverter);
+  if (!markup.includes("pixel-preset")) fail("Pixel Art Converter is missing preset control.");
+  if (!markup.includes("pixel-width")) fail("Pixel Art Converter is missing grid width control.");
+  if (!markup.includes("pixel-scale")) fail("Pixel Art Converter is missing export scale control.");
+  if (!markup.includes("pixel-palette")) fail("Pixel Art Converter is missing palette control.");
+  if (!markup.includes("pixel-dither")) fail("Pixel Art Converter is missing dithering control.");
+  if (!markup.includes("pixel-flatten")) fail("Pixel Art Converter is missing background flatten control.");
+  if (!markup.includes("pixel-grid")) fail("Pixel Art Converter is missing grid overlay control.");
+  if (!markup.includes("pixel-grid-color")) fail("Pixel Art Converter is missing grid color control.");
+  if (!markup.includes("pixel-sprite-columns")) fail("Pixel Art Converter is missing sprite columns control.");
+  if (!markup.includes("pixel-sprite-rows")) fail("Pixel Art Converter is missing sprite rows control.");
+  if (!appSource.includes("Download SVG mosaic")) fail("Pixel Art Converter should offer SVG mosaic download.");
+  if (!appSource.includes("Download frame CSV")) fail("Pixel Art Converter should offer sprite frame CSV download.");
+  if (!appSource.includes("Download palette CSS")) fail("Pixel Art Converter should offer palette CSS download.");
+  if (!appSource.includes("Download GPL palette")) fail("Pixel Art Converter should offer GPL palette download.");
+  if (!appSource.includes("createPixelArtSvg")) fail("Pixel Art Converter should create vector SVG output.");
+  ok("Pixel Art Converter quality controls found");
 }
 
 if (typeof parseCsv !== "function") fail("parseCsv() must be available.");
@@ -290,6 +338,20 @@ Line two"`);
 if (typeof csvEscape !== "function") fail("csvEscape() must be available.");
 else if (csvEscape('a,b"c') !== '"a,b""c"') fail("csvEscape() should quote commas and double quotes.");
 
+if (typeof normalizeCsvHeaders !== "function" || typeof csvQualityProfile !== "function") fail("CSV cleaner quality helpers must be available.");
+else {
+  const headers = normalizeCsvHeaders([" Name ", "Name", "", "Role"]);
+  if (headers[0] !== "name" || headers[1] !== "name_2" || headers[2] !== "column_3") fail("normalizeCsvHeaders() should produce unique machine-friendly headers.");
+  const profile = csvQualityProfile([
+    ["name", "role"],
+    ["Alex", "Designer"],
+    ["Sam", ""]
+  ], { rawRows: 4, nonEmptyRows: 3, duplicateRows: 1, removedColumns: 0, normalizedHeaders: true });
+  if (profile.missingCells !== 1) fail("csvQualityProfile() should count missing cells.");
+  if (profile.duplicateRows !== 1) fail("csvQualityProfile() should preserve duplicate-row stats.");
+  ok("CSV cleaner quality helpers found");
+}
+
 if (typeof jsonSummary !== "function") fail("jsonSummary() must be available.");
 else {
   const summary = jsonSummary({ name: "UtilityStack", nested: { tools: [1, 2] } });
@@ -297,6 +359,16 @@ else {
   if (summary.topLevel !== "2 keys") fail("jsonSummary() should count top-level object keys.");
   if (summary.depth < 3) fail("jsonSummary() should calculate nested depth.");
   ok("JSON summary metrics found");
+}
+
+if (typeof jsonPaths !== "function" || typeof jsonTypeCounts !== "function") fail("JSON inspector helpers must be available.");
+else {
+  const sample = { name: "UtilityStack", nested: { tools: [1, true, null] } };
+  const paths = jsonPaths(sample);
+  const counts = jsonTypeCounts(sample);
+  if (!paths.some((item) => item.path === "$.nested.tools[1]" && item.type === "boolean")) fail("jsonPaths() should list nested array paths.");
+  if (counts.array < 1 || counts.object < 2 || counts.scalar < 4) fail("jsonTypeCounts() should count JSON value types.");
+  ok("JSON inspector helpers found");
 }
 
 if (typeof jsonErrorLocation !== "function") fail("jsonErrorLocation() must be available.");
@@ -307,6 +379,9 @@ else {
 
 const jsonFileFormatter = tools.find((tool) => tool.id === "json-file-formatter");
 if (!jsonFileFormatter?.description.includes("clear parse errors")) fail("JSON File Formatter description should mention clear parse errors.");
+const jsonFormatterTool = tools.find((tool) => tool.id === "json-formatter");
+if (!jsonFormatterTool?.description.includes("inspect JSON paths")) fail("JSON Formatter Inspector description should mention path inspection.");
+if (!appSource.includes("json-inspection-report.json")) fail("JSON Formatter Inspector should offer inspection report download.");
 const compoundTool = tools.find((tool) => tool.id === "compound-interest-calculator");
 if (!compoundTool?.description.includes("yearly breakdown")) fail("Compound Interest Calculator description should mention yearly breakdown.");
 const retirementTool = tools.find((tool) => tool.id === "retirement-calculator");
@@ -334,7 +409,8 @@ if (!adRevenueTool?.description.includes("fill rate")) fail("CPM RPM Calculator 
 const discountTool = tools.find((tool) => tool.id === "discount-calculator");
 if (!discountTool?.description.includes("stacked discounts")) fail("Discount Calculator description should mention stacked discounts.");
 const invoiceTool = tools.find((tool) => tool.id === "invoice-number-generator");
-if (!invoiceTool?.description.includes("date formats")) fail("Invoice Number Generator description should mention date formats.");
+if (!invoiceTool?.description.includes("reset rules")) fail("Invoice Number Generator description should mention reset rules.");
+if (!invoiceTool?.description.includes("check digits")) fail("Invoice Number Generator description should mention check digits.");
 const breakEvenTool = tools.find((tool) => tool.id === "break-even-calculator");
 if (!breakEvenTool?.description.includes("profit targets")) fail("Break Even Calculator description should mention profit targets.");
 const roiTool = tools.find((tool) => tool.id === "roi-calculator");
@@ -343,6 +419,10 @@ const tipTool = tools.find((tool) => tool.id === "tip-calculator");
 if (!tipTool?.description.includes("service charge")) fail("Tip Calculator description should mention service charge.");
 const csvCleaner = tools.find((tool) => tool.id === "csv-cleaner");
 if (!csvCleaner?.description.includes("quoted commas")) fail("CSV Cleaner description should mention quoted comma support.");
+if (!csvCleaner?.description.includes("quality report")) fail("CSV Cleaner description should mention quality report.");
+if (!appSource.includes("csv-normalize-headers")) fail("CSV Cleaner should offer header normalization.");
+if (!appSource.includes("csv-remove-duplicates")) fail("CSV Cleaner should offer duplicate removal.");
+if (!appSource.includes("csv-quality-report.json")) fail("CSV Cleaner should offer quality report download.");
 const csvToJson = tools.find((tool) => tool.id === "csv-to-json-converter");
 if (!csvToJson?.description.includes("downloadable JSON")) fail("CSV to JSON description should mention downloadable JSON.");
 const jsonToCsv = tools.find((tool) => tool.id === "json-to-csv-converter");
@@ -361,6 +441,29 @@ const passwordChecker = tools.find((tool) => tool.id === "password-strength-chec
 if (!passwordChecker?.description.includes("common-pattern warnings")) fail("Password Strength Checker description should mention common-pattern warnings.");
 const jwtDecoder = tools.find((tool) => tool.id === "jwt-decoder");
 if (!jwtDecoder?.description.includes("expiry details")) fail("JWT Decoder description should mention expiry details.");
+const cronTool = tools.find((tool) => tool.id === "cron-expression-builder");
+if (!cronTool?.description.includes("next run previews")) fail("Cron Expression Builder description should mention next run previews.");
+if (!cronTool?.fields.some((field) => field.id === "customExpression")) fail("Cron Expression Builder should allow custom expressions.");
+if (!cronTool?.fields.some((field) => field.id === "previewCount")) fail("Cron Expression Builder should allow preview count control.");
+if (!appSource.includes("cron-next-runs.csv")) fail("Cron Expression Builder should offer next-run CSV download.");
+if (!appSource.includes("Copy cron expression")) fail("Cron Expression Builder should offer expression copy action.");
+const brandColorSystem = tools.find((tool) => tool.id === "color-palette-generator");
+if (!brandColorSystem?.description.includes("CSS variables")) fail("Brand Color System Generator description should mention CSS variables.");
+if (!brandColorSystem?.description.includes("contrast checks")) fail("Brand Color System Generator description should mention contrast checks.");
+if (!appSource.includes("Download Tailwind tokens")) fail("Brand Color System Generator should offer Tailwind token download.");
+if (!appSource.includes("Download CSS variables")) fail("Brand Color System Generator should offer CSS variable download.");
+
+if (typeof cronExpressionFromValues !== "function" || typeof parseCronExpression !== "function" || typeof cronNextRuns !== "function") fail("Cron helper functions must be available.");
+else {
+  const expression = cronExpressionFromValues({ schedule: "weekday", minute: 30, hour: 9 });
+  if (expression !== "30 9 * * 1-5") fail("Cron weekday preset should generate weekday business-hour expressions.");
+  const parsed = parseCronExpression("*/15 9-17 * * 1-5");
+  if (parsed.error) fail(`Cron parser should accept steps and ranges: ${parsed.error}`);
+  const runs = cronNextRuns(parsed, 3);
+  if (runs.length !== 3) fail("Cron preview should return requested upcoming runs.");
+  if (parseCronExpression("bad cron").error === undefined) fail("Cron parser should reject invalid expressions.");
+  ok("Cron expression preview helpers found");
+}
 
 if (typeof lineDiff !== "function") fail("lineDiff() must be available.");
 else {
@@ -517,7 +620,13 @@ else {
   if (invoice.current !== "INV-ACMECO-20260608-0042") fail("Invoice number should apply prefix, client, date, and padding.");
   if (invoice.next !== "INV-ACMECO-20260608-0043") fail("Invoice number should calculate next number.");
   if (invoice.items.length !== 3) fail("Invoice number should generate requested count.");
-  if (!invoice.csv.includes("Index,Invoice number,Next invoice number")) fail("Invoice number CSV should include a header.");
+  if (!invoice.csv.includes("Index,Invoice number,Next invoice number,Period key")) fail("Invoice number CSV should include a header.");
+  if (!invoice.policy.includes("Invoice Numbering Policy")) fail("Invoice number should generate policy notes.");
+  const checked = invoiceNumberSummary(
+    { prefix: "INV", client: "ACME Co", sequence: 42, padding: 4, count: 1, separator: "-", dateFormat: "yyyymmdd", resetRule: "monthly", checksum: "mod10" },
+    new Date("2026-06-08T00:00:00Z")
+  );
+  if (!/\d$/.test(checked.current)) fail("Invoice check digit should append a digit.");
   ok("Invoice number helpers found");
 }
 
@@ -800,6 +909,12 @@ for (const tool of standardTools) {
     if (!result.includes("Columns")) fail("JSON to CSV should include column metrics.");
   }
 
+  if (tool.id === "cron-expression-builder") {
+    if (!result.includes("data-table")) fail("Cron Expression Builder should render a next-run table.");
+    if (!result.includes('download="cron-next-runs.csv"')) fail("Cron Expression Builder should offer next-run CSV export.");
+    if (!result.includes("Browser local time")) fail("Cron Expression Builder should clarify local timezone behavior.");
+  }
+
   if (tool.id === "text-diff-checker") {
     if (!result.includes("diff-view")) fail("Text Diff Checker should render a readable diff view.");
     if (!result.includes('download="text-diff.patch"')) fail("Text Diff Checker should offer a patch download.");
@@ -829,6 +944,13 @@ for (const tool of standardTools) {
     if (!result.includes("jwt-panels")) fail("JWT Decoder should show header and payload panels.");
     if (!result.includes("does not verify the signature")) fail("JWT Decoder should show signature verification warning.");
     if (!result.includes('download="decoded-jwt.json"')) fail("JWT Decoder should offer decoded JSON download.");
+  }
+
+  if (tool.id === "json-formatter") {
+    if (!result.includes("data-table")) fail("JSON Formatter Inspector should render path table.");
+    if (!result.includes('download="formatted.json"')) fail("JSON Formatter Inspector should offer formatted JSON download.");
+    if (!result.includes('download="json-inspection-report.json"')) fail("JSON Formatter Inspector should offer inspection report download.");
+    if (!result.includes("Paths")) fail("JSON Formatter Inspector should show path count.");
   }
 
   if (tool.id === "loan-payment-calculator") {
@@ -888,6 +1010,9 @@ for (const tool of standardTools) {
   if (tool.id === "invoice-number-generator") {
     if (!result.includes("data-table")) fail("Invoice Number Generator should render a preview table.");
     if (!result.includes('download="invoice-numbers.csv"')) fail("Invoice Number Generator should offer CSV download.");
+    if (!result.includes('download="invoice-number-policy.md"')) fail("Invoice Number Generator should offer policy notes download.");
+    if (!result.includes("Reset policy")) fail("Invoice Number Generator should show reset policy.");
+    if (!result.includes("Check digit")) fail("Invoice Number Generator should show check digit.");
     if (!result.includes("Copy current invoice")) fail("Invoice Number Generator should offer copy action.");
   }
 
@@ -936,6 +1061,13 @@ for (const tool of standardTools) {
 
 if (!indexSource.includes("app.js?v=")) fail("index.html must load versioned app.js.");
 else ok("index.html loads versioned app.js");
+
+if (!fs.existsSync(qrVendorPath)) fail("Vendored QR code library is missing.");
+else ok("vendored QR code library found");
+
+if (!indexSource.includes('qrLibrary: "vendor/qrcode-generator/qrcode.js?v=')) fail("index.html must configure the vendored QR code library.");
+if (indexSource.includes("cdn.jsdelivr.net/npm/qrcode-generator")) fail("index.html must not load QR code generation from a CDN.");
+if (indexSource.includes('<script src="vendor/qrcode-generator/qrcode.js')) fail("index.html must lazy-load QR code generation.");
 
 if (!indexSource.includes("adsbygoogle")) fail("index.html is missing AdSense placement.");
 else ok("AdSense marker found");

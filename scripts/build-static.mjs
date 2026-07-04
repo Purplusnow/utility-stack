@@ -4,8 +4,10 @@ import vm from "node:vm";
 
 const root = path.resolve(new URL("..", import.meta.url).pathname);
 const appPath = path.join(root, "app.js");
+const qrVendorPath = path.join(root, "vendor", "qrcode-generator", "qrcode.js");
 const appSource = fs.readFileSync(appPath, "utf8");
 const assetVersion = Math.floor(fs.statSync(appPath).mtimeMs);
+const qrVendorVersion = Math.floor(fs.statSync(qrVendorPath).mtimeMs);
 const siteUrl = "https://utilitystack.github.io";
 
 function makeClassList() {
@@ -145,7 +147,7 @@ function renderLayout({ title, description, canonicalPath, body, schema, assetPr
 </head>
 <body>
   ${body}
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <script>window.UtilityStackAssets = { qrLibrary: "${assetPrefix}vendor/qrcode-generator/qrcode.js?v=${qrVendorVersion}" };</script>
   <script src="${assetPrefix}app.js?v=${assetVersion}"></script>
 </body>
 </html>
