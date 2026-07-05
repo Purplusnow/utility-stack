@@ -1416,6 +1416,7 @@ if (appSource.includes("lockAdFrames") || appSource.includes(".ad-frame")) fail(
 ok("AdSense auto ads script found without reserved slots");
 if (!indexSource.includes("googletagmanager.com/gtag/js?id=G-Y7L09HLWY8")) fail("index.html should include the Google tag loader.");
 if (!indexSource.includes("gtag('config', 'G-Y7L09HLWY8')")) fail("index.html should configure the Google tag measurement ID.");
+if (!indexSource.includes("AW-10836544398/mYjfCKSrmN0ZEI6Xoq8o")) fail("index.html should include the Google Ads page view conversion event.");
 ok("Google tag measurement script found");
 
 if (!indexSource.includes("application/ld+json")) fail("index.html is missing structured data.");
