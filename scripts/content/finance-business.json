@@ -1,0 +1,718 @@
+{
+  "loan-payment-calculator": {
+    "intro": "This calculator computes the fixed monthly payment for a loan and builds a full amortization schedule from the loan amount, interest rate, and term. Add an extra monthly payment to see how much sooner the loan is paid off and how much interest you avoid. A year-by-year breakdown appears on screen, and a month-by-month schedule is available as a CSV download.",
+    "howTo": [
+      "Enter the Loan amount and the Annual interest % for your loan.",
+      "Set Term years to the scheduled length of the loan, such as 15 or 30.",
+      "Optionally add an Extra monthly payment to model accelerated payoff.",
+      "Review the monthly payment, payoff time, and yearly table, then use Download amortization CSV for the full month-by-month schedule."
+    ],
+    "faqs": [
+      {
+        "q": "Which formula does this calculator use?",
+        "a": "It uses the standard fixed-rate amortization formula with monthly compounding: the annual rate is divided by 12 and the payment is computed so the balance reaches zero over the scheduled number of months."
+      },
+      {
+        "q": "How do extra payments change my payoff date?",
+        "a": "The extra amount is applied to principal every month, so the balance falls faster than scheduled. The results show the new payoff time and the total interest saved compared with making only the base payment."
+      },
+      {
+        "q": "What does the CSV download contain?",
+        "a": "One row per month with the payment, the principal portion, the interest portion, and the remaining balance, so you can chart or audit the full schedule in a spreadsheet."
+      },
+      {
+        "q": "Does it handle a 0% interest rate?",
+        "a": "Yes. With a 0% rate the payment is simply the loan amount divided by the number of months, and every payment goes entirely to principal."
+      },
+      {
+        "q": "Is my loan information sent anywhere?",
+        "a": "No. Everything is calculated in your browser with JavaScript; no numbers are uploaded and no account is required."
+      },
+      {
+        "q": "Can I rely on these numbers for my actual loan?",
+        "a": "Treat them as estimates. Real loans can include fees, escrow, rounding rules, or variable rates that this fixed-rate model does not capture, and nothing here is financial advice."
+      }
+    ]
+  },
+  "credit-card-payoff-calculator": {
+    "intro": "This tool projects how long it will take to pay off a credit card balance given your APR and your issuer's minimum-payment rules, then shows what an extra monthly payment does to that timeline. It compares your plan against paying only the minimum, reporting interest saved and months saved, and it computes the fixed payment needed to hit a target payoff date. The month-by-month projection can be downloaded as a CSV.",
+    "howTo": [
+      "Enter your Card balance and the card's APR %.",
+      "Set Minimum payment % and Minimum payment floor to match your card's statement rules.",
+      "Add an Extra monthly payment and, if you have a deadline, set Target payoff months.",
+      "Compare payoff time, total interest, and interest saved, then use Download payoff CSV for the monthly detail."
+    ],
+    "faqs": [
+      {
+        "q": "How is the minimum payment modeled?",
+        "a": "Each month the minimum is the largest of: the balance times your minimum payment percentage, the dollar floor, or the month's interest plus the floor. This mirrors how most issuers keep minimums from falling below interest charges."
+      },
+      {
+        "q": "How is interest calculated?",
+        "a": "Interest accrues monthly at APR divided by 12 on the current balance. This is a close approximation of daily-balance methods but will not match your statement to the penny."
+      },
+      {
+        "q": "What does the \"Needed for target\" figure mean?",
+        "a": "It is the fixed monthly payment required to clear the current balance in exactly your Target payoff months, computed with the standard amortization formula."
+      },
+      {
+        "q": "Why do I get an error saying the payment is too low?",
+        "a": "If the combined minimum and extra payment does not cover more than that month's interest, the balance never shrinks. The tool also stops if payoff would take longer than 50 years."
+      },
+      {
+        "q": "Does my balance or APR leave my device?",
+        "a": "No. The projection runs entirely client-side in your browser; nothing is stored or transmitted."
+      },
+      {
+        "q": "Are the results exact?",
+        "a": "They are estimates for planning. New purchases, fees, promotional rates, and your issuer's exact interest method will shift real-world numbers, and this is not financial advice."
+      }
+    ]
+  },
+  "debt-payoff-planner": {
+    "intro": "Enter several debts at once and this planner simulates both the avalanche (highest APR first) and snowball (smallest balance first) strategies side by side. It reports debt-free dates, total interest for each strategy, the order in which each debt is retired, and a month-by-month timeline for your chosen strategy that you can export as CSV.",
+    "howTo": [
+      "List each debt on its own line in the Debts box as name, balance, APR %, minimum payment.",
+      "Set your Extra monthly payoff budget — the amount available beyond all minimums.",
+      "Choose a Primary strategy: Avalanche (highest APR first) or Snowball (smallest balance first).",
+      "Review the debt-free date, the payoff order table, and the strategy comparison, then use Download payoff CSV for the full timeline."
+    ],
+    "faqs": [
+      {
+        "q": "What is the difference between avalanche and snowball?",
+        "a": "Avalanche directs your extra budget at the highest-APR debt to minimize total interest; snowball targets the smallest balance first for quicker wins. The tool runs both and shows the interest difference so you can see the actual cost of each choice."
+      },
+      {
+        "q": "How does the simulation work each month?",
+        "a": "Every active debt accrues interest at its APR divided by 12, minimum payments are applied to all debts, and then the entire extra budget goes to the strategy's current target. Freed-up minimums from paid-off debts are not rolled over automatically — only the extra budget snowballs."
+      },
+      {
+        "q": "What input format do the debts need?",
+        "a": "One debt per line: a name, the balance, the APR percentage, and the minimum payment, separated by commas. Every debt needs a positive minimum payment, and debts with a zero balance are ignored."
+      },
+      {
+        "q": "Is there a limit on the projection length?",
+        "a": "Yes, the simulation stops at 600 months. If your debts would take more than 50 years to clear, you will see an error suggesting a larger monthly budget."
+      },
+      {
+        "q": "What is in the CSV download?",
+        "a": "The month-by-month timeline for your primary strategy: total payment, interest, principal, and the combined remaining balance for each month."
+      },
+      {
+        "q": "Should I treat this as financial advice?",
+        "a": "No — it is a planning estimate. Real accounts have daily interest accrual, changing rates, and fees, so confirm any payoff plan against your actual statements."
+      }
+    ]
+  },
+  "compound-interest-calculator": {
+    "intro": "This calculator projects how a starting balance plus regular monthly contributions grows over time with compound returns. It supports an annual contribution increase so you can model saving more each year, splits the final value into what you contributed versus what returns earned, and produces a year-by-year growth table with a CSV export.",
+    "howTo": [
+      "Enter your Initial amount and planned Monthly contribution.",
+      "Set the Annual return % and the number of Years to project.",
+      "Optionally set an Annual contribution increase % to raise contributions each year.",
+      "Read the future value, total contributed, and estimated gain, then use Download growth CSV for the yearly breakdown."
+    ],
+    "faqs": [
+      {
+        "q": "How often is interest compounded?",
+        "a": "Monthly. The annual return is divided by 12, the balance grows by that rate each month, and then the monthly contribution is added."
+      },
+      {
+        "q": "When does the annual contribution increase kick in?",
+        "a": "At each year boundary. After every 12 months the monthly contribution is multiplied by (1 + increase %), so a 3% increase turns a $500 contribution into $515 in year two."
+      },
+      {
+        "q": "What does \"Return share\" mean in the results?",
+        "a": "It is the fraction of your final balance that came from investment gains rather than your own deposits — a quick view of how much compounding did the work."
+      },
+      {
+        "q": "Can I model a negative return?",
+        "a": "Yes, you can enter a negative annual return down to -99% to stress-test a decline, though most people use it for positive growth scenarios."
+      },
+      {
+        "q": "Where is the calculation performed?",
+        "a": "Entirely in your browser. Your amounts never leave your device and nothing is saved between visits."
+      },
+      {
+        "q": "Will my investments actually grow like this?",
+        "a": "No projection can promise that. This tool assumes a constant return with no taxes or fees, so treat the output as an estimate for comparison, not financial advice."
+      }
+    ]
+  },
+  "retirement-calculator": {
+    "intro": "This calculator estimates whether your savings trajectory supports the retirement income you want. It grows your current savings and monthly contributions to retirement age, inflates your desired income to future dollars, converts the shortfall after other income into a target nest egg using your withdrawal rate, and reports the gap plus the monthly contribution needed to close it. Scenario rows stress-test higher contributions, lower returns, and higher inflation, and everything exports to CSV.",
+    "howTo": [
+      "Enter your Current age, Retirement age, and Current retirement savings.",
+      "Set your Monthly contribution, expected Annual return %, and Inflation %.",
+      "Enter your Desired annual income today, a Withdrawal rate %, and any Other annual retirement income such as Social Security.",
+      "Check the retirement status, projected gap, and Monthly needed figure, then use Download retirement CSV for the age-by-age timeline and scenarios."
+    ],
+    "faqs": [
+      {
+        "q": "How is the target nest egg calculated?",
+        "a": "Your desired income and other income are both inflated to retirement-year dollars, the remaining income need is divided by your withdrawal rate, and that quotient is the savings target. For example, a $60,000 future need at a 4% withdrawal rate requires $1.5 million."
+      },
+      {
+        "q": "What assumptions does the growth projection use?",
+        "a": "Contributions are added monthly and the balance compounds at the annual return divided by 12, with no taxes, fees, or market volatility. It is a smooth-growth estimate, not a market simulation."
+      },
+      {
+        "q": "What withdrawal rates are allowed?",
+        "a": "Anything above 0% and up to 20%. The common starting point is 4%, and lower rates produce larger, more conservative targets."
+      },
+      {
+        "q": "What do the scenario rows show?",
+        "a": "Alongside your base plan, the tool re-runs the projection with a 25% higher contribution, a return 2 points lower, and inflation 1 point higher, so you can see how sensitive your plan is to each assumption."
+      },
+      {
+        "q": "Is any of my financial data uploaded?",
+        "a": "No. All projections run locally in your browser, and the CSV is generated on your device."
+      },
+      {
+        "q": "Can I base my retirement plan on this alone?",
+        "a": "Use it as a rough gauge. Real planning involves taxes, account types, sequence-of-returns risk, and benefits rules that this simplified model omits — it is not financial advice."
+      }
+    ]
+  },
+  "sales-tax-calculator": {
+    "intro": "This calculator adds sales tax to a price or strips it back out of a tax-inclusive total. It handles quantity and a pre-tax discount, reports the taxable amount and effective rate, and shows a small scenario table with the tax computed at nearby rates. The scenarios can be downloaded as a CSV.",
+    "howTo": [
+      "Enter the Price of one item and your local Tax rate %.",
+      "Adjust Quantity and any Discount % applied before tax.",
+      "Choose Mode: Add tax to a pre-tax price, or Remove tax to back out the pre-tax amount from a total.",
+      "Read the subtotal, sales tax, and total, and use Download tax scenarios CSV to compare rates."
+    ],
+    "faqs": [
+      {
+        "q": "How does \"Remove tax\" mode work?",
+        "a": "It treats your price as tax-inclusive and divides by (1 + rate) to recover the pre-tax amount, then reports the embedded tax. This is useful for receipts that only show a final total."
+      },
+      {
+        "q": "Is the discount applied before or after tax?",
+        "a": "Before. The discount reduces the taxable amount, and tax is calculated on the discounted subtotal, which matches how most US retailers handle coupons."
+      },
+      {
+        "q": "What rates appear in the scenario table?",
+        "a": "Your entered rate plus versions 2 percentage points lower and higher, so you can quickly compare jurisdictions or check the impact of a rate change."
+      },
+      {
+        "q": "What input limits apply?",
+        "a": "Price and tax rate cannot be negative, the rate must be 100% or less, the discount caps at 99%, and quantity is rounded down to a whole number of at least 1."
+      },
+      {
+        "q": "Do my prices get sent to a server?",
+        "a": "No — the math and the CSV generation happen entirely in your browser."
+      },
+      {
+        "q": "Will this match my exact register receipt?",
+        "a": "Usually within a cent, but rounding rules, item-level taxability, and local surtaxes vary, so treat results as estimates rather than tax advice."
+      }
+    ]
+  },
+  "percentage-calculator": {
+    "intro": "A quick three-mode percentage tool: find what X% of a value is, increase a value by a percentage, or decrease it by a percentage. Each mode shows the original value, the change amount, and the resulting total so you can see the arithmetic at a glance.",
+    "howTo": [
+      "Enter the base number in Value.",
+      "Enter the percentage in Percent.",
+      "Pick a Mode: \"What is X% of Y?\", \"Increase by X%\", or \"Decrease by X%\".",
+      "Read the result, the change amount, and the total from the metrics panel."
+    ],
+    "faqs": [
+      {
+        "q": "What does each mode calculate?",
+        "a": "\"What is X% of Y?\" returns Value times Percent/100; \"Increase by X%\" returns Value times (1 + Percent/100); \"Decrease by X%\" returns Value times (1 - Percent/100)."
+      },
+      {
+        "q": "Can I use percentages over 100 or negative values?",
+        "a": "Yes. A 150% increase or a negative value computes normally — the formulas are applied directly without artificial caps."
+      },
+      {
+        "q": "Why are results formatted like currency?",
+        "a": "Outputs are shown to two decimal places in a money-style format because price and budget questions are the most common use, but the math works for any quantity."
+      },
+      {
+        "q": "How do I reverse a percentage change?",
+        "a": "Note that increases and decreases are not symmetric: after a 20% decrease you need a 25% increase to get back to the original, because the second change applies to a smaller base."
+      },
+      {
+        "q": "Is anything I type stored or transmitted?",
+        "a": "No. The calculation runs instantly in your browser and nothing is saved or uploaded."
+      }
+    ]
+  },
+  "discount-calculator": {
+    "intro": "This calculator works out the real price after a sale discount, an extra stacked coupon, quantity, and sales tax. Because stacked discounts multiply rather than add, it reports the true effective discount along with your total savings, and a scenario table shows how the numbers move with a deeper discount or bigger coupon. Scenarios export to CSV.",
+    "howTo": [
+      "Enter the Original price and the advertised Discount %.",
+      "Add an Extra coupon % if you are stacking a second code on top.",
+      "Set Quantity and your Sales tax % if you want the out-the-door total.",
+      "Check the sale subtotal, total with tax, effective discount, and savings, then use Download discount scenarios CSV to compare options."
+    ],
+    "faqs": [
+      {
+        "q": "How are stacked discounts combined?",
+        "a": "Sequentially, not additively. A 25% discount followed by a 10% coupon multiplies to a 32.5% effective discount — the coupon applies to the already-reduced price, and the tool reports this true combined rate."
+      },
+      {
+        "q": "Is sales tax charged on the original or discounted price?",
+        "a": "On the discounted sale subtotal, after both the discount and the coupon are applied, which is how US retailers typically compute tax on sale items."
+      },
+      {
+        "q": "What do the scenario rows compare?",
+        "a": "Your current setup against three variants: removing the extra coupon, raising the main discount by 5 points, and raising the coupon by 5 points, each with its own effective discount and total."
+      },
+      {
+        "q": "What limits apply to the inputs?",
+        "a": "The discount and coupon each cap at 99%, the price cannot be negative, and quantity is treated as a whole number of at least 1."
+      },
+      {
+        "q": "Does this tool track what I am shopping for?",
+        "a": "No. Prices are processed only in your browser and are never sent anywhere."
+      },
+      {
+        "q": "Are these final checkout prices?",
+        "a": "They are estimates. Retailers may exclude items from stacking, apply coupons in a different order, or round differently, so verify at checkout."
+      }
+    ]
+  },
+  "tip-calculator": {
+    "intro": "This tip calculator goes beyond a flat percentage: it handles tax, an existing service charge, tipping on the pre-tax or post-tax amount, per-person splitting, and rounding the final total up or to the nearest dollar. A comparison table shows the bill at 15%, 18%, 20%, and 25% tips, and you can download the scenarios as a CSV.",
+    "howTo": [
+      "Enter the Bill amount and your Tip % (before tax and tip).",
+      "Set People to split the total, and enter the local Tax % plus any Service charge % already on the bill.",
+      "Choose a Tip base (Pre-tax or Post-tax) and an optional Round total mode.",
+      "Read the tip, total, and per-person amounts, then use Download tip scenarios CSV to compare tip rates."
+    ],
+    "faqs": [
+      {
+        "q": "Should I tip on the pre-tax or post-tax amount?",
+        "a": "Convention in the US is pre-tax, which is the default here, but some people tip on the final total — switching Tip base to Post-tax computes the tip on the bill plus tax so you can see both."
+      },
+      {
+        "q": "How does rounding work?",
+        "a": "\"Round up\" raises the grand total to the next whole dollar and \"Nearest dollar\" rounds either way; the difference is shown as a rounding adjustment so you know exactly how much the rounding added or removed."
+      },
+      {
+        "q": "How is the per-person amount computed?",
+        "a": "The rounded grand total — bill, tax, service charge, and tip — is divided evenly by the number of people. The tool splits everything equally rather than itemizing by person."
+      },
+      {
+        "q": "What if the bill already includes a service charge?",
+        "a": "Enter it as the Service charge %. It is added to the total separately from the tip, so you can decide whether an additional tip is warranted on top."
+      },
+      {
+        "q": "What is in the scenario table and CSV?",
+        "a": "Your selected settings recomputed at 15%, 18%, 20%, and 25% tips, each showing the tip amount, total, per-person share, and rounding adjustment."
+      },
+      {
+        "q": "Is my bill information private?",
+        "a": "Yes — all calculations run locally in your browser with nothing uploaded or stored."
+      }
+    ]
+  },
+  "mortgage-affordability-calculator": {
+    "intro": "Instead of starting from a home price, this calculator starts from your income and works backward: given your debts, down payment, interest rate, property tax, and insurance, it solves for the largest home price that keeps your total debt-to-income ratio at your chosen limit. It also shows Conservative (36%), Standard (43%), and Stretch (50%) DTI scenarios and estimates your cash to close, all downloadable as CSV.",
+    "howTo": [
+      "Enter your Annual income and current Monthly debt payments.",
+      "Set your Down payment, expected Interest rate %, and Loan term years.",
+      "Adjust Property tax % / year, Insurance / month, and your Max total DTI %.",
+      "Compare the affordable home price, monthly PITI, and cash to close across the DTI scenarios, then use Download affordability CSV."
+    ],
+    "faqs": [
+      {
+        "q": "How is the affordable price derived?",
+        "a": "Your maximum housing payment is monthly income times your DTI limit minus existing monthly debt. The tool then back-solves the loan amount whose principal, interest, and property tax — plus insurance — fits inside that payment, and adds your down payment to get the home price."
+      },
+      {
+        "q": "What does PITI include here?",
+        "a": "Principal and interest from a fixed-rate amortized loan, monthly property tax at your annual rate, and your entered monthly insurance. It does not include PMI or HOA dues, so add those to your monthly debt if they apply."
+      },
+      {
+        "q": "What DTI should I use?",
+        "a": "The scenario table gives common anchors: 36% is a conservative traditional guideline, 43% matches typical qualified-mortgage limits, and 50% is an aggressive stretch. Your entered DTI must be between 1% and 80%."
+      },
+      {
+        "q": "Why do I see an error about existing debt?",
+        "a": "If your monthly debt already consumes the entire DTI allowance, there is no room left for a mortgage payment at that limit — lower the debt figure or raise the DTI to explore other cases."
+      },
+      {
+        "q": "Is my income data kept on my device?",
+        "a": "Yes. The entire calculation, including the CSV, is generated in your browser without any upload."
+      },
+      {
+        "q": "Is this a pre-approval?",
+        "a": "No. Lenders apply credit scores, reserves, PMI, and their own underwriting overlays, so treat these numbers as a planning estimate rather than an offer or financial advice."
+      }
+    ]
+  },
+  "rent-vs-buy-calculator": {
+    "intro": "This calculator compares the net worth of renting versus buying over a horizon you choose. The buyer's side tracks mortgage amortization, property tax, maintenance, insurance, HOA dues, and eventual selling costs; the renter's side invests the down payment, closing costs, and any monthly savings at your chosen return. It reports the winner, the break-even year, the break-even rent, a year-by-year table, and sensitivity scenarios — all exportable as CSV.",
+    "howTo": [
+      "Enter the Home price, Down payment, Mortgage rate %, and Loan term years, plus your Current rent / month.",
+      "Set the Compare years horizon and growth assumptions: Rent growth, Home appreciation, and Investment return.",
+      "Fill in ownership costs: Buyer closing costs %, Property tax %, Maintenance %, Home insurance, HOA, and Selling cost %.",
+      "Review the better option, net advantage, and break-even year, then use Download rent vs buy CSV for the yearly and scenario detail."
+    ],
+    "faqs": [
+      {
+        "q": "How does the comparison define net worth?",
+        "a": "The buyer's net worth is home equity after paying off the remaining loan and subtracting selling costs; the renter's is an investment account seeded with the down payment and closing costs, growing monthly at your investment return plus any month where owning would have cost more than rent."
+      },
+      {
+        "q": "What is the break-even rent?",
+        "a": "It is the starting monthly rent at which buying and renting end your comparison period with equal net worth, found by binary search. If your actual rent is above it, buying tends to win under your assumptions."
+      },
+      {
+        "q": "Which sensitivity scenarios are included?",
+        "a": "The base case plus rent ±10%, home appreciation ±1 percentage point, and mortgage rate +1 point, each showing both net worth figures and the winner so you can see which assumption matters most."
+      },
+      {
+        "q": "What are the input limits?",
+        "a": "The comparison horizon runs 1 to 40 years, the loan term 1 to 50 years, and the down payment must be less than the home price. Rent and home price must be positive."
+      },
+      {
+        "q": "What does the model leave out?",
+        "a": "Tax deductions, PMI, transaction timing, rent deposits, and inflation adjustments to maintenance or insurance. Results are directional estimates, not financial advice."
+      },
+      {
+        "q": "Is any of this data collected?",
+        "a": "No — the whole simulation, including the break-even search and CSV export, runs locally in your browser."
+      }
+    ]
+  },
+  "take-home-pay-calculator": {
+    "intro": "This calculator estimates your net paycheck from annual gross pay using tax rates you supply for federal, state or local, and payroll taxes, along with pre-tax retirement and benefit deductions and any post-tax deductions. It supports weekly through annual pay frequencies and shows scenario rows for a 5% raise, a 10% raise, and one extra point of retirement savings, with a CSV export of every line item.",
+    "howTo": [
+      "Enter your Annual gross pay and choose your Pay frequency.",
+      "Set your Federal tax estimate %, State/local tax estimate %, and Payroll tax estimate % (7.65% covers typical Social Security and Medicare).",
+      "Add your Pre-tax retirement %, Pre-tax benefits / month, and any Post-tax deductions / month.",
+      "Read the net per paycheck, monthly net, and take-home rate, then use Download paycheck CSV for the full breakdown and raise scenarios."
+    ],
+    "faqs": [
+      {
+        "q": "Does this use real tax brackets?",
+        "a": "No — you supply flat effective rates, which keeps the tool simple and works for any state. Estimate your effective federal rate from last year's return (total tax divided by taxable income) rather than using your top marginal bracket."
+      },
+      {
+        "q": "How are pre-tax deductions handled?",
+        "a": "Retirement contributions and monthly benefits are subtracted from gross pay before federal and state taxes are applied. In this model, payroll tax is applied to gross pay minus the retirement contribution — a simplification, since real FICA rules treat 401(k) contributions and health premiums differently."
+      },
+      {
+        "q": "How many paychecks does each frequency assume?",
+        "a": "Weekly is 52, biweekly 26, semi-monthly 24, monthly 12, and annual 1. Net annual pay is divided by that count to get the per-paycheck figure."
+      },
+      {
+        "q": "What do the scenario rows show?",
+        "a": "Your current setup next to a 5% raise, a 10% raise, and a one-point increase in retirement contributions, each with gross, net, per-paycheck, and take-home-rate columns."
+      },
+      {
+        "q": "Are there input guards?",
+        "a": "Yes: combined tax estimates must stay below 80% and the retirement percentage below 75%, and negative rates are treated as zero."
+      },
+      {
+        "q": "Is this accurate enough for budgeting decisions?",
+        "a": "It is a planning estimate — real withholding involves brackets, allowances, wage caps, and local rules. Check a real pay stub or a withholding calculator before making decisions; this is not tax or financial advice, and nothing you enter leaves your browser."
+      }
+    ]
+  },
+  "savings-goal-calculator": {
+    "intro": "Set a savings target and a deadline, and this calculator tells you the exact monthly deposit needed to get there with interest, how your planned deposit compares, and when you would actually reach the goal at your current pace. A month-by-month timeline tracks contributions, interest, and the remaining gap, and the full schedule downloads as a CSV.",
+    "howTo": [
+      "Enter your Savings goal and Current savings.",
+      "Set Target months to your deadline and the Annual interest % your account pays.",
+      "Enter your Planned monthly savings.",
+      "Compare Monthly needed with your plan, check the goal status and \"Reach goal in\" estimate, then use Download savings plan CSV for the monthly timeline."
+    ],
+    "faqs": [
+      {
+        "q": "How is the \"Monthly needed\" amount calculated?",
+        "a": "The tool grows your current savings forward at the monthly rate, subtracts that from the goal, and divides the rest by the future-value annuity factor — the standard formula for level monthly deposits with monthly compounding."
+      },
+      {
+        "q": "What does \"Reach goal in\" mean if it differs from my target months?",
+        "a": "It projects your planned monthly deposit for up to 600 months and reports the first month your balance crosses the goal. If that never happens within 50 years, it shows \"Not within 50y\"."
+      },
+      {
+        "q": "How is interest applied each month?",
+        "a": "The balance earns one month of interest (annual rate divided by 12) and then your deposit is added, so deposits made late in the schedule earn less than early ones."
+      },
+      {
+        "q": "What does the CSV include?",
+        "a": "Every month of your target window with cumulative contributions, cumulative interest, the balance, and the remaining amount to the goal — the on-screen table shows a condensed subset."
+      },
+      {
+        "q": "Do my savings figures stay private?",
+        "a": "Yes. The projection and the CSV are generated entirely in your browser with no upload or account."
+      },
+      {
+        "q": "Will my bank's interest match this projection?",
+        "a": "Approximately. Banks may compound daily and rates change over time, so treat the output as an estimate rather than a guarantee or financial advice."
+      }
+    ]
+  },
+  "profit-margin-calculator": {
+    "intro": "Built for sellers on fee-charging platforms, this calculator computes net profit after a percentage platform fee, a fixed per-order fee, and any discount you offer. It reports both margin (profit over net revenue) and markup (profit over cost), back-solves your break-even price and the price needed to hit a target margin, and compares discount scenarios in a table you can download as CSV.",
+    "howTo": [
+      "Enter your unit Cost and current Selling price.",
+      "Set the Platform fee % and Fixed fee your marketplace or processor charges (for example 2.9% + $0.30).",
+      "Add any Discount % you offer and your Target margin %.",
+      "Review net profit, margin, markup, break-even price, and target price, then use Download margin scenarios CSV to compare discount levels."
+    ],
+    "faqs": [
+      {
+        "q": "What is the difference between margin and markup?",
+        "a": "Margin is net profit divided by net revenue; markup is net profit divided by cost. A $40 cost sold for $75 net is roughly a 47% margin but an 87% markup — confusing the two is a common pricing mistake."
+      },
+      {
+        "q": "How are fees and discounts applied?",
+        "a": "The discount reduces your gross price first, then the percentage fee is taken from the discounted revenue and the fixed fee is subtracted on top. Net profit is what remains after also subtracting your cost."
+      },
+      {
+        "q": "How is the target price calculated?",
+        "a": "It solves for the list price where, after your discount, percentage fee, and fixed fee, the remaining profit equals your target margin — so the price already compensates for every deduction."
+      },
+      {
+        "q": "What do the scenario rows show?",
+        "a": "Your current pricing next to versions with 5 and 10 extra points of discount, plus a row priced at your target margin, each showing net revenue, net profit, margin, and markup."
+      },
+      {
+        "q": "What limits apply?",
+        "a": "Selling price must be positive, cost cannot be negative, the discount caps at 99%, and the target margin caps at 95% (a 100% margin is mathematically unreachable)."
+      },
+      {
+        "q": "Is my pricing data shared anywhere?",
+        "a": "No — all calculations happen in your browser, so your costs and margins stay on your device. Results are estimates for pricing decisions, not financial advice."
+      }
+    ]
+  },
+  "invoice-number-generator": {
+    "intro": "This tool designs a complete invoice numbering scheme rather than just spitting out one number. Combine a prefix, client code, and date stamp with a zero-padded sequence, optionally append a Mod 10 check digit, and choose a reset rule (never, monthly, yearly, or per client). It previews a batch of numbers with their successors, generates written policy notes in Markdown, and exports both a CSV and the policy document.",
+    "howTo": [
+      "Enter a Prefix (like INV) and an optional Client code.",
+      "Set the starting Sequence, Number padding width, and how many numbers to preview with Generate count.",
+      "Pick a Separator, Date format, Reset rule, and whether to append a Mod 10 Check digit.",
+      "Copy the current invoice number, review the pattern and period key, and use the download buttons for the numbers CSV and policy notes."
+    ],
+    "faqs": [
+      {
+        "q": "What does the reset rule change?",
+        "a": "It defines when your sequence restarts: never (one continuous series), monthly, yearly, or a separate series per client. The result shows a period key — like a year-month stamp or client tag — that identifies which counter each number belongs to."
+      },
+      {
+        "q": "How is the Mod 10 check digit computed?",
+        "a": "All digits in the assembled number are weighted alternately by 3 and 1, summed, and the digit that rounds the sum up to a multiple of 10 is appended. It lets you catch most typos when a number is keyed in manually."
+      },
+      {
+        "q": "What are the input limits?",
+        "a": "Padding runs from 1 to 12 digits, the preview generates up to 100 numbers, and prefix and client codes are normalized to URL-safe characters."
+      },
+      {
+        "q": "What do the two downloads contain?",
+        "a": "The CSV lists each generated number with its successor, period key, reset rule, and check-digit setting; the Markdown file is a written numbering policy with the pattern and operational notes you can drop into your team docs."
+      },
+      {
+        "q": "Can I reuse a voided invoice number?",
+        "a": "Generally no — most accounting practices require gaps to stay documented rather than refilled, and the generated policy notes call this out explicitly."
+      },
+      {
+        "q": "Are my client codes or sequences stored?",
+        "a": "No. Everything is generated in your browser on the fly and nothing is transmitted or persisted."
+      }
+    ]
+  },
+  "roi-calculator": {
+    "intro": "This calculator measures the return on an investment that has both a final value and optional recurring monthly cash flow. It reports simple ROI, annualized ROI based on your holding period, the payback period covered by cash flow, and a profit multiple, then stress-tests the result with return up and down 10% and cash flow up 20%. Scenarios export as CSV.",
+    "howTo": [
+      "Enter the Investment cost and the expected Final value.",
+      "Set the Investment period months to your holding period.",
+      "Add any Monthly cash flow the investment produces and the Reinvested cash flow % you plow back in.",
+      "Review net profit, ROI, annualized ROI, and payback period, then use Download ROI scenarios CSV for the comparison table."
+    ],
+    "faqs": [
+      {
+        "q": "How is annualized ROI computed?",
+        "a": "The total return (final value plus all cash flow) is divided by cost to get an ending multiple, which is then raised to the power of 12 divided by your months and reduced by 1. A 35% gain over 12 months annualizes to 35%; over 24 months it annualizes to about 16%."
+      },
+      {
+        "q": "How does monthly cash flow factor into ROI?",
+        "a": "Cash flow times the number of months is added to the final value to form the total return. The reinvested percentage splits that cash flow into kept versus reinvested amounts for reporting, but both count toward the return."
+      },
+      {
+        "q": "What is the payback period shown?",
+        "a": "The number of months of cash flow needed to cover any part of the cost not already recovered by the final value. If there is no recurring cash flow, the result says so instead of showing a period."
+      },
+      {
+        "q": "What scenarios are in the table?",
+        "a": "Your inputs plus three variants — final value up 10%, final value down 10%, and cash flow up 20% — each with total return, profit, ROI, and annualized ROI."
+      },
+      {
+        "q": "Does this account for the time value of money?",
+        "a": "No. It is a simple ROI model, not a discounted cash flow analysis, so it will overstate attractiveness compared with an NPV or IRR calculation for long horizons. Treat results as estimates, not investment advice."
+      },
+      {
+        "q": "Where does the calculation run?",
+        "a": "Entirely in your browser — no figures are uploaded and the CSV is generated locally."
+      }
+    ]
+  },
+  "break-even-calculator": {
+    "intro": "This calculator finds how many units you must sell to cover fixed costs, and how many more you need to hit a profit target. It computes contribution per unit and contribution margin, converts unit targets into revenue, and — given your conversion rate — into the number of leads or visitors required. A scenario table tests price, variable cost, and fixed cost changes, with a CSV export.",
+    "howTo": [
+      "Enter your monthly or project Fixed costs.",
+      "Set the Price per unit and Variable cost per unit.",
+      "Add a Target profit and your sales Conversion rate % to translate units into leads.",
+      "Review break-even units, target units, revenue needed, and leads needed, then use Download break-even CSV for the scenarios."
+    ],
+    "faqs": [
+      {
+        "q": "What formula determines break-even units?",
+        "a": "Fixed costs divided by contribution per unit (price minus variable cost), rounded up to a whole unit. Target units use the same formula with the target profit added to fixed costs."
+      },
+      {
+        "q": "What is contribution margin?",
+        "a": "The contribution per unit expressed as a percentage of price — the share of each sale left over to cover fixed costs after variable costs. A $50 price with $20 variable cost has a 60% contribution margin."
+      },
+      {
+        "q": "How are leads needed calculated?",
+        "a": "Target units divided by your conversion rate, rounded up. At a 3% conversion rate, selling 250 units requires about 8,334 leads."
+      },
+      {
+        "q": "Why does the tool reject my inputs?",
+        "a": "Price must be greater than zero and greater than the variable cost — if every sale loses money on variable costs alone, no volume can break even."
+      },
+      {
+        "q": "What do the scenario rows test?",
+        "a": "Your baseline against price up 10%, variable cost up 10%, and fixed costs down 10%, showing how sensitive your break-even point is to each lever."
+      },
+      {
+        "q": "Is my cost data uploaded?",
+        "a": "No — everything runs client-side in your browser, and these figures are planning estimates rather than accounting or financial advice."
+      }
+    ]
+  },
+  "hourly-to-salary-calculator": {
+    "intro": "Convert an hourly wage into its weekly, monthly, and annual equivalents based on how many hours you actually work per week. It is a quick way to compare an hourly offer against a salaried one or to sanity-check a contract rate.",
+    "howTo": [
+      "Enter your Hourly rate in dollars.",
+      "Set Hours per week to your typical schedule (40 for full time, or a fraction for part time).",
+      "Read the weekly, monthly, and annual pay from the results."
+    ],
+    "faqs": [
+      {
+        "q": "How are the figures calculated?",
+        "a": "Weekly pay is rate times hours; annual pay is weekly times 52; monthly pay is the annual figure divided by 12. So $35/hour at 40 hours is $1,400 weekly and $72,800 annually."
+      },
+      {
+        "q": "Does this account for taxes or unpaid time off?",
+        "a": "No — it assumes 52 paid weeks and shows gross pay before taxes, benefits, or deductions. Subtract unpaid weeks from 52 and scale accordingly, or use the Take Home Pay Calculator for net figures."
+      },
+      {
+        "q": "Why is the monthly number not weekly pay times 4?",
+        "a": "Months average about 4.33 weeks, so the tool divides annual pay by 12 instead of multiplying a week by 4, which would understate monthly income by roughly 8%."
+      },
+      {
+        "q": "Can I use it for overtime or part-time schedules?",
+        "a": "Enter your average total weekly hours; the tool applies one flat rate, so blend overtime premiums into the rate manually if a large share of your hours are paid at time-and-a-half."
+      },
+      {
+        "q": "Is my wage information kept private?",
+        "a": "Yes — the conversion happens instantly in your browser and nothing is transmitted or stored."
+      }
+    ]
+  },
+  "cpm-rpm-calculator": {
+    "intro": "This calculator forecasts website ad revenue from monthly visitors, pages per visitor, page RPM, and ad fill rate. It reports projected monthly revenue, effective RPM, revenue per visitor, and an annual run rate, and answers two planning questions directly: how many visitors you need for $10k per month, and what RPM would get you there at current traffic. Scenario rows test 25% gains in traffic, RPM, and engagement, with CSV export.",
+    "howTo": [
+      "Enter your Monthly visitors and average Pages per visitor.",
+      "Set your Page RPM (revenue per 1,000 pageviews) and Ad fill rate %.",
+      "Optionally enter Known revenue from a past month to back-calculate your actual RPM.",
+      "Compare projected revenue, revenue per visitor, and the $10k/month targets, then use Download ad revenue CSV for the scenarios."
+    ],
+    "faqs": [
+      {
+        "q": "How is projected revenue calculated?",
+        "a": "Visitors times pages per visitor gives pageviews; multiplying by the fill rate gives filled pageviews; revenue is filled pageviews divided by 1,000 times your page RPM."
+      },
+      {
+        "q": "What is the difference between CPM and RPM?",
+        "a": "CPM is what advertisers pay per 1,000 impressions; RPM is what you earn per 1,000 pageviews after the ad network's share and unfilled inventory. This tool works in RPM because that is what publisher dashboards report."
+      },
+      {
+        "q": "What does the Known revenue field do?",
+        "a": "If you enter last month's actual earnings, the tool divides it by your pageviews to show your real effective RPM, which you can compare against the RPM you assumed."
+      },
+      {
+        "q": "How are the $10k-per-month figures derived?",
+        "a": "Visitors for $10k divides 10,000 by your current revenue per visitor; RPM lift for $10k computes the page RPM your current filled pageviews would need to produce $10,000."
+      },
+      {
+        "q": "What do the scenario rows compare?",
+        "a": "Your baseline against 25% more traffic, 25% higher RPM, and 25% more pages per visitor — useful for deciding whether to invest in growth, ad optimization, or engagement."
+      },
+      {
+        "q": "Is my traffic data sent to a server?",
+        "a": "No. The forecast and CSV are generated locally in your browser, and results are directional estimates since RPM varies by season, geography, and content."
+      }
+    ]
+  },
+  "gpa-calculator": {
+    "intro": "This calculator computes a credit-weighted GPA from a simple list of grade points and credit hours. Paste one course per line, and it returns your GPA to two decimal places along with the total credits and number of classes counted.",
+    "howTo": [
+      "In the Grades and credits box, enter one course per line as grade,credits (for example 3.7,4).",
+      "Convert letter grades to points first on the standard scale: A = 4.0, A- = 3.7, B+ = 3.3, and so on.",
+      "Read your GPA, total credits, and class count from the results."
+    ],
+    "faqs": [
+      {
+        "q": "How is the GPA weighted?",
+        "a": "Each grade is multiplied by its credit hours, the products are summed, and the total is divided by the total credits. A 4.0 in a 1-credit class moves your GPA far less than a 4.0 in a 5-credit class."
+      },
+      {
+        "q": "Can I use a weighted high school scale above 4.0?",
+        "a": "Yes — the tool accepts any numeric grade values, so 5.0-scale honors or AP grades work as long as all rows use the same scale."
+      },
+      {
+        "q": "What happens to malformed lines?",
+        "a": "Lines without at least a grade and a credit value separated by a comma are skipped, and you will see an error if no valid rows with nonzero credits remain."
+      },
+      {
+        "q": "How do I calculate a cumulative GPA across semesters?",
+        "a": "List every graded course from all semesters in one box — because the math is credit-weighted, combining terms this way produces the correct cumulative figure."
+      },
+      {
+        "q": "Is my academic information private?",
+        "a": "Yes. Grades are processed entirely in your browser and are never uploaded, logged, or stored."
+      }
+    ]
+  },
+  "bmi-calculator": {
+    "intro": "This calculator computes body mass index from your height and weight in either metric (cm/kg) or imperial (in/lb) units and places the result in the standard weight category. BMI is a quick screening ratio, and the result shows the exact figure to one decimal place along with the formula used.",
+    "howTo": [
+      "Choose your Unit system: cm / kg or in / lb.",
+      "Enter your Height and Weight in those units.",
+      "Read your BMI value and its category from the results."
+    ],
+    "faqs": [
+      {
+        "q": "Which formulas are used?",
+        "a": "Metric BMI is weight in kilograms divided by height in meters squared; imperial BMI is weight in pounds divided by height in inches squared, multiplied by 703."
+      },
+      {
+        "q": "What are the category cutoffs?",
+        "a": "The standard adult ranges: under 18.5 is underweight, 18.5 to 24.9 is normal, 25 to 29.9 is overweight, and 30 or above is classed as obesity."
+      },
+      {
+        "q": "Does BMI apply to everyone?",
+        "a": "It is a population-level screening tool that does not distinguish muscle from fat, so athletes, older adults, and children can be misclassified. The adult cutoffs here are not valid for kids, who need age- and sex-specific percentiles."
+      },
+      {
+        "q": "Why am I getting an error?",
+        "a": "Height and weight must both be positive numbers — check that you have not left a field empty or mixed unit systems (for example, entering pounds while metric is selected)."
+      },
+      {
+        "q": "Is my health data stored anywhere?",
+        "a": "No. The calculation runs entirely in your browser with nothing saved or transmitted, and the result is informational only — talk to a healthcare provider about what it means for you."
+      }
+    ]
+  }
+}

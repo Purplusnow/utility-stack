@@ -4,11 +4,23 @@ import vm from "node:vm";
 
 const root = path.resolve(new URL("..", import.meta.url).pathname);
 const appPath = path.join(root, "app.js");
+const stylesPath = path.join(root, "styles.css");
 const qrVendorPath = path.join(root, "vendor", "qrcode-generator", "qrcode.js");
 const appSource = fs.readFileSync(appPath, "utf8");
 const assetVersion = Math.floor(fs.statSync(appPath).mtimeMs);
+const stylesVersion = Math.floor(fs.statSync(stylesPath).mtimeMs);
 const qrVendorVersion = Math.floor(fs.statSync(qrVendorPath).mtimeMs);
-const siteUrl = "https://utilitystack.github.io";
+const siteUrl = "https://tools.koreanblog.xyz";
+const categoryOrder = ["Image", "Decision", "Data", "Developer", "Text", "Finance", "Business", "SEO", "Security", "Time", "Converters", "Writing", "Education", "Network", "Health", "Generators"];
+
+const contentDir = path.join(root, "scripts", "content");
+const toolContent = {};
+for (const file of fs.readdirSync(contentDir)) {
+  if (file.endsWith(".json") && file !== "ko-decision.json") {
+    Object.assign(toolContent, JSON.parse(fs.readFileSync(path.join(contentDir, file), "utf8")));
+  }
+}
+const koToolContent = JSON.parse(fs.readFileSync(path.join(contentDir, "ko-decision.json"), "utf8"));
 
 function makeClassList() {
   return {
@@ -32,6 +44,7 @@ function makeElement() {
     addEventListener() {},
     setAttribute() {},
     getAttribute: () => "",
+    getBoundingClientRect: () => ({ top: 120 }),
     querySelector: () => null,
     querySelectorAll: () => [],
     closest: () => null,
@@ -85,6 +98,8 @@ const sandbox = {
     addEventListener() {}
   },
   window: {
+    innerHeight: 800,
+    visualViewport: { height: 800, addEventListener() {} },
     addEventListener() {},
     matchMedia: () => ({ matches: false, addEventListener() {} }),
     getComputedStyle: () => ({ display: "block" }),
@@ -108,11 +123,20 @@ const categories = new Map();
 
 fs.rmSync(path.join(root, "tools"), { recursive: true, force: true });
 fs.rmSync(path.join(root, "categories"), { recursive: true, force: true });
+fs.rmSync(path.join(root, "ko"), { recursive: true, force: true });
 
 for (const tool of tools) {
   const meta = toolMetadata(tool);
   if (!categories.has(tool.category)) categories.set(tool.category, []);
   categories.get(tool.category).push({ tool, meta });
+}
+
+function orderedCategoryEntries() {
+  return [...categories.entries()].sort(([a], [b]) => {
+    const aIndex = categoryOrder.indexOf(a);
+    const bIndex = categoryOrder.indexOf(b);
+    return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+  });
 }
 
 function escapeHtml(value) {
@@ -125,25 +149,38 @@ function escapeHtml(value) {
   }[char]));
 }
 
-function renderLayout({ title, description, canonicalPath, body, schema, assetPrefix = "" }) {
+function renderLayout({ title, description, canonicalPath, body, schema, assetPrefix = "", lang = "en", alternates = [] }) {
   const canonicalUrl = `${siteUrl}${canonicalPath}`;
+  const alternateLinks = alternates.map(([hreflang, url]) => `  <link rel="alternate" hreflang="${hreflang}" href="${url}">`).join("\n");
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}">
   <link rel="canonical" href="${canonicalUrl}">
+${alternateLinks}
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
   <meta property="og:type" content="website">
   <meta property="og:url" content="${canonicalUrl}">
+  <meta property="og:image" content="${siteUrl}/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="${siteUrl}/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="${assetPrefix}styles.css">
+  <link rel="stylesheet" href="${assetPrefix}styles.css?v=${stylesVersion}">
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   ${body}
@@ -160,11 +197,17 @@ function renderHeader(assetPrefix = "") {
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>`;
 }
 
-function renderAppShell({ heading, subheading, assetPrefix = "" }) {
+function renderAppShell({ heading, subheading, assetPrefix = "", extraSections = "" }) {
   return `${renderHeader(assetPrefix)}
   <main id="top">
     <section class="hero">
@@ -180,7 +223,14 @@ function renderAppShell({ heading, subheading, assetPrefix = "" }) {
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          ${[...categories.keys()].map((category) => `<a href="${assetPrefix}categories/${slugify(category)}/">${escapeHtml(category)} tools</a>`).join("")}
+          ${orderedCategoryEntries().map(([category, entries]) => {
+            const anchor = entries[0]?.tool.anchor || slugify(category);
+            return `<a href="#${anchor}" data-category-anchor="${anchor}">${escapeHtml(category)} tools</a>`;
+          }).join("")}
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -192,12 +242,68 @@ function renderAppShell({ heading, subheading, assetPrefix = "" }) {
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    ${extraSections}
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
     <span>Free browser-based tools. No uploads, no accounts.</span>
     <span class="footer-links"><a href="${assetPrefix}privacy/">Privacy</a><a href="${assetPrefix}terms/">Terms</a></span>
   </footer>`;
+}
+
+const contentHeadings = {
+  en: { about: "About this tool", howTo: "How to use", faq: "Frequently asked questions", related: "Related tools" },
+  ko: { about: "이 도구 소개", howTo: "사용 방법", faq: "자주 묻는 질문", related: "관련 도구" }
+};
+
+function relatedTools(tool, limit = 6) {
+  return tools
+    .filter((item) => item.category === tool.category && item.id !== tool.id)
+    .slice(0, limit)
+    .map((item) => ({ slug: toolMetadata(item).slug, title: item.title }));
+}
+
+function toolContentSections(tool, content, { lang = "en" } = {}) {
+  if (!content) return "";
+  const headings = contentHeadings[lang] || contentHeadings.en;
+  const related = relatedTools(tool);
+  return `
+    <section class="content-page tool-seo-content">
+      <h2>${headings.about}</h2>
+      <p>${escapeHtml(content.intro)}</p>
+      <h2>${headings.howTo}</h2>
+      <ol>${content.howTo.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}</ol>
+      <h2>${headings.faq}</h2>
+      ${content.faqs.map((faq) => `<h3>${escapeHtml(faq.q)}</h3><p>${escapeHtml(faq.a)}</p>`).join("")}
+      ${related.length ? `<h2>${headings.related}</h2><ul class="related-tools">${related.map((item) => `<li><a href="/tools/${item.slug}/">${escapeHtml(item.title)}</a></li>`).join("")}</ul>` : ""}
+    </section>
+  `;
+}
+
+function faqSchema(content, url) {
+  if (!content?.faqs?.length) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url,
+    mainEntity: content.faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.q,
+      acceptedAnswer: { "@type": "Answer", text: faq.a }
+    }))
+  };
+}
+
+function breadcrumbSchema(tool, meta, url) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "UtilityStack", item: `${siteUrl}/` },
+      { "@type": "ListItem", position: 2, name: `${tool.category} Tools`, item: `${siteUrl}/categories/${meta.categorySlug || slugify(tool.category)}/` },
+      { "@type": "ListItem", position: 3, name: tool.title, item: url }
+    ]
+  };
 }
 
 function renderPrivacyPage(assetPrefix = "../") {
@@ -307,19 +413,52 @@ for (const tool of tools) {
   const meta = toolMetadata(tool);
   const title = `${tool.title} - Free Online Tool | UtilityStack`;
   const description = `${tool.description} Use this free ${tool.category.toLowerCase()} tool directly in your browser.`;
+  const content = toolContent[tool.id];
+  const koContent = koToolContent[tool.id];
+  const url = `${siteUrl}/tools/${meta.slug}/`;
+  const koUrl = `${siteUrl}/ko/tools/${meta.slug}/`;
+  const alternates = koContent
+    ? [["en", url], ["ko", koUrl], ["x-default", url]]
+    : [];
+  const schema = [toolSchema(tool, meta), breadcrumbSchema(tool, meta, url), faqSchema(content, url)].filter(Boolean);
   const html = renderLayout({
     title,
     description,
     canonicalPath: `/tools/${meta.slug}/`,
     assetPrefix: "../../",
-    schema: toolSchema(tool, meta),
+    schema,
+    alternates,
     body: renderAppShell({
       heading: tool.title,
       subheading: tool.description,
-      assetPrefix: "../../"
+      assetPrefix: "../../",
+      extraSections: toolContentSections(tool, content)
     })
   });
   writeFile(path.join(root, "tools", meta.slug, "index.html"), html);
+
+  if (koContent) {
+    const koSchema = [
+      { ...toolSchema(tool, meta), name: koContent.title, url: koUrl, description: koContent.description, inLanguage: "ko" },
+      faqSchema(koContent, koUrl)
+    ].filter(Boolean);
+    const koHtml = renderLayout({
+      title: `${koContent.title} - 무료 온라인 도구 | UtilityStack`,
+      description: koContent.description,
+      canonicalPath: `/ko/tools/${meta.slug}/`,
+      assetPrefix: "../../../",
+      lang: "ko",
+      alternates: [["en", url], ["ko", koUrl], ["x-default", url]],
+      schema: koSchema,
+      body: renderAppShell({
+        heading: koContent.heading,
+        subheading: koContent.description,
+        assetPrefix: "../../../",
+        extraSections: toolContentSections(tool, koContent, { lang: "ko" })
+      })
+    });
+    writeFile(path.join(root, "ko", "tools", meta.slug, "index.html"), koHtml);
+  }
 }
 
 for (const [category, entries] of categories) {
@@ -376,12 +515,14 @@ const urls = [
   "/privacy/",
   "/terms/",
   ...tools.map((tool) => `/tools/${toolMetadata(tool).slug}/`),
+  ...tools.filter((tool) => koToolContent[tool.id]).map((tool) => `/ko/tools/${toolMetadata(tool).slug}/`),
   ...[...categories.keys()].map((category) => `/categories/${slugify(category)}/`)
 ];
 
+const lastmod = new Date().toISOString().slice(0, 10);
 writeFile(path.join(root, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map((url) => `  <url><loc>${siteUrl}${url}</loc></url>`).join("\n")}
+${urls.map((url) => `  <url><loc>${siteUrl}${url}</loc><lastmod>${lastmod}</lastmod></url>`).join("\n")}
 </urlset>
 `);
 

@@ -12,6 +12,7 @@ const termsPath = path.join(root, "terms", "index.html");
 const qrVendorPath = path.join(root, "vendor", "qrcode-generator", "qrcode.js");
 const appSource = fs.readFileSync(appPath, "utf8");
 const indexSource = fs.readFileSync(indexPath, "utf8");
+const stylesSource = fs.readFileSync(path.join(root, "styles.css"), "utf8");
 
 const output = [];
 const failures = [];
@@ -46,7 +47,7 @@ function makeClassList() {
 function makeElement() {
   return {
     children: [],
-    style: {},
+    style: { setProperty() {}, removeProperty() {} },
     dataset: {},
     className: "",
     classList: makeClassList(),
@@ -71,6 +72,9 @@ function makeElement() {
     },
     getAttribute(name) {
       return this[name];
+    },
+    getBoundingClientRect() {
+      return { top: 120 };
     },
     querySelector() {
       return null;
@@ -122,9 +126,12 @@ const sandbox = {
     addEventListener: () => {}
   },
   window: {
+    innerHeight: 800,
+    visualViewport: { height: 800, addEventListener: () => {} },
     addEventListener: () => {},
     matchMedia: () => ({ matches: false, addEventListener: () => {} }),
     getComputedStyle: () => ({ display: "block" }),
+    requestAnimationFrame: (callback) => callback(),
     scrollTo: () => {}
   },
   navigator: {
@@ -156,14 +163,15 @@ sandbox.window.document = sandbox.document;
 sandbox.window.localStorage = sandbox.localStorage;
 sandbox.window.history = sandbox.history;
 sandbox.window.location = sandbox.location;
+sandbox.requestAnimationFrame = sandbox.window.requestAnimationFrame;
 sandbox.globalThis = sandbox;
 
 vm.createContext(sandbox);
-vm.runInContext(`${appSource}\nthis.__verify = { tools, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary };`, sandbox, {
+vm.runInContext(`${appSource}\nthis.__verify = { tools, languages, translations, privacyCopy, titleTerms, localizedCategory, localizedToolTitle, localizedToolTitleFor, localizedToolDescription, localizedSearchText, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary };`, sandbox, {
   filename: "app.js"
 });
 
-const { tools, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary } = sandbox.__verify;
+const { tools, languages, translations, privacyCopy, titleTerms, localizedCategory, localizedToolTitle, localizedToolTitleFor, localizedToolDescription, localizedSearchText, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary } = sandbox.__verify;
 const knownCustomTools = new Set([
   "file-word-counter",
   "file-json-formatter",
@@ -177,9 +185,27 @@ const knownCustomTools = new Set([
   "image-asset-pack",
   "image-pixel-art"
 ]);
+const expectedCategoryAnchors = ["image", "decision", "data", "dev", "text", "finance", "business", "seo", "security", "time", "converters", "writing", "education", "network", "health", "generators"];
+const retiredToolIds = new Set([
+  "sentence-counter",
+  "grade-percentage-calculator",
+  "study-timer-planner",
+  "ip-to-integer-converter",
+  "lorem-ipsum-generator",
+  "list-randomizer"
+]);
+
+function sidebarCategoryAnchors(html) {
+  const block = html.match(/<h2>Categories<\/h2>([\s\S]*?)<\/div>/)?.[1] || "";
+  return [...block.matchAll(/href="#([^"]+)"/g)].map((match) => match[1]);
+}
 
 if (!Array.isArray(tools)) fail("tools must be an array.");
 else ok(`${tools.length} tools loaded`);
+
+for (const retiredToolId of retiredToolIds) {
+  if (tools.some((tool) => tool.id === retiredToolId)) fail(`${retiredToolId} should stay retired from the public tool list.`);
+}
 
 const ids = new Set();
 const categories = new Map();
@@ -219,11 +245,13 @@ for (const tool of tools) {
     } else {
       const toolHtml = fs.readFileSync(toolPage, "utf8");
       if (!toolHtml.includes(tool.title)) fail(`${tool.id} generated page is missing title.`);
+      if (!toolHtml.includes('id="language-select"')) fail(`${tool.id} generated page is missing language selector.`);
+      if (!toolHtml.includes('id="pinned-tools"')) fail(`${tool.id} generated page is missing pinned tools sidebar.`);
       if (!toolHtml.includes("../../app.js?v=")) fail(`${tool.id} generated page must load versioned ../../app.js.`);
       if (!toolHtml.includes('qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=')) fail(`${tool.id} generated page must configure the vendored QR code library.`);
       if (toolHtml.includes("cdn.jsdelivr.net/npm/qrcode-generator")) fail(`${tool.id} generated page must not load QR code generation from a CDN.`);
       if (toolHtml.includes('<script src="../../vendor/qrcode-generator/qrcode.js')) fail(`${tool.id} generated page must lazy-load QR code generation.`);
-      if (!toolHtml.includes(`https://utilitystack.github.io/tools/${meta.slug}/`)) fail(`${tool.id} generated page is missing canonical URL.`);
+      if (!toolHtml.includes(`https://tools.koreanblog.xyz/tools/${meta.slug}/`)) fail(`${tool.id} generated page is missing canonical URL.`);
     }
   }
 }
@@ -488,8 +516,20 @@ else {
   if (imageResults[0]?.id !== "image-resize-calculator") fail("Search should rank Image Resizer first for image resize.");
   const csvResults = searchTools("quoted csv");
   if (!csvResults.some((tool) => tool.id === "csv-cleaner")) fail("Search should find CSV Cleaner for quoted csv.");
+  const koreanLoanResults = searchTools("대출");
+  if (!koreanLoanResults.some((tool) => tool.id === "loan-payment-calculator")) fail("Search should find loan tools by Korean localized title.");
+  const koreanPasswordResults = searchTools("비밀번호");
+  if (!koreanPasswordResults.some((tool) => tool.id === "password-generator")) fail("Search should find password tools by Korean localized title.");
+  const coffeeResults = searchTools("커피쏘기");
+  if (!coffeeResults.some((tool) => tool.id === "ladder-draw" || tool.id === "roulette-picker")) fail("Search should find decision tools for coffee payer use cases.");
+  const rouletteResults = searchTools("룰렛");
+  if (rouletteResults[0]?.id !== "roulette-picker") fail("Search should rank Roulette Picker first for Korean roulette queries.");
+  const spanishCalculatorResults = searchTools("calculadora");
+  if (!spanishCalculatorResults.some((tool) => tool.id === "loan-payment-calculator")) fail("Search should use localized titles across languages.");
   const noResults = searchTools("zzzzzz-no-tool");
   if (noResults.length) fail("Search should return no tools for nonsense queries.");
+  if (!localizedSearchText(tools.find((tool) => tool.id === "loan-payment-calculator")).includes("대출 상환 계산기")) fail("Localized search text should include Korean tool titles.");
+  if (!localizedSearchText(tools.find((tool) => tool.id === "ladder-draw")).includes("사다리 타기")) fail("Localized search text should include Korean decision tool titles.");
   ok("ranked search found");
 }
 
@@ -502,7 +542,7 @@ if (typeof toolOpportunity !== "function") fail("toolOpportunity() must be avail
 else {
   const mortgage = tools.find((tool) => tool.id === "mortgage-affordability-calculator");
   const jsonFormatter = tools.find((tool) => tool.id === "json-formatter");
-  const simple = tools.find((tool) => tool.id === "sentence-counter");
+  const simple = tools.find((tool) => tool.id === "line-sorter");
   if (toolOpportunity(mortgage).score < 80) fail("Mortgage calculator should be scored as a flagship opportunity.");
   if (toolMetadata(jsonFormatter).opportunity.demand !== "proven") fail("JSON Formatter should be marked as proven demand.");
   if (toolOpportunity(simple).score >= toolOpportunity(mortgage).score) fail("Simple text utilities should not outrank flagship finance tools.");
@@ -520,6 +560,12 @@ else {
   if (toolPrivacyLevel(tipToolForPrivacy) !== "browser") fail("Simple calculators should use browser privacy level.");
   const notice = privacyNotice(jwtTool);
   if (!notice.includes("Private by design") || !notice.includes("does not need server upload")) fail("Privacy notice should use accurate browser-processing language.");
+  if (!privacyCopy?.ko?.title || !privacyCopy.ko.messages?.browser?.includes("브라우저")) fail("Privacy notice should include Korean localized copy.");
+  for (const [code] of languages) {
+    if (!privacyCopy[code]?.title || !privacyCopy[code]?.messages?.browser || !privacyCopy[code]?.messages?.["local-file"] || !privacyCopy[code]?.messages?.["private-input"]) {
+      fail(`${code} privacy copy should localize all privacy notice levels.`);
+    }
+  }
   if (!appSource.includes("${privacyNotice(tool)}")) fail("Active tool renderers should include privacy notice.");
   ok("privacy messaging found");
 }
@@ -1061,6 +1107,62 @@ for (const tool of standardTools) {
 
 if (!indexSource.includes("app.js?v=")) fail("index.html must load versioned app.js.");
 else ok("index.html loads versioned app.js");
+if (!indexSource.includes("styles.css?v=")) fail("index.html must load versioned styles.css.");
+else ok("index.html loads versioned styles.css");
+
+if (!Array.isArray(languages) || languages.length !== 16) fail("Language selector should support exactly 16 languages.");
+else {
+  const codes = languages.map(([code]) => code);
+  for (const code of codes) {
+    if (!translations[code]) fail(`Missing translation pack for ${code}.`);
+    if (!translations[code]?.homeHeading || !translations[code]?.openTool || !translations[code]?.closeTool || !translations[code]?.categoriesMap) fail(`${code} translation pack is missing required UI strings.`);
+  }
+  if (translations.ko.categoriesMap.Finance !== "금융") fail("Korean translation pack should localize Finance.");
+  if (translations.ar.categoriesMap.Time !== "الوقت") fail("Arabic translation pack should localize Time.");
+  const loanToolForTitle = tools.find((tool) => tool.id === "loan-payment-calculator");
+  const pixelToolForTitle = tools.find((tool) => tool.id === "pixel-art-converter");
+  for (const code of codes.filter((code) => code !== "en")) {
+    if (!titleTerms[code] || !Object.keys(titleTerms[code]).length) fail(`${code} should include tool title translation terms.`);
+    const localizedLoanTitle = localizedToolTitleFor(loanToolForTitle, code);
+    if (!localizedLoanTitle || localizedLoanTitle === loanToolForTitle.title) fail(`${code} should localize Loan Payment Calculator title.`);
+    const localizedPixelTitle = localizedToolTitleFor(pixelToolForTitle, code);
+    if (!localizedPixelTitle || localizedPixelTitle === pixelToolForTitle.title) fail(`${code} should localize Pixel Art Converter title.`);
+  }
+  if (!localizedToolTitleFor(loanToolForTitle, "es").includes("Calculadora")) fail("Spanish tool titles should use Spanish terms.");
+  if (!localizedToolTitleFor(loanToolForTitle, "fr").includes("Calculateur")) fail("French tool titles should use French terms.");
+  if (!localizedToolTitleFor(loanToolForTitle, "ar").includes("حاسبة")) fail("Arabic tool titles should use Arabic terms.");
+  ok("16-language UI packs found");
+}
+
+if (!indexSource.includes('id="language-select"')) fail("index.html should include a language selector.");
+if (!indexSource.includes('id="pinned-tools"')) fail("index.html should include pinned tools sidebar.");
+if (!appSource.includes("LANGUAGE_STORAGE_KEY")) fail("Language preference should be stored locally.");
+if (!appSource.includes("PINNED_STORAGE_KEY") || !appSource.includes("data-pin-tool-id") || !appSource.includes("renderPinned")) fail("Pinned tool shortcuts should be persisted and rendered.");
+if (!appSource.includes("★") || !appSource.includes("☆") || !appSource.includes("aria-label=")) fail("Pinned tool actions should use accessible star icon buttons.");
+if (!appSource.includes("toggleTool") || !appSource.includes("closeTool") || !appSource.includes("aria-expanded")) fail("Tool cards should toggle between open and close states.");
+if (!appSource.includes("pinned-section") || !appSource.includes("renderToolCard")) fail("Pinned tools should be surfaced as a top tool-grid section.");
+if (!appSource.includes("renderDecisionTool") || !appSource.includes("data-decision-action") || !stylesSource.includes(".decision-stage")) fail("Decision tools should use dedicated interactive UI instead of generic calculator forms.");
+if (!appSource.includes("decisionCopy") || !appSource.includes("decisionFieldLabel") || !appSource.includes("커피 쏘기") || !appSource.includes("소진 전까지 중복 없음")) fail("Decision tools should localize buttons, examples, and option labels.");
+const coinFlipTool = tools.find((tool) => tool.id === "coin-flip");
+if (!coinFlipTool || coinFlipTool.fields.some((field) => field.id === "headsLabel" || field.id === "tailsLabel")) fail("Coin Flip should stay a simple heads/tails tool without custom label fields.");
+if (!appSource.includes("function coinFaceLabels") || !appSource.includes("[\"앞면\", \"뒷면\"]")) fail("Coin Flip should use localized front/back coin faces.");
+if (!appSource.includes("function ladderStageMarkup") || !appSource.includes("ladder-label-row") || !stylesSource.includes(".ladder-board")) fail("Ladder Draw should render an actual participant-to-outcome ladder board.");
+if (!stylesSource.includes("#facc15") || !stylesSource.includes(".pinned-section")) fail("Favorite stars and pinned sections should use a clear yellow treatment.");
+if (!appSource.includes("document.documentElement.dir")) fail("Language switching should support text direction.");
+if (!appSource.includes("localizedToolDescription")) fail("Tool cards should use localized descriptions.");
+if (!appSource.includes("categoryIntro(localizedCategory(tool.category), localizedToolTitle(tool))")) fail("Localized descriptions should use localized tool titles, not English originals.");
+const koreanLoanIntro = translations.ko.categoryIntro("금융", localizedToolTitleFor(tools.find((tool) => tool.id === "loan-payment-calculator"), "ko"));
+const koreanBatchimIntro = translations.ko.categoryIntro("이미지", "픽셀 팩");
+if (koreanLoanIntro.includes("Loan Payment Calculator")) fail("Korean tool descriptions should not mix English tool titles.");
+if (koreanLoanIntro.includes("을(를)") || !koreanLoanIntro.includes("대출 상환 계산기를")) fail("Korean tool descriptions should use natural object particles.");
+if (!koreanBatchimIntro.includes("픽셀 팩을")) fail("Korean object particle helper should handle final consonants.");
+if (appSource.includes("scrollToCategory(location.hash")) fail("Initial page load should not auto-scroll to a stale category hash.");
+if (!appSource.includes("history.replaceState(null, \"\", `${location.pathname}${location.search}`)")) fail("Initial page load should clear stale category hashes before scrolling to top.");
+const homeCategoryAnchors = sidebarCategoryAnchors(indexSource);
+if (homeCategoryAnchors.join(",") !== expectedCategoryAnchors.join(",")) fail("Homepage sidebar category order should match rendered category order.");
+if (!stylesSource.includes("--sidebar-frame-height") || !stylesSource.includes("overflow-y: auto")) fail("Desktop sidebar should scroll independently within a measured viewport frame.");
+if (!stylesSource.includes("overscroll-behavior: contain")) fail("Desktop sidebar should contain scroll chaining.");
+if (!appSource.includes("updateSidebarFrameHeight") || !appSource.includes("visualViewport")) fail("App code should size the sidebar frame to the visible browser viewport.");
 
 if (!fs.existsSync(qrVendorPath)) fail("Vendored QR code library is missing.");
 else ok("vendored QR code library found");
@@ -1069,8 +1171,10 @@ if (!indexSource.includes('qrLibrary: "vendor/qrcode-generator/qrcode.js?v=')) f
 if (indexSource.includes("cdn.jsdelivr.net/npm/qrcode-generator")) fail("index.html must not load QR code generation from a CDN.");
 if (indexSource.includes('<script src="vendor/qrcode-generator/qrcode.js')) fail("index.html must lazy-load QR code generation.");
 
-if (!indexSource.includes("adsbygoogle")) fail("index.html is missing AdSense placement.");
-else ok("AdSense marker found");
+if (!indexSource.includes("pagead2.googlesyndication.com/pagead/js/adsbygoogle.js")) fail("index.html should keep the AdSense auto ads script.");
+if (indexSource.includes("adsbygoogle\"") || indexSource.includes("ad-frame") || indexSource.includes("data-ad-slot")) fail("index.html should not reserve a manual AdSense slot.");
+if (appSource.includes("lockAdFrames") || appSource.includes(".ad-frame")) fail("App code should not reserve or clamp ad slot space.");
+ok("AdSense auto ads script found without reserved slots");
 
 if (!indexSource.includes("application/ld+json")) fail("index.html is missing structured data.");
 else ok("structured data marker found");
@@ -1082,19 +1186,31 @@ const headerMarkup = indexSource.match(/<header class="site-header"[\s\S]*?<\/he
 if (headerMarkup.includes("<nav")) fail("Top header should not include shortcut navigation.");
 if (!headerMarkup.includes("UtilityStack")) fail("Top header should keep the brand.");
 if (!headerMarkup.includes("theme-toggle")) fail("Top header should keep the theme toggle.");
+if (headerMarkup.includes('href="#top"')) fail("Homepage brand link should not use #top because it hides the hero under the sticky header.");
 else ok("minimal top header found");
 
 for (const category of categories.keys()) {
   const categorySlug = category.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const categoryPage = path.join(root, "categories", categorySlug, "index.html");
   if (!fs.existsSync(categoryPage)) fail(`${category} is missing generated category page.`);
+  else {
+    const categoryHtml = fs.readFileSync(categoryPage, "utf8");
+    const categoryTool = tools.find((tool) => tool.category === category);
+    const anchor = categoryTool?.anchor || categorySlug;
+    if (!categoryHtml.includes(`href="#${anchor}"`)) fail(`${category} category page sidebar should link to the in-page ${anchor} section.`);
+    if (!categoryHtml.includes('id="language-select"')) fail(`${category} category page is missing language selector.`);
+    if (!categoryHtml.includes('id="pinned-tools"')) fail(`${category} category page is missing pinned tools sidebar.`);
+    const categoryAnchors = sidebarCategoryAnchors(categoryHtml);
+    if (categoryAnchors.join(",") !== expectedCategoryAnchors.join(",")) fail(`${category} category page sidebar order should match rendered category order.`);
+    if (categoryHtml.includes(`href="../../categories/${categorySlug}/"`)) fail(`${category} category page sidebar should not navigate away from the current tool list.`);
+  }
 }
 
 if (!fs.existsSync(sitemapPath)) fail("sitemap.xml is missing. Run the static build.");
 else {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
-  if (!sitemap.includes("https://utilitystack.github.io/privacy/")) fail("sitemap.xml should include privacy page.");
-  if (!sitemap.includes("https://utilitystack.github.io/terms/")) fail("sitemap.xml should include terms page.");
+  if (!sitemap.includes("https://tools.koreanblog.xyz/privacy/")) fail("sitemap.xml should include privacy page.");
+  if (!sitemap.includes("https://tools.koreanblog.xyz/terms/")) fail("sitemap.xml should include terms page.");
   for (const tool of tools) {
     const { slug } = toolMetadata(tool);
     if (!sitemap.includes(`/tools/${slug}/`)) fail(`sitemap.xml is missing /tools/${slug}/.`);
@@ -1104,6 +1220,58 @@ else {
 
 if (!fs.existsSync(robotsPath)) fail("robots.txt is missing.");
 else ok("robots.txt found");
+
+for (const launchFile of ["404.html", "ads.txt", "favicon.ico", "favicon.svg", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image.png", "site.webmanifest"]) {
+  if (!fs.existsSync(path.join(root, launchFile))) fail(`${launchFile} is missing.`);
+}
+ok("launch files found (404, ads.txt, icons, og image, manifest)");
+
+{
+  const indexHtml = fs.readFileSync(path.join(root, "index.html"), "utf8");
+  if (!indexHtml.includes('rel="canonical"')) fail("index.html should declare a canonical URL.");
+  if (!indexHtml.includes('property="og:image"')) fail("index.html should declare og:image.");
+  if (!indexHtml.includes('rel="icon"')) fail("index.html should link a favicon.");
+  const sampleToolPage = path.join(root, "tools", toolMetadata(tools[0]).slug, "index.html");
+  const toolHtml = fs.readFileSync(sampleToolPage, "utf8");
+  if (!toolHtml.includes('property="og:image"')) fail("Generated tool pages should declare og:image.");
+  if (!toolHtml.includes('rel="icon"')) fail("Generated tool pages should link a favicon.");
+  ok("head metadata includes canonical, og:image, and icons");
+}
+
+{
+  const sampleToolPage = path.join(root, "tools", toolMetadata(tools[0]).slug, "index.html");
+  const toolHtml = fs.readFileSync(sampleToolPage, "utf8");
+  if (!toolHtml.includes("Frequently asked questions")) fail("Tool pages should include FAQ content sections.");
+  if (!toolHtml.includes('"FAQPage"')) fail("Tool pages should include FAQPage structured data.");
+  if (!toolHtml.includes('"BreadcrumbList"')) fail("Tool pages should include BreadcrumbList structured data.");
+  if (!toolHtml.includes("related-tools")) fail("Tool pages should cross-link related tools.");
+  let missingContent = 0;
+  for (const tool of tools) {
+    const html = fs.readFileSync(path.join(root, "tools", toolMetadata(tool).slug, "index.html"), "utf8");
+    if (!html.includes("Frequently asked questions")) missingContent += 1;
+  }
+  if (missingContent) fail(`${missingContent} tool pages are missing FAQ content sections.`);
+  ok("all tool pages include unique content sections and structured data");
+}
+
+{
+  const koSlugs = ["ladder-draw", "coin-flip", "dice-roller", "roulette-picker"];
+  for (const slug of koSlugs) {
+    const koPage = path.join(root, "ko", "tools", slug, "index.html");
+    if (!fs.existsSync(koPage)) fail(`Korean page /ko/tools/${slug}/ is missing.`);
+    else {
+      const koHtml = fs.readFileSync(koPage, "utf8");
+      if (!koHtml.includes('lang="ko"')) fail(`/ko/tools/${slug}/ should declare lang="ko".`);
+      if (!koHtml.includes('hreflang="en"') || !koHtml.includes('hreflang="ko"')) fail(`/ko/tools/${slug}/ should declare hreflang alternates.`);
+    }
+    const enPage = fs.readFileSync(path.join(root, "tools", slug, "index.html"), "utf8");
+    if (!enPage.includes(`hreflang="ko"`)) fail(`/tools/${slug}/ should link its Korean alternate.`);
+  }
+  ok("Korean decision tool pages exist with hreflang alternates");
+}
+
+if (!appSource.includes("data-share-tool") || !appSource.includes("applySharedStateFromUrl")) fail("Tools should support shareable state URLs.");
+else ok("shareable state URLs supported");
 
 if (!fs.existsSync(privacyPath)) fail("privacy/index.html is missing. Run the static build.");
 else {

@@ -1,0 +1,483 @@
+{
+  "json-formatter": {
+    "intro": "Paste JSON into this formatter to pretty-print or minify it while getting a structural inspection at the same time. Beyond reformatting, it reports depth, type counts, and a path table for up to 80 nodes, and it pinpoints the line and column of parse errors. Both the formatted output and a JSON inspection report can be downloaded.",
+    "howTo": [
+      "Paste your document into the JSON input field.",
+      "Choose Pretty print or Minify in the Mode dropdown.",
+      "Review the metrics, formatted output, and the path table showing each node's type and preview.",
+      "Use Download formatted JSON or Download inspection report to save the results."
+    ],
+    "faqs": [
+      {"q": "What does the inspection report contain?", "a": "It is a JSON file with the document summary (type, top-level size, depth), counts of objects, arrays, and scalar values, the total path count, and up to 80 sample paths in dot/bracket notation such as $.items[0].name."},
+      {"q": "How are syntax errors reported?", "a": "When parsing fails, the tool shows the parser's error message plus the line, column, and character position when the browser reports one, so you can jump straight to the broken quote or comma."},
+      {"q": "Does minify change my data?", "a": "No. Minify only removes whitespace between tokens; keys, values, and ordering as produced by JSON.stringify are otherwise unchanged."},
+      {"q": "Is there a size limit on the input?", "a": "There is no hard limit in the tool itself. Very large documents are bounded only by your browser's memory, though the path table always caps at the first 80 paths."},
+      {"q": "Does it support JSON5 or comments?", "a": "No. It uses the browser's strict JSON.parse, so comments, trailing commas, and unquoted keys are rejected as invalid."},
+      {"q": "Is my JSON uploaded anywhere?", "a": "No. Parsing, formatting, and report generation all run in your browser with JavaScript. Nothing you paste is sent to a server."}
+    ]
+  },
+  "base64-encoder-decoder": {
+    "intro": "Convert text to Base64 and back without leaving the page. The tool handles Unicode correctly by transcoding input to UTF-8 bytes before encoding, so emoji, accented characters, and non-Latin scripts round-trip cleanly.",
+    "howTo": [
+      "Enter your string in the Text field.",
+      "Set Mode to Encode to produce Base64, or Decode to convert Base64 back to text.",
+      "Copy the result from the output box."
+    ],
+    "faqs": [
+      {"q": "Does it handle Unicode and emoji?", "a": "Yes. Input is converted to UTF-8 bytes (via the encodeURIComponent technique) before Base64 encoding, and decoded output is interpreted as UTF-8, so multibyte characters survive the round trip."},
+      {"q": "Can I encode binary files?", "a": "No, this tool works on text you paste into the field. For images or other binary files you would need a file-based encoder."},
+      {"q": "What happens if I decode an invalid string?", "a": "You get a clear \"Input is not valid Base64\" error instead of garbled output. Check for stray characters, missing padding, or accidental line breaks."},
+      {"q": "Is URL-safe Base64 supported?", "a": "The encoder produces standard Base64 with + and / characters. To decode URL-safe Base64, replace - with + and _ with / first."},
+      {"q": "Is my text sent to a server?", "a": "No. Encoding and decoding use the browser's built-in atob and btoa functions, so everything stays on your device."}
+    ]
+  },
+  "uuid-generator": {
+    "intro": "Generate one to fifty random UUID v4 identifiers in a single click. Each value comes from the browser's crypto.randomUUID function, which draws on a cryptographically secure random source, and results are listed one per line for easy copying.",
+    "howTo": [
+      "Enter the number of identifiers you need in the How many field (1 to 50).",
+      "Review the generated list in the output box.",
+      "Copy the values into your code, database seed, or config."
+    ],
+    "faqs": [
+      {"q": "Which UUID version is generated?", "a": "Version 4 (random) UUIDs, produced by the browser's native crypto.randomUUID function."},
+      {"q": "How random are these values?", "a": "crypto.randomUUID uses the browser's cryptographically secure random number generator, the same source used for keys and tokens, so collisions are effectively impossible in practice."},
+      {"q": "Can I generate more than 50 at once?", "a": "The count is capped at 50 per run to keep the output manageable. Run the tool again for additional batches; every batch is independent."},
+      {"q": "Are the UUIDs sortable by creation time?", "a": "No. Version 4 UUIDs are fully random and carry no timestamp. If you need time-ordered identifiers, look at UUID v7 or ULIDs instead."},
+      {"q": "Could anyone else see the UUIDs I generate?", "a": "No. Generation happens entirely in your browser and nothing is transmitted, so the values exist only on your machine until you paste them somewhere."}
+    ]
+  },
+  "url-encoder-decoder": {
+    "intro": "Percent-encode text for safe use in URLs, or decode an encoded component back to readable text. The tool uses the browser's encodeURIComponent and decodeURIComponent, which makes it ideal for query-string values, path segments, and callback parameters.",
+    "howTo": [
+      "Paste the value into the Text field.",
+      "Pick Encode or Decode in the Mode dropdown.",
+      "Copy the converted result from the output."
+    ],
+    "faqs": [
+      {"q": "Should I encode a full URL or just part of it?", "a": "This tool applies component encoding, which escapes characters like :, /, ?, and &. Encode individual pieces (a query value, a path segment) rather than a complete URL, or the URL's own structure gets escaped too."},
+      {"q": "Which characters get encoded?", "a": "Everything except letters, digits, and - _ . ! ~ * ' ( ) is converted to percent-encoded UTF-8 byte sequences, matching the behavior of JavaScript's encodeURIComponent."},
+      {"q": "Why do I get an error when decoding?", "a": "Decoding fails when the input contains a malformed percent sequence, such as a stray % not followed by two hex digits. The tool reports this instead of returning partial output."},
+      {"q": "Does it handle spaces as + signs?", "a": "No. Spaces encode to %20. The + convention comes from the older form-urlencoded format; convert + to %20 (or to a space before decoding) if you are working with form data."},
+      {"q": "Is the URL I paste logged or sent anywhere?", "a": "No. Conversion runs locally in your browser using built-in JavaScript functions, so URLs containing tokens or IDs never leave your device."}
+    ]
+  },
+  "regex-tester": {
+    "intro": "Test a regular expression against sample text and see every match highlighted inline. The tester reports match count, indexes, and capture groups per match, and lets you download the full match list as JSON for use elsewhere.",
+    "howTo": [
+      "Type your expression in the Pattern field, without surrounding slashes.",
+      "Add modifiers such as i, m, s, or u in the Flags field.",
+      "Paste sample content in the Text field and review the highlighted preview and match list.",
+      "Click Download matches to save match text, indexes, and groups as JSON."
+    ],
+    "faqs": [
+      {"q": "Which regex flavor does this use?", "a": "JavaScript's native RegExp engine, exactly as it behaves in the browser. Features like lookbehind and named groups work where your browser supports them, but PCRE- or Python-specific syntax may not."},
+      {"q": "Do I need the g flag to see all matches?", "a": "No. The tool adds the global flag automatically so every match is found and highlighted, even if you leave Flags empty."},
+      {"q": "Are capture groups shown?", "a": "Yes. Each row in the match list shows the matched text, its character index, and the values of any capture groups, and the same data is included in the JSON download."},
+      {"q": "Can a pattern hang the page?", "a": "Certain patterns with heavy backtracking can be slow on large inputs, since evaluation runs in your browser's regex engine. Keep test text modest while iterating on a tricky pattern."},
+      {"q": "What happens with zero-length matches?", "a": "The tester advances past empty matches instead of looping forever, so patterns like a* or lookaheads are safe to test."},
+      {"q": "Is my test data kept private?", "a": "Yes. Pattern matching runs entirely in your browser; neither the pattern nor the text is uploaded anywhere."}
+    ]
+  },
+  "hex-rgb-converter": {
+    "intro": "Turn a hex color code into its RGB equivalent instantly. The converter accepts both 3-digit shorthand and full 6-digit codes, with or without the leading #, and outputs a ready-to-paste rgb() value for CSS.",
+    "howTo": [
+      "Enter a color like #0f766e or f60 in the Hex color field.",
+      "Read the rgb(r, g, b) result in the output.",
+      "Paste the value directly into your stylesheet."
+    ],
+    "faqs": [
+      {"q": "Does shorthand hex work?", "a": "Yes. Three-digit codes like #f60 are expanded to six digits (#ff6600) before conversion, following the standard CSS shorthand rule."},
+      {"q": "Is the # symbol required?", "a": "No. The tool strips a leading # if present, so 0f766e and #0f766e give the same result."},
+      {"q": "Can it convert RGB back to hex, or handle alpha?", "a": "No. This tool converts one direction, hex to rgb(), and supports 3- or 6-digit codes only. 8-digit hex with an alpha channel is not accepted."},
+      {"q": "Why do I see an error for my code?", "a": "The input must be exactly 3 or 6 hexadecimal characters (0-9, a-f). Anything else, including named colors like \"teal\", triggers the validation message."},
+      {"q": "Does the color value get sent anywhere?", "a": "No. The conversion is a few lines of JavaScript running in your browser with no network requests."}
+    ]
+  },
+  "markdown-preview": {
+    "intro": "Write Markdown and see rendered HTML side by side with document statistics. The preview supports headings, lists, links, emphasis, and fenced code blocks, shows the generated HTML source, and lets you download the result as an HTML file.",
+    "howTo": [
+      "Type or paste your document into the Markdown field.",
+      "Check the live preview and the metrics for words, headings, links, lists, and code blocks.",
+      "Copy the generated HTML from the source view, or click Download HTML to save preview.html."
+    ],
+    "faqs": [
+      {"q": "Which Markdown syntax is supported?", "a": "Headings from # to ### (levels 1-3), unordered lists with - or *, fenced code blocks with ```, inline code with backticks, **bold**, *italic*, and [text](url) links with http or https URLs."},
+      {"q": "What is not supported?", "a": "Tables, images, blockquotes, ordered lists, horizontal rules, and raw HTML passthrough are not rendered. Raw HTML in your source is escaped rather than executed, which also keeps the preview safe."},
+      {"q": "Can I get the raw HTML output?", "a": "Yes. The generated HTML appears in a source view below the preview, and the Download HTML button saves it as a standalone file you can open or embed."},
+      {"q": "What do the metrics mean?", "a": "They count words in your source plus the number of headings, links, list items, and fenced code blocks, along with the size of the generated HTML."},
+      {"q": "Is my draft stored or transmitted?", "a": "No. Rendering happens in your browser as you type; nothing is saved to a server, so unpublished drafts stay private."}
+    ]
+  },
+  "json-file-formatter": {
+    "intro": "Format entire JSON files by uploading them or pasting their contents, then choose pretty print or minify. Alongside the reformatted output you get structure statistics, a path-by-path table, precise parse-error locations, and downloads for both the formatted file and a JSON inspection report.",
+    "howTo": [
+      "Click Upload file to load a .json file, or paste content into the Input area.",
+      "Select Pretty print or Minify in the Mode dropdown.",
+      "Review the structure metrics and the path table with types and previews.",
+      "Download formatted.json or the json-inspection-report.json as needed."
+    ],
+    "faqs": [
+      {"q": "What file types can I upload?", "a": "The picker accepts .json and plain-text files. Whatever you upload is read into the input area as text, so you can also edit it before formatting."},
+      {"q": "How is this different from the JSON Formatter tool?", "a": "It is built for files: an upload control loads the document for you, and the same inspector then reports depth, type counts, paths, and size. The paste-based JSON Formatter is quicker for small snippets."},
+      {"q": "How large a file can it handle?", "a": "There is no fixed limit; files are processed in browser memory. Multi-megabyte files generally work, but the path table shows only the first 80 paths regardless of size."},
+      {"q": "What if my file has a syntax error?", "a": "The tool shows the parser message and, when available, the exact line, column, and character position of the failure so you can fix it in place and re-run."},
+      {"q": "Does uploading send my file to a server?", "a": "No. The file is read locally with the browser's File API and never leaves your machine, which makes the tool safe for configs containing secrets."}
+    ]
+  },
+  "html-entity-encoder-decoder": {
+    "intro": "Escape HTML special characters into entities, or convert common entities back to plain characters. Useful when you need to display code samples on a web page or clean up text copied from rendered HTML.",
+    "howTo": [
+      "Paste your snippet into the Text field.",
+      "Choose Encode to escape special characters, or Decode to convert entities back.",
+      "Copy the converted result from the output."
+    ],
+    "faqs": [
+      {"q": "Which characters does Encode escape?", "a": "The five HTML-critical characters: & becomes &amp;, < becomes &lt;, > becomes &gt;, double quote becomes &quot;, and the apostrophe becomes &#039;."},
+      {"q": "Does Decode handle every named entity?", "a": "No. Decode converts the same five common entities (&amp;, &lt;, &gt;, &quot;, &#039;) back to characters. Named entities like &copy; or numeric references beyond &#039; are left as-is."},
+      {"q": "When should I encode text?", "a": "Whenever untrusted or code-like text is inserted into HTML, for example showing a code example, embedding user input, or putting a value inside an attribute, so the browser displays it instead of interpreting it."},
+      {"q": "Will encoding twice break my text?", "a": "Double-encoding turns &amp; into &amp;amp;, which renders incorrectly. Encode once, and decode first if the text already contains entities."},
+      {"q": "Is anything transmitted while I convert?", "a": "No. Both directions are simple string replacements executed in your browser, with no network activity."}
+    ]
+  },
+  "jwt-decoder": {
+    "intro": "Paste a JSON Web Token to inspect its header and payload as formatted JSON, along with the algorithm, subject, issuer, audience, and a human-readable expiry status. A timeline shows issued-at, not-before, and expiry claims as ISO timestamps, and the decoded token can be downloaded as JSON.",
+    "howTo": [
+      "Paste the full token into the JWT field.",
+      "Read the claim summary metrics and the expiry status (valid or expired with the ISO time).",
+      "Inspect the formatted Header and Payload panels and the claim timeline.",
+      "Click Download decoded JWT to save the header and payload as a JSON file."
+    ],
+    "faqs": [
+      {"q": "Does this verify the token's signature?", "a": "No, and this is important: the tool only Base64URL-decodes the header and payload for inspection. It cannot tell you whether a token is authentic or tampered with; signature verification requires the signing key on your server."},
+      {"q": "How is expiry determined?", "a": "The exp claim is compared with your device's current time and shown as \"valid\" or \"expired\" alongside the exact ISO 8601 timestamp. iat and nbf claims are listed in the timeline the same way."},
+      {"q": "Why does my token fail to decode?", "a": "The input needs at least two dot-separated Base64URL segments (header.payload). Truncated tokens, extra whitespace, or segments that are not valid Base64URL JSON produce an error."},
+      {"q": "Is it safe to paste a live production token here?", "a": "Decoding happens entirely in your browser with no upload, so the token is not transmitted by this tool. Still, treat live tokens as credentials: prefer expired or test tokens when possible."},
+      {"q": "Does it support JWE (encrypted tokens)?", "a": "No. JWE payloads are encrypted rather than just encoded, so there is nothing readable to display. This tool is for standard signed JWTs (JWS)."}
+    ]
+  },
+  "cron-expression-builder": {
+    "intro": "Build standard 5-field cron expressions from presets like weekdays or monthly schedules, or validate a custom expression you already have. The builder explains the schedule in plain language and previews up to 24 upcoming run times in your local timezone, exportable as CSV.",
+    "howTo": [
+      "Pick a preset in the Schedule dropdown, or choose Custom expression and type your own.",
+      "Adjust the Minute, Hour, Day of month, or Weekday fields to fine-tune preset schedules.",
+      "Set Next runs to control how many upcoming times to preview (1 to 24).",
+      "Copy the expression with the copy button or download the next-runs CSV."
+    ],
+    "faqs": [
+      {"q": "What cron syntax is supported?", "a": "Standard 5-field expressions (minute, hour, day-of-month, month, weekday) with *, plain numbers, ranges like 1-5, comma lists, and step values like */15. Weekday accepts 0-7, with both 0 and 7 meaning Sunday."},
+      {"q": "Are names like MON or JAN allowed?", "a": "No, fields must be numeric. Use 1-5 instead of MON-FRI and 1-12 for months. Shorthand macros such as @daily are also not recognized."},
+      {"q": "What timezone are the next runs shown in?", "a": "Your browser's local time, with an ISO (UTC) column alongside. Many servers run cron in UTC, so confirm your scheduler's timezone before deploying the expression."},
+      {"q": "Why does the preview say no run was found?", "a": "The preview scans minute by minute up to 366 days ahead. A contradictory expression, like day 31 in a month list that never has 31 days, can produce no matches in that window."},
+      {"q": "Can I export the preview?", "a": "Yes. The Download next runs CSV button saves a file with the run number, local time, and ISO timestamp for each upcoming execution."},
+      {"q": "Is anything sent to a server while I build?", "a": "No. Parsing, validation, and run-time simulation all execute in your browser."}
+    ]
+  },
+  "csv-to-json-converter": {
+    "intro": "Convert CSV data into a JSON array of objects using the first row as keys. The parser correctly handles quoted fields containing commas, escaped quotes, and even multiline values, and the result is downloadable with row, column, and size stats.",
+    "howTo": [
+      "Paste your data into the CSV field, keeping the header row first.",
+      "Review the metrics for rows, columns, and output size.",
+      "Copy the JSON from the output, or click the download button to save converted.json."
+    ],
+    "faqs": [
+      {"q": "How are commas inside values handled?", "a": "Fields wrapped in double quotes are parsed correctly, including embedded commas, doubled quotes (\"\") as escapes, and line breaks inside a quoted field."},
+      {"q": "What structure does the output have?", "a": "A JSON array with one object per data row. Keys come from the trimmed header row, and every value is a trimmed string; numbers are not auto-converted to numeric types."},
+      {"q": "Why do I get an error about rows?", "a": "The converter needs a header row plus at least one data row. A lone header or empty input cannot produce objects."},
+      {"q": "What if a row has fewer cells than the header?", "a": "Missing cells become empty strings under the corresponding keys, so every object has the full set of header keys."},
+      {"q": "Does it strip a byte-order mark?", "a": "Yes. A leading UTF-8 BOM, common in files exported from Excel, is removed before parsing so the first header name stays clean."},
+      {"q": "Where is my data processed?", "a": "Entirely in your browser. The CSV you paste and the JSON produced never touch a server, so customer exports stay on your machine."}
+    ]
+  },
+  "json-to-csv-converter": {
+    "intro": "Flatten a JSON array of objects into CSV with consistent headers and proper escaping. The converter unions the keys across all objects so rows with different fields still line up, and the finished file downloads as converted.csv.",
+    "howTo": [
+      "Paste an array of objects into the JSON field.",
+      "Check the row, column, and size metrics.",
+      "Copy the CSV output or download converted.csv."
+    ],
+    "faqs": [
+      {"q": "What input shape is required?", "a": "A JSON array of objects, for example [{\"name\":\"Alex\"},{\"name\":\"Sam\"}]. A single object, an array of scalars, or a top-level object produce a clear validation error instead of malformed CSV."},
+      {"q": "What if my objects have different keys?", "a": "The header row is the union of keys from every object, in first-seen order. Objects missing a key get an empty cell in that column."},
+      {"q": "How are commas and quotes escaped?", "a": "Values containing commas, double quotes, or newlines are wrapped in quotes with internal quotes doubled, following standard CSV escaping so Excel and Google Sheets import cleanly."},
+      {"q": "Are nested objects flattened?", "a": "No. A nested object or array is serialized into the cell as-is rather than expanded into dot-notation columns. Flatten your data first if you need one column per nested field."},
+      {"q": "Is my JSON uploaded during conversion?", "a": "No. Parsing and CSV generation run locally in your browser, and the download link is generated on-device."}
+    ]
+  },
+  "csv-cleaner": {
+    "intro": "Clean a messy CSV in one pass: trim every cell, drop empty rows, remove duplicate rows, normalize headers to snake_case, and prune empty columns. A per-column quality profile shows missing-value counts and unique values, and you can download both the cleaned CSV and a JSON quality report.",
+    "howTo": [
+      "Upload a .csv file or paste data into the Input area.",
+      "Toggle Normalize headers, Remove duplicate rows, and Keep empty columns to match your needs.",
+      "Review the metrics and the column profile table (missing, unique, example values).",
+      "Download cleaned.csv or the csv-quality-report.json."
+    ],
+    "faqs": [
+      {"q": "What does Normalize headers do?", "a": "It converts each header to lowercase snake_case (\"Sign-up Date\" becomes sign_up_date) and de-duplicates repeats by appending a number, which makes the file friendlier to databases and scripts."},
+      {"q": "How are duplicate rows detected?", "a": "After trimming, rows with identical values in every kept column are considered duplicates; the first occurrence stays and later copies are removed when Remove duplicate rows is checked."},
+      {"q": "What counts as an empty column?", "a": "A column with no header and no non-blank values in any data row. These are dropped unless you check Keep empty columns; the metrics report how many were removed."},
+      {"q": "What is in the quality report?", "a": "A JSON file with row and column counts, how many empty rows, duplicate rows, and empty columns were removed, total missing cells, and a per-column profile with missing rate, unique-value count, and an example value."},
+      {"q": "Does it handle quoted commas and multiline cells?", "a": "Yes. The parser supports RFC-style quoting, so values containing commas, doubled quotes, or line breaks are preserved intact through cleaning."},
+      {"q": "Is my CSV uploaded to a server?", "a": "No. The file is read and cleaned entirely in your browser, so datasets with personal or business data never leave your device."}
+    ]
+  },
+  "csv-column-extractor": {
+    "intro": "Pull just the columns you need out of a wide CSV file. Name the columns to keep, and the extractor builds a smaller CSV preserving quoting and row order, while telling you which requested columns were not found.",
+    "howTo": [
+      "Upload a .csv file or paste data into the Input area.",
+      "List the header names to keep, comma-separated, in the Columns to keep field.",
+      "Check the Kept and Missing metrics to confirm the right columns matched.",
+      "Download columns.csv or copy the output."
+    ],
+    "faqs": [
+      {"q": "How do I specify which columns to keep?", "a": "Type the exact header names separated by commas, such as name,team. Names must match the header row exactly after trimming, including capitalization."},
+      {"q": "What happens if a column name doesn't match?", "a": "Unmatched names are listed in the Missing metric so you can spot typos, and the extraction proceeds with the columns that did match. If nothing matches, you get an error."},
+      {"q": "Does the output preserve column order from my list?", "a": "Columns appear in the order you list them in Columns to keep, not their original file order, so you can reorder while extracting."},
+      {"q": "Are quoted values kept intact?", "a": "Yes. The parser handles quoted commas and multiline fields on input, and output cells are re-escaped properly, so complex values survive extraction."},
+      {"q": "Is my file processed privately?", "a": "Yes. Reading, parsing, and extraction all run in your browser; no part of the file is uploaded."}
+    ]
+  },
+  "word-character-counter": {
+    "intro": "Get instant counts of words, characters, and sentences for any text you paste, plus an estimated reading time. Counts update as you type, making it easy to hit limits for tweets, meta descriptions, abstracts, or essays.",
+    "howTo": [
+      "Paste or type your content into the Text field.",
+      "Read the Words, Characters, and Sentences metrics.",
+      "Check the Reading time estimate to gauge length for your audience."
+    ],
+    "faqs": [
+      {"q": "How are words counted?", "a": "Text is split on runs of whitespace, so hyphenated terms count as one word and any spacing style (spaces, tabs, newlines) works the same."},
+      {"q": "Do spaces count as characters?", "a": "Yes. The character count is the total length of your text including spaces, punctuation, and line breaks, which matches how most platform limits are measured."},
+      {"q": "How is the sentence count derived?", "a": "It counts runs of sentence-ending punctuation (., !, ?). Abbreviations like \"e.g.\" can inflate the number slightly, so treat it as an estimate."},
+      {"q": "What reading speed does the estimate assume?", "a": "225 words per minute, a common average for adult readers, rounded up to at least one minute. Use the Reading Time Calculator if you want a custom speed."},
+      {"q": "Is my text stored anywhere?", "a": "No. Counting happens in your browser as you type, with no uploads, logging, or storage."}
+    ]
+  },
+  "text-file-word-counter": {
+    "intro": "Upload a .txt or .md file, or paste its contents, to get word, character, and line counts along with reading time, file size, and average line length. Handy for checking manuscript lengths, README sizes, or export files without opening an editor.",
+    "howTo": [
+      "Click Upload file to load a .txt or .md file, or paste text into the Input area.",
+      "Review Words, Characters, Lines, and Reading time in the results grid.",
+      "Check File size and Average line length for a quick sense of density."
+    ],
+    "faqs": [
+      {"q": "Which file types are accepted?", "a": "Plain-text files, including .txt and .md. The file is read as text, so any UTF-8 text file works; binary formats like .docx or .pdf will not give meaningful counts."},
+      {"q": "Can I edit the text after uploading?", "a": "Yes. The file's contents load into the input area, where you can trim or modify them and the counts update accordingly."},
+      {"q": "What does Average line mean?", "a": "The total character count divided by the number of lines, giving average characters per line, which is useful for spotting files with very long unwrapped lines."},
+      {"q": "How is reading time calculated?", "a": "Word count divided by 225 words per minute, rounded up to a minimum of one minute."},
+      {"q": "Is my file uploaded to a server?", "a": "No. Despite the \"Upload file\" label, the file is read locally with the browser's File API and analyzed on your device only."}
+    ]
+  },
+  "case-converter": {
+    "intro": "Switch text between Title Case, UPPERCASE, lowercase, and slug-case in one place. The slug mode strips punctuation and joins words with hyphens, making it a quick way to turn headlines into URL-friendly strings.",
+    "howTo": [
+      "Enter your text in the Text field.",
+      "Pick Title case, UPPERCASE, lowercase, or slug-case in the Mode dropdown.",
+      "Copy the converted result."
+    ],
+    "faqs": [
+      {"q": "How does Title case decide what to capitalize?", "a": "It capitalizes the first letter of every word. It does not apply editorial style rules, so small words like \"and\" or \"of\" are capitalized too; adjust those manually if your style guide requires it."},
+      {"q": "What does slug-case produce?", "a": "Lowercase text with every run of non-alphanumeric characters replaced by a single hyphen and edge hyphens removed, e.g. \"Hello, World!\" becomes hello-world. Ideal for URLs and file names."},
+      {"q": "Does slug mode handle accented or non-Latin characters?", "a": "Characters outside a-z and 0-9 are replaced with hyphens rather than transliterated, so \"café\" becomes caf-. Transliterate accented text first if you need it preserved."},
+      {"q": "Is camelCase or snake_case supported?", "a": "Not currently. The four modes are title, upper, lower, and slug. For snake_case you can slug the text and replace hyphens with underscores."},
+      {"q": "Is my text processed locally?", "a": "Yes. Conversion is plain string manipulation in your browser; nothing is transmitted."}
+    ]
+  },
+  "remove-duplicate-lines": {
+    "intro": "Paste a list and instantly strip out repeated lines while keeping the first occurrence of each. Original order is preserved, which makes it safe for deduplicating keyword lists, email lists, log excerpts, or config entries.",
+    "howTo": [
+      "Paste your list into the Text field, one item per line.",
+      "Review the deduplicated output, which keeps lines in their original order.",
+      "Copy the cleaned list."
+    ],
+    "faqs": [
+      {"q": "Is matching case-sensitive?", "a": "Yes. \"Apple\" and \"apple\" are treated as different lines. Run the text through the Case Converter first if you want case-insensitive deduplication."},
+      {"q": "Do leading or trailing spaces affect matching?", "a": "Yes, lines must match exactly, so \"apple\" and \"apple \" are considered different. Use the Whitespace Remover to normalize spacing beforehand."},
+      {"q": "Which copy of a duplicate is kept?", "a": "The first occurrence. Later repeats are dropped, and the remaining lines stay in their original order rather than being sorted."},
+      {"q": "Are blank lines deduplicated too?", "a": "Yes. Empty lines are treated like any other line, so only the first blank line survives; the rest are removed."},
+      {"q": "Can I safely paste sensitive lists here?", "a": "Yes. Deduplication runs entirely in your browser with no upload, so email or customer lists never leave your device."}
+    ]
+  },
+  "whitespace-remover": {
+    "intro": "Clean up spacing problems in text with three modes: trim the edges, collapse repeated spaces and line breaks into single spaces, or strip every whitespace character. Useful for fixing copy-pasted content, normalizing data values, or compacting strings.",
+    "howTo": [
+      "Paste your content into the Text field.",
+      "Choose Trim edges, Collapse spaces, or Remove all whitespace in the Mode dropdown.",
+      "Copy the cleaned output."
+    ],
+    "faqs": [
+      {"q": "What is the difference between the three modes?", "a": "Trim edges removes whitespace only at the start and end. Collapse spaces also trims, then converts every internal run of spaces, tabs, or newlines to a single space. Remove all whitespace deletes every whitespace character entirely."},
+      {"q": "Does Collapse spaces remove my line breaks?", "a": "Yes. Newlines count as whitespace, so multi-line text becomes a single line with single spaces. Use Trim edges if you want to keep the line structure."},
+      {"q": "Are tabs and non-breaking-style spaces handled?", "a": "The tool matches JavaScript's \\s class, which covers spaces, tabs, newlines, and most Unicode whitespace, so unusual invisible characters from web copy-paste are usually caught."},
+      {"q": "When would I remove all whitespace?", "a": "Compacting values like phone numbers, hex strings, license keys, or Base64 that picked up spaces or line wraps in transit."},
+      {"q": "Is the text sent anywhere for processing?", "a": "No. All three modes are regex replacements executed in your browser."}
+    ]
+  },
+  "text-diff-checker": {
+    "intro": "Compare two blocks of text line by line and see additions, removals, and unchanged lines color-coded in a unified view. The diff uses a longest-common-subsequence algorithm, reports counts for each change type, and exports a patch-style file with +/- prefixes.",
+    "howTo": [
+      "Paste the first version into the Original text field.",
+      "Paste the second version into the Changed text field.",
+      "Review the Added, Removed, and Unchanged counts and the color-coded diff rows.",
+      "Click Download diff to save a plain-text patch-style file."
+    ],
+    "faqs": [
+      {"q": "Does it compare by line, word, or character?", "a": "By line. Each line is matched whole, so a one-word edit shows the old line as removed and the new line as added. There is no intra-line word highlighting."},
+      {"q": "What algorithm drives the diff?", "a": "A longest-common-subsequence (LCS) comparison, the same family of algorithm used by classic diff tools, which finds the minimal set of added and removed lines."},
+      {"q": "Is the downloaded file a real git patch?", "a": "It is a readable patch-style text file where lines are prefixed with +, -, or a space. It has no file headers or hunk markers, so it documents changes but is not directly applyable with git apply."},
+      {"q": "Is whitespace significant in the comparison?", "a": "Yes. Lines must match exactly, so indentation or trailing-space differences register as changes. Normalize both texts with the Whitespace Remover first if that noise is unwanted."},
+      {"q": "Can I diff confidential documents here?", "a": "Yes. Both texts are compared locally in your browser and are never uploaded, so contracts or internal drafts stay private."}
+    ]
+  },
+  "line-sorter": {
+    "intro": "Sort any list of lines alphabetically from A to Z or reverse from Z to A. Empty lines are dropped along the way, so pasted lists come out clean and ready to use.",
+    "howTo": [
+      "Paste your list into the Lines field, one entry per line.",
+      "Choose A to Z or Z to A in the Order dropdown.",
+      "Copy the sorted result."
+    ],
+    "faqs": [
+      {"q": "How does the sort handle accents and mixed case?", "a": "It uses locale-aware comparison (localeCompare), so accented characters sort naturally and case differences are ordered sensibly rather than by raw character codes."},
+      {"q": "Are numbers sorted numerically?", "a": "Sorting is textual, so \"10\" comes before \"2\" unless values are zero-padded. Pad numbers (02, 10) if you need numeric order."},
+      {"q": "What happens to blank lines?", "a": "Empty lines are filtered out before sorting, so the output contains only non-empty entries."},
+      {"q": "Can I sort by a column or field within each line?", "a": "No, each full line is the sort key. For column-based sorting of tabular data, extract the column with the CSV Column Extractor first."},
+      {"q": "Does my list leave the browser?", "a": "No. Sorting is done in-page with JavaScript; nothing is transmitted or stored."}
+    ]
+  },
+  "find-and-replace": {
+    "intro": "Replace every occurrence of a word or phrase in a block of text using simple literal matching. Because it treats the search term as plain text rather than a pattern, special characters like dots, brackets, and dollar signs need no escaping.",
+    "howTo": [
+      "Paste your content into the Text field.",
+      "Type the exact string to locate in the Find field.",
+      "Enter the substitute in the Replace with field and copy the result."
+    ],
+    "faqs": [
+      {"q": "Does it replace all occurrences or just the first?", "a": "All occurrences throughout the text are replaced in one pass."},
+      {"q": "Is the search case-sensitive?", "a": "Yes. \"Brown\" will not match \"brown\". Normalize case first with the Case Converter if you need case-insensitive replacement."},
+      {"q": "Can I use regex or wildcards in the Find field?", "a": "No, matching is literal, which is a feature: characters like ., *, (, and $ are matched exactly as typed. For pattern-based work, use the Regex Tester to develop your expression."},
+      {"q": "Can I delete text with this tool?", "a": "Yes. Leave Replace with empty and every match is removed from the text."},
+      {"q": "Is my text private while I edit?", "a": "Yes. The replacement runs in your browser only; the tool makes no network requests with your content."}
+    ]
+  },
+  "reading-time-calculator": {
+    "intro": "Estimate how long an article takes to read by pasting the text and setting a reading speed. You get the word count, exact minutes to two decimals, and a rounded-up figure suitable for a \"5 min read\" badge.",
+    "howTo": [
+      "Paste your article into the Text field.",
+      "Adjust Words per minute to match your audience (225 is the default).",
+      "Read the Words, Minutes, and Rounded metrics."
+    ],
+    "faqs": [
+      {"q": "What reading speed should I use?", "a": "Around 200-250 wpm suits general adult audiences; the default is 225. Use lower values (150-200) for technical or instructional content and higher ones for light skimmable copy."},
+      {"q": "What is the difference between Minutes and Rounded?", "a": "Minutes is the precise estimate to two decimal places; Rounded rounds up to the next whole minute with a minimum of 1, which is the number you would publish on a blog post."},
+      {"q": "Are code blocks or images accounted for?", "a": "No. The estimate is based purely on whitespace-separated word count. Content with heavy code, tables, or images typically takes longer than the estimate suggests."},
+      {"q": "How is the word count computed?", "a": "The text is trimmed and split on any run of whitespace, so formatting and line breaks do not affect the count."},
+      {"q": "Is my article uploaded when I paste it?", "a": "No. The calculation runs locally in your browser, so unpublished drafts remain private."}
+    ]
+  },
+  "meta-title-checker": {
+    "intro": "Check whether a page title fits comfortably in search results. Enter the title and get its character count against the recommended 30-60 range, with a clear Too short, Good, or Too long verdict.",
+    "howTo": [
+      "Type or paste your page title into the Meta title field.",
+      "Compare the Characters metric with the Recommended 30-60 range.",
+      "Adjust the wording until the Status reads Good."
+    ],
+    "faqs": [
+      {"q": "Why 30 to 60 characters?", "a": "Titles under about 30 characters often waste ranking opportunity, while those over about 60 tend to be truncated in Google's desktop results. The range is a practical rule of thumb, not an official limit."},
+      {"q": "Does Google measure characters or pixels?", "a": "Pixels: roughly 600px on desktop. This tool counts characters, which approximates the limit well for typical text, but wide characters (W, M, capitals) can truncate sooner than narrow ones."},
+      {"q": "Does a long title hurt rankings?", "a": "Not directly. The downside is truncation, where your key message or brand gets cut off with an ellipsis, which can lower click-through rate."},
+      {"q": "Should the brand name count toward the limit?", "a": "Yes, count everything that appears in the title tag, including separators like \" - \" or \" | \" and the brand suffix."},
+      {"q": "Is the title I type sent anywhere?", "a": "No. The length check is a simple in-browser calculation; nothing is submitted to a server."}
+    ]
+  },
+  "meta-description-checker": {
+    "intro": "Test a meta description against the length range that fits Google's search snippet. Paste the description to see its character count, the recommended 120-160 window, and an at-a-glance status.",
+    "howTo": [
+      "Paste your snippet text into the Meta description field.",
+      "Check the Characters count against the Recommended 120-160 range.",
+      "Rewrite until the Status shows Good."
+    ],
+    "faqs": [
+      {"q": "Why does the recommended range start at 120?", "a": "Very short descriptions leave snippet space unused and give searchers little reason to click. Aiming for 120-160 characters fills the desktop snippet without being cut off."},
+      {"q": "Will Google always use my meta description?", "a": "No. Google rewrites descriptions for a large share of queries when it thinks page content matches the search better. A well-written description still helps for your primary queries."},
+      {"q": "Do meta descriptions affect rankings?", "a": "Not as a direct ranking factor. Their value is click-through rate: a compelling, complete snippet wins more clicks from the same position."},
+      {"q": "Is the mobile limit different?", "a": "Mobile snippets are often shorter, closer to 120 characters, so front-load the key message in the first 120 characters even when using the full range."},
+      {"q": "Is my description text kept on my device?", "a": "Yes. The counter runs entirely in your browser; the text is never transmitted."}
+    ]
+  },
+  "robots-txt-generator": {
+    "intro": "Generate a minimal, valid robots.txt with a universal user-agent block, one Allow rule, one Disallow rule, and a Sitemap declaration. Good for launching a new site or replacing a broken file with a known-safe baseline.",
+    "howTo": [
+      "Enter your sitemap's full URL in the Sitemap URL field.",
+      "Set the Allow path (usually /) and the Disallow path (such as /admin/).",
+      "Copy the generated file and save it as robots.txt at the root of your domain."
+    ],
+    "faqs": [
+      {"q": "Where does robots.txt need to live?", "a": "At the root of the host, e.g. https://example.com/robots.txt. Crawlers do not look for it in subdirectories, and each subdomain needs its own file."},
+      {"q": "Can I add multiple Disallow rules or user agents?", "a": "The generator outputs one User-agent: * block with a single Allow and Disallow. After copying, you can add more Disallow lines or agent-specific blocks by hand; the syntax is one directive per line."},
+      {"q": "Does Disallow keep a page out of Google?", "a": "Not reliably. It blocks crawling, but a URL can still be indexed from external links. Use a noindex meta tag or header (on a crawlable page) to keep content out of the index."},
+      {"q": "Why include the Sitemap line?", "a": "It tells any crawler where your XML sitemap lives without requiring separate submission in each search engine's console, and it must be an absolute URL."},
+      {"q": "Is anything about my site sent to a server?", "a": "No. The file is assembled from your inputs in the browser; you copy the text out yourself."}
+    ]
+  },
+  "password-generator": {
+    "intro": "Generate a random password from 8 to 64 characters, with or without symbols, using the browser's cryptographically secure random source. Each result comes with an entropy estimate in bits, a strength label, and warnings if any weakness patterns appear.",
+    "howTo": [
+      "Set the desired Length (8 to 64 characters).",
+      "Choose Yes or No for Include symbols.",
+      "Copy the generated password and review its entropy and strength metrics."
+    ],
+    "faqs": [
+      {"q": "How is the password generated?", "a": "With crypto.getRandomValues, the browser's cryptographically secure random number generator, drawing from letters and digits plus an optional symbol set. It is not derived from timestamps or Math.random."},
+      {"q": "Is the password sent over the network?", "a": "No. Generation happens locally on your device and the password is never transmitted, logged, or stored by the site. Copy it straight into your password manager."},
+      {"q": "What does the entropy number mean?", "a": "Bits of entropy estimate the search space an attacker faces: each additional bit doubles it. Roughly 60+ bits resists casual attacks and 80+ bits is strong for most purposes; longer passwords raise entropy fastest."},
+      {"q": "Which symbols can appear?", "a": "When symbols are enabled, characters from the set !@#$%^&*()-_=+[]{};:,.? may be included alongside upper- and lowercase letters and digits."},
+      {"q": "Should I use 16 characters or more?", "a": "16 random characters with symbols gives well over 100 bits of entropy, which is ample. Go longer for high-value accounts or where the service may use weak password hashing."},
+      {"q": "Why does a generated password sometimes show a warning?", "a": "The analyzer flags cosmetic patterns like a coincidental repeated character. Because the password is random, these do not meaningfully reduce security; regenerate if it bothers you."}
+    ]
+  },
+  "password-strength-checker": {
+    "intro": "Estimate how strong a password is with a visual strength meter, a 0-100 score, an entropy estimate, and specific warnings such as short length, low character variety, repeats, keyboard sequences, or common password words.",
+    "howTo": [
+      "Type or paste a candidate into the Password field.",
+      "Read the strength meter and the Score, Entropy, and Character sets metrics.",
+      "Fix any listed warnings and re-check until the label reaches Strong or better."
+    ],
+    "faqs": [
+      {"q": "How is the score calculated?", "a": "Entropy is estimated from the password's length and which character classes it uses (lowercase, uppercase, digits, symbols), then reduced for each detected weakness. Scores under 40 are Weak, 70+ Strong, and 90+ Very strong."},
+      {"q": "What patterns trigger warnings?", "a": "Length under 12 characters, fewer than three character classes, three or more repeated characters in a row, keyboard or number sequences like qwerty or 1234, and common words such as password or letmein."},
+      {"q": "Does it check breach databases?", "a": "No. This is an offline structural analysis; it cannot tell whether the exact password appeared in a data breach. Services like Have I Been Pwned cover that separately."},
+      {"q": "Is it safe to type a real password here?", "a": "The check runs entirely in your browser and the password is never transmitted or stored. That said, the safest habit is testing candidate passwords rather than ones already protecting accounts."},
+      {"q": "The meter says Strong; is my password definitely safe?", "a": "Strength estimation is a heuristic. A dictionary phrase with substitutions can score higher than it deserves, so prefer randomly generated passwords from the Password Generator when possible."}
+    ]
+  },
+  "cidr-calculator": {
+    "intro": "Enter an IPv4 CIDR prefix length and instantly get the dotted-decimal subnet mask, the total number of addresses in the block, and the count of usable host addresses. Handy for subnet planning, firewall rules, and cloud VPC sizing.",
+    "howTo": [
+      "Enter a prefix length from 0 to 32 in the CIDR prefix field.",
+      "Read the Subnet mask in dotted-decimal form.",
+      "Check Addresses for block size and Usable hosts for assignable addresses."
+    ],
+    "faqs": [
+      {"q": "Why is the usable host count two less than the total?", "a": "In a conventional subnet the lowest address identifies the network and the highest is the broadcast address, leaving 2^(32-prefix) - 2 addresses for hosts. A /24 therefore has 256 addresses but 254 usable hosts."},
+      {"q": "How are /31 and /32 handled?", "a": "They are treated as fully usable: a /31 shows 2 usable addresses, matching RFC 3021 point-to-point links, and a /32 shows 1, representing a single host route."},
+      {"q": "Does it support IPv6?", "a": "No. The calculator covers IPv4 prefixes from /0 to /32 only. IPv6 prefix math uses 128-bit addresses and different conventions."},
+      {"q": "Can I enter an address like 10.0.0.0/24?", "a": "The tool takes just the prefix length (the number after the slash). It computes mask and counts, which are the same for any network with that prefix; it does not derive network or broadcast addresses from a specific IP."},
+      {"q": "Is any network data sent while calculating?", "a": "No. The math is pure bit arithmetic in your browser, so no queries about your networks go anywhere."}
+    ]
+  },
+  "qr-code-generator": {
+    "intro": "Create a customizable QR code as crisp scalable SVG. Control the size, quiet-zone margin, foreground and background colors, and error-correction level, then download the finished code for print or web. The result panel also reports module count and detected content type.",
+    "howTo": [
+      "Enter your link or message in the Text or URL field.",
+      "Set Size (128-1024 px) and Margin, and pick Foreground and Background colors.",
+      "Choose an Error correction level: Low, Medium, Quartile, or High.",
+      "Check the live preview and click Download QR code to save the SVG."
+    ],
+    "faqs": [
+      {"q": "What do the error-correction levels mean?", "a": "They control how much of the code can be damaged or obscured and still scan: Low about 7%, Medium 15%, Quartile 25%, High 30%. Higher levels add density, so use High for print that may get worn and Medium for screens."},
+      {"q": "Why download SVG instead of PNG?", "a": "SVG is vector, so the code stays sharp at any print size, from business cards to posters. If you need a raster image, open the SVG in any editor and export at your target resolution."},
+      {"q": "Can I use brand colors?", "a": "Yes, set any hex foreground and background. Keep strong contrast with a dark code on a light background; low contrast or inverted colors can make scanners fail."},
+      {"q": "How much text fits in a QR code?", "a": "Capacity depends on content and error correction, up to a few thousand characters at Low. Longer content means more modules and a denser code, so short URLs scan more reliably at small sizes."},
+      {"q": "What does the Modules metric mean?", "a": "The number of squares per side in the generated code. It grows with content length and error-correction level, and it determines how large the code must be printed to scan easily."},
+      {"q": "Is the content of my QR code uploaded?", "a": "No. The code is generated by a JavaScript library loaded with the page and rendered locally, so URLs, Wi-Fi strings, or contact details never leave your browser."}
+    ]
+  }
+}

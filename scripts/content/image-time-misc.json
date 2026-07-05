@@ -1,0 +1,647 @@
+{
+  "aspect-ratio-calculator": {
+    "intro": "When you scale an image or video frame, changing the width without recalculating the height stretches or squashes the picture. This calculator takes your original dimensions and a new width, then returns the matching height so the proportions stay identical. It works for any pixel dimensions, from thumbnails to 4K frames.",
+    "howTo": [
+      "Enter the current dimensions in Original width and Original height.",
+      "Type the target width in New width.",
+      "Read the New height value, which is rounded to the nearest whole pixel.",
+      "Check the Ratio field to confirm the original proportion being preserved."
+    ],
+    "faqs": [
+      {
+        "q": "What formula does the calculator use?",
+        "a": "New height equals new width multiplied by original height divided by original width. The result is rounded to the nearest whole pixel because screens cannot display fractional pixels."
+      },
+      {
+        "q": "Can I calculate a new height instead of a new width?",
+        "a": "The form takes a new width and returns the height. If you know the height you want, swap your numbers: enter the original height as Original width and the original width as Original height, then put your target height in New width."
+      },
+      {
+        "q": "Why does the Ratio field show 1920:1080 instead of 16:9?",
+        "a": "The tool displays the ratio using the exact dimensions you entered rather than reducing it to the smallest equivalent form. 1920:1080 and 16:9 describe the same proportion."
+      },
+      {
+        "q": "Does this tool resize my actual image file?",
+        "a": "No, it only calculates dimensions. To resize a real file, use the Image Resizer on this site, which processes the image in your browser."
+      },
+      {
+        "q": "What happens if I enter zero or a negative number?",
+        "a": "The calculator asks for positive dimensions and will not produce a result until width, height, and new width are all greater than zero."
+      }
+    ]
+  },
+  "image-resize-calculator": {
+    "intro": "This resizer changes an image's pixel dimensions directly in your browser and gives you a downloadable file, with no upload step. You can type exact output dimensions or pick a preset such as Full HD, Open Graph, or Story, and a ratio lock keeps the picture from distorting. Results show the before and after dimensions, file sizes, and megapixels.",
+    "howTo": [
+      "Choose a PNG, JPG, WebP, or AVIF file under Image file.",
+      "Pick a Preset like Full HD 1920 x 1080, or enter your own Output width and Output height.",
+      "Leave Keep original ratio checked to avoid stretching, and set the Format and Quality for the output.",
+      "Click the download button to save the resized image."
+    ],
+    "faqs": [
+      {
+        "q": "Is my image uploaded to a server?",
+        "a": "No. The image is processed entirely in your browser using the canvas API and never leaves your device. Closing the tab discards everything."
+      },
+      {
+        "q": "What do the presets do?",
+        "a": "Presets fill in common target sizes: Full HD 1920 x 1080, HD 1280 x 720, Square 1080 x 1080, Open Graph 1200 x 630, and Story 1080 x 1920. With Keep original ratio checked, the image is scaled to fit inside the preset box without distortion."
+      },
+      {
+        "q": "How does Keep original ratio work?",
+        "a": "If you enter only a width, the height is calculated automatically, and vice versa. If you enter both while a preset is selected, the image is scaled to fit within those bounds while preserving its proportions."
+      },
+      {
+        "q": "Which formats can I import and export?",
+        "a": "You can open PNG, JPG, WebP, and AVIF files and export to any of those four formats. AVIF export depends on your browser's encoder support; if it is unavailable the tool reports that it could not process the image."
+      },
+      {
+        "q": "Does the Quality setting affect PNG output?",
+        "a": "PNG is lossless, so the Quality value mainly matters for JPG, WebP, and AVIF, where lower values produce smaller files with more compression artifacts. The default is 90."
+      },
+      {
+        "q": "Does resizing keep EXIF data like GPS location?",
+        "a": "No. The image is redrawn on a canvas and re-encoded, which does not carry over EXIF metadata such as camera details or location."
+      }
+    ]
+  },
+  "image-compressor": {
+    "intro": "Large photos slow down web pages and hit email attachment limits. This compressor re-encodes an image at a quality level you choose, optionally capping its width, and reports exactly how much smaller the file became. Everything runs locally, and you can set a target size in KB to check whether the result fits your limit.",
+    "howTo": [
+      "Select a photo under Image file.",
+      "Optionally set Max width to downscale large images, and enter a Target size KB if you have a size limit to hit.",
+      "Adjust the Quality value (default 75) and choose an output Format such as JPG or WebP.",
+      "Review the file size change and target status, then download the compressed image."
+    ],
+    "faqs": [
+      {
+        "q": "Are my photos uploaded anywhere?",
+        "a": "No. Compression happens entirely in your browser using the canvas API; the file is never sent to a server. This also means it works offline once the page is loaded."
+      },
+      {
+        "q": "How does the Target size KB field work?",
+        "a": "It does not automatically hit the target; instead the result shows whether your output landed under or over it and by how much. If you are over, lower the Quality value or reduce Max width and check again."
+      },
+      {
+        "q": "What does Never upscale small images do?",
+        "a": "When checked, a Max width larger than the original image is ignored, so a small image is never stretched to a bigger, blurrier size."
+      },
+      {
+        "q": "Is EXIF metadata removed?",
+        "a": "Yes. Because the image is redrawn on a canvas and re-encoded, EXIF data such as GPS coordinates, camera model, and timestamps is stripped from the output. The result panel confirms this with a Metadata removed indicator."
+      },
+      {
+        "q": "Which format compresses best?",
+        "a": "For photos, WebP or AVIF at the same quality setting usually produces smaller files than JPG, though AVIF export depends on browser support. PNG is lossless and typically the largest, so it is a poor choice for photographs."
+      },
+      {
+        "q": "Why did my file get larger after compressing?",
+        "a": "If the source was already heavily compressed, re-encoding at a high quality or converting to PNG can grow the file. The Change metric will show a percentage larger; try a lower Quality value or a more efficient format."
+      }
+    ]
+  },
+  "image-format-converter": {
+    "intro": "This converter changes an image from one format to another, such as PNG to WebP or AVIF to JPG, without installing software or sending the file anywhere. You can resize during conversion and control what happens to transparent areas, which JPG cannot represent. The result panel reports dimensions, file size change, and how transparency was handled.",
+    "howTo": [
+      "Choose your source file under Image file; PNG, JPG, WebP, and AVIF are accepted.",
+      "Pick the target Format, and set the Quality for lossy formats.",
+      "Optionally enter an Output width or Output height, keeping Keep original ratio checked to preserve proportions.",
+      "If converting to JPG, set the JPG background color used to fill transparent areas, then download the converted file."
+    ],
+    "faqs": [
+      {
+        "q": "Is the conversion done locally?",
+        "a": "Yes. The file is decoded and re-encoded in your browser with the canvas API and is never uploaded to a server."
+      },
+      {
+        "q": "What happens to transparency when converting to JPG?",
+        "a": "JPG does not support transparency, so transparent pixels are flattened onto the JPG background color you specify (white by default). Converting to PNG, WebP, or AVIF preserves transparency when the source has it."
+      },
+      {
+        "q": "Does converting to PNG lose quality?",
+        "a": "No. PNG is lossless, and the result panel marks its quality as Lossless. For JPG, WebP, and AVIF, the Quality value controls the compression level, with 90 as the default."
+      },
+      {
+        "q": "Can I convert AVIF images?",
+        "a": "You can open AVIF files in any modern browser that decodes them. Exporting to AVIF depends on your browser's encoder; if it is not supported, choose WebP for similar compression."
+      },
+      {
+        "q": "Can I resize while converting?",
+        "a": "Yes. Enter an Output width or Output height and the other dimension is calculated automatically while Keep original ratio is checked. Leave both blank to keep the original dimensions."
+      },
+      {
+        "q": "Is metadata preserved in the converted file?",
+        "a": "No. Canvas re-encoding produces a clean file without the source's EXIF metadata, which is often preferable when sharing images publicly."
+      }
+    ]
+  },
+  "square-image-maker": {
+    "intro": "Profile pictures, product photos, and grid posts often need to be perfectly square, but most photos are not. This tool centers your image inside a square canvas at a size you choose, either fitting the whole image with padding or cropping it to fill the frame. Optional rounded corners and a custom background color make it useful for logos and avatars too.",
+    "howTo": [
+      "Pick your image under Image file.",
+      "Set the Square size in pixels (1080 by default) and choose a Fit mode: Fit entire image or Fill square crop.",
+      "Adjust Padding %, Corner radius %, and Background color to taste.",
+      "Choose an output Format and download the square image."
+    ],
+    "faqs": [
+      {
+        "q": "Does this tool upload my image?",
+        "a": "No. The square is composed on a canvas in your browser and never sent to a server."
+      },
+      {
+        "q": "What is the difference between the two fit modes?",
+        "a": "Fit entire image scales the whole picture to fit inside the square, filling the leftover space with the background color. Fill square crop scales the image to cover the entire square, trimming the edges that overflow."
+      },
+      {
+        "q": "What does the Padding % setting control?",
+        "a": "In fit mode, it reserves a margin between the image and the square's edges, from 0 to 45 percent of the square's width. It is ignored in Fill square crop mode, which always covers the full frame."
+      },
+      {
+        "q": "How do rounded corners work?",
+        "a": "Corner radius %, from 0 to 50, rounds the corners of the drawn image itself, with the background color showing through the rounded-off areas. At 50 percent a square image becomes a circle."
+      },
+      {
+        "q": "Can the background be transparent?",
+        "a": "The background is filled with a solid hex color (white by default), so padding areas are not transparent. For transparent output, use Fill square crop so no background is visible, and export as PNG or WebP."
+      },
+      {
+        "q": "What size should I use for social media avatars?",
+        "a": "1080 pixels, the default, is safe for nearly every platform, since sites downscale large avatars cleanly. The minimum accepted by the tool is 16 pixels."
+      }
+    ]
+  },
+  "image-asset-pack-generator": {
+    "intro": "Launching a site or app means producing the same logo at a dozen sizes: favicons, Apple touch icons, PWA icons, Open Graph cards, and more. This generator renders a full pack from one source image in your browser, each asset individually downloadable, and also writes the HTML link tags and web manifest that reference them. Four pack types cover favicons, social cards, PWA icons, or a combined launch kit.",
+    "howTo": [
+      "Choose your logo or source image under Image file.",
+      "Select a Pack: Launch kit, Favicon and app icons, Social cards, or PWA app icons.",
+      "Set Fit mode, Background, Padding %, and Corner radius % to control how the image sits in each frame, plus the output Format and Quality.",
+      "Download each generated asset, then grab the metadata HTML and web manifest files to wire them into your site."
+    ],
+    "faqs": [
+      {
+        "q": "Is my logo uploaded during generation?",
+        "a": "No. Every asset is rendered on canvases in your browser via the canvas API, and nothing is transmitted to a server."
+      },
+      {
+        "q": "What sizes are in each pack?",
+        "a": "The favicon pack produces 16, 32, and 48 pixel favicons plus a 180 pixel Apple touch icon and 192 and 512 pixel PWA icons. Social cards includes Open Graph 1200 x 630, Twitter card 1200 x 675, square social 1080 x 1080, story 1080 x 1920, and a YouTube thumbnail 1280 x 720. The PWA pack adds a 512 pixel maskable icon and a 1024 pixel App Store icon, and the Launch kit combines favicons, the first three social sizes, and the maskable and App Store icons."
+      },
+      {
+        "q": "What are the metadata HTML and manifest downloads for?",
+        "a": "The metadata HTML contains ready-to-paste link and meta tags (favicon links, apple-touch-icon, og:image, twitter:image) that reference the generated filenames, and manifest.webmanifest lists the icons with sizes, types, and purposes for PWA installation."
+      },
+      {
+        "q": "What is a maskable icon?",
+        "a": "It is a PWA icon marked with purpose maskable in the manifest, meaning the operating system may crop it into a circle or rounded shape. Use Fit with padding and enough Padding % so your logo survives the crop."
+      },
+      {
+        "q": "Should I export icons as PNG or JPG?",
+        "a": "PNG is the standard choice for icons because it is lossless and supports transparency. JPG flattens everything onto the background color, which is usually only acceptable for social card images."
+      },
+      {
+        "q": "How do the fit and padding controls affect the assets?",
+        "a": "Fit with padding scales your image to fit inside each frame with a margin of up to 45 percent, filled with the Background color; Fill crop covers each frame edge to edge, trimming overflow. Corner radius % rounds the drawn image within each asset."
+      }
+    ]
+  },
+  "pixel-art-converter": {
+    "intro": "This converter downsamples any photo or graphic into blocky pixel art with a controllable grid width, palette reduction, and optional Floyd-style dithering, all in your browser. Beyond a scaled PNG, JPG, WebP, or AVIF export, it builds a true SVG mosaic with one rectangle per visible pixel and extracts the dominant palette as downloadable JSON, CSS variables, or a GIMP .gpl file. Sprite-sheet guides and a frame CSV support game development workflows.",
+    "howTo": [
+      "Choose an image under Image file and pick a Preset such as Icon 96 columns / 4x, or set your own Pixel grid width and Export scale.",
+      "Select a Palette option like Retro 216 colors or Game Boy 8 colors, and toggle Use dithering to smooth color banding.",
+      "Optionally enable Export grid overlay with a Grid color, set Sprite columns and Sprite rows for sprite sheets, and flatten transparency with a Background color if needed.",
+      "Download the pixel-art image, the SVG mosaic, or the frame CSV, and grab the palette swatches in JSON, CSS, or GPL format."
+    ],
+    "faqs": [
+      {
+        "q": "Is the image processed locally?",
+        "a": "Yes. Downsampling, palette reduction, and SVG generation all happen in your browser on canvases; the image is never uploaded to a server."
+      },
+      {
+        "q": "What do the palette options mean?",
+        "a": "Each option quantizes the red, green, and blue channels to a number of levels: 6 levels per channel gives up to 216 colors (Retro), 4 gives 64 (Arcade), 3 gives 27 (Poster), and 2 gives 8 (Game Boy). Keep source colors skips quantization entirely."
+      },
+      {
+        "q": "What does dithering do?",
+        "a": "Dithering diffuses the rounding error from palette reduction into neighboring pixels, trading flat color bands for a textured pattern that reads as smoother gradients. It only applies when a reduced palette is selected."
+      },
+      {
+        "q": "What is the SVG mosaic download?",
+        "a": "It is a vector file containing one rectangle per non-transparent pixel cell, so it scales to any size without blurring. The result panel shows the rectangle count, and grid or sprite guides are included when enabled."
+      },
+      {
+        "q": "How do the sprite settings work?",
+        "a": "Sprite columns and Sprite rows (each 1 to 24) divide the output into equal frames, and the frame CSV download lists each frame's position and dimensions for use in game engines. Guide lines for the frames are drawn into the SVG export."
+      },
+      {
+        "q": "How large can the pixel grid be?",
+        "a": "Pixel grid width accepts 8 to 512 columns, with the row count derived from the image's aspect ratio, and Export scale multiplies each cell by 1 to 16 for the raster output. Larger grids preserve more detail but look less like classic pixel art."
+      }
+    ]
+  },
+  "color-palette-generator": {
+    "intro": "Give this generator one hex color and it builds a ten-step brand scale from 50 to 900, the same shape used by Tailwind and most design systems. It keeps your hue, applies a chosen saturation character, and steps lightness down a fixed ramp, then checks key text and background combinations against WCAG contrast thresholds. Tokens export as CSS variables, a Tailwind color object, or plain JSON.",
+    "howTo": [
+      "Enter your primary color in Base hex color, using 3 or 6 digit hex.",
+      "Set a Token prefix such as brand, which names every generated variable.",
+      "Pick a Palette mode: Balanced UI scale, Vivid marketing scale, or Muted SaaS scale.",
+      "Review the swatches and contrast table, then download the CSS variables, Tailwind tokens, or JSON."
+    ],
+    "faqs": [
+      {
+        "q": "How are the ten shades generated?",
+        "a": "The base color is converted to HSL, the hue is kept, saturation is scaled by the mode (muted at 0.55x, balanced at 0.85x, vivid at 1.2x), and lightness follows a fixed ramp from 96 percent at step 50 down to 16 percent at step 900."
+      },
+      {
+        "q": "What do the contrast checks tell me?",
+        "a": "The table computes WCAG contrast ratios for combinations like white text on the 700 shade or dark text on the 50 shade. A ratio of 4.5:1 or higher passes AA for normal text, 3:1 qualifies for large text only, and anything lower is flagged as Low."
+      },
+      {
+        "q": "Which download format should I use?",
+        "a": "Use the CSS variables file for plain CSS projects, the Tailwind tokens JSON to drop into a Tailwind config's colors object, and the JSON export for design tools or build scripts. All three contain the same ten hex values."
+      },
+      {
+        "q": "Why doesn't my exact base color appear as a step?",
+        "a": "The scale is rebuilt from your color's hue with normalized saturation and fixed lightness values, so the nearest step approximates rather than reproduces your input. This keeps the ramp evenly spaced, which matters more for UI work than an exact match at one step."
+      },
+      {
+        "q": "What is the Token prefix used for?",
+        "a": "It names every token, producing variables like --brand-500 in CSS or a brand key in the Tailwind object. Spaces and special characters are slugified away."
+      }
+    ]
+  },
+  "unix-timestamp-converter": {
+    "intro": "Unix timestamps count time from January 1, 1970 UTC, and they show up everywhere in logs, APIs, and databases. Paste one here to see the human-readable UTC date, the same moment in your local timezone, and the year. A unit switch handles both second and millisecond timestamps, which are easy to mix up.",
+    "howTo": [
+      "Paste the number into the Unix timestamp field.",
+      "Set Unit to Seconds or Milliseconds depending on the source; JavaScript and Java typically use milliseconds, while most APIs and databases use seconds.",
+      "Read the UTC value in ISO 8601 format and the Local value rendered in your browser's timezone."
+    ],
+    "faqs": [
+      {
+        "q": "How do I know if my timestamp is in seconds or milliseconds?",
+        "a": "Current second-based timestamps are 10 digits, while millisecond timestamps are 13 digits. If the converted year looks absurdly far in the future, you likely converted milliseconds as seconds."
+      },
+      {
+        "q": "What timezone is the result in?",
+        "a": "Both are shown: the UTC row gives the ISO 8601 string ending in Z, and the Local row formats the same instant in your browser's configured timezone. A timestamp itself has no timezone; it is an absolute point in time."
+      },
+      {
+        "q": "Can I convert negative timestamps?",
+        "a": "Yes. Negative values represent moments before January 1, 1970 UTC, so -86400 converts to December 31, 1969."
+      },
+      {
+        "q": "Does the conversion happen on a server?",
+        "a": "No. The date math runs in your browser using JavaScript's built-in Date object, so nothing you enter is transmitted anywhere."
+      },
+      {
+        "q": "Why does my database timestamp differ from what a coworker sees?",
+        "a": "The UTC value is identical for everyone; only the Local rendering differs by each viewer's timezone. When comparing timestamps across a team, use the UTC row."
+      }
+    ]
+  },
+  "date-difference-calculator": {
+    "intro": "This calculator counts the days between any two calendar dates, whether you are measuring a project timeline, an invoice term, or time until a deadline. It reports the gap in whole days and in weeks, and tells you whether the end date is ahead of or behind the start. Both dates are treated as calendar dates, so the count is exact regardless of daylight saving changes.",
+    "howTo": [
+      "Pick the earlier date in Start date.",
+      "Pick the later date in End date.",
+      "Read the Days and Weeks values; the Direction row shows Forward when the end date is after the start, or Backward if you reversed them."
+    ],
+    "faqs": [
+      {
+        "q": "How is the day count computed?",
+        "a": "Both dates are interpreted at midnight UTC and the difference is divided by 86,400,000 milliseconds per day. Because both endpoints use the same fixed reference, the result is always a whole number of calendar days."
+      },
+      {
+        "q": "Is the count inclusive or exclusive?",
+        "a": "It is exclusive of the start date: January 1 to January 2 counts as 1 day. If you need an inclusive count, such as nights plus checkout day, add 1 to the result."
+      },
+      {
+        "q": "Does daylight saving time affect the result?",
+        "a": "No. Dates are compared at UTC midnight rather than local clock time, so DST transitions in your timezone never add or drop a day."
+      },
+      {
+        "q": "What does a negative or Backward result mean?",
+        "a": "It means your end date is earlier than your start date. The Days value goes negative and Direction shows Backward; swap the two dates to get a positive count."
+      },
+      {
+        "q": "How is the Weeks figure calculated?",
+        "a": "It is simply the day count divided by 7, shown to two decimal places, so 10 days displays as 1.43 weeks."
+      }
+    ]
+  },
+  "age-calculator": {
+    "intro": "Enter a birth date and this calculator returns the person's age in completed years, along with the total number of days lived. An adjustable as-of date lets you compute age on any day, past or future, which is handy for eligibility cutoffs, school enrollment dates, or form deadlines rather than just today.",
+    "howTo": [
+      "Select the person's Birth date.",
+      "Set the As of date to today or to the specific cutoff date you care about.",
+      "Read the Age in completed years and the Total days lived between the two dates."
+    ],
+    "faqs": [
+      {
+        "q": "How does the calculator handle birthdays that haven't happened yet this year?",
+        "a": "It subtracts the birth year from the as-of year, then subtracts one more if the as-of date falls before the birthday's month and day. So someone born June 15, 1990 is 35 on June 14, 2026 and 36 on June 15, 2026."
+      },
+      {
+        "q": "Can I calculate age at a past or future date?",
+        "a": "Yes. The As of date defaults to a fixed date but accepts any date, so you can answer questions like how old someone was on a contract signing date or will be at a program's start date."
+      },
+      {
+        "q": "What does Total days measure?",
+        "a": "It is the whole number of days between the birth date and the as-of date, useful for milestones like a 10,000th day or precise duration requirements."
+      },
+      {
+        "q": "How are February 29 birthdays handled?",
+        "a": "In non-leap years the birthday comparison uses month and day, so a February 29 birth date ticks over on March 1, once the calendar has passed February 29's month-and-day position."
+      },
+      {
+        "q": "Is any of this information stored?",
+        "a": "No. The calculation runs entirely in your browser and the dates you enter are not sent to or stored on any server."
+      }
+    ]
+  },
+  "countdown-calculator": {
+    "intro": "Pick a future date and this calculator tells you how many days and weeks remain from this moment, refreshing the math every time you run it. It is a quick way to size up how much runway is left before a launch, exam, wedding, or deadline, and it flags dates that have already passed.",
+    "howTo": [
+      "Choose the event date in the Target date field.",
+      "Read Days left and Weeks left, counted from the current moment to the target date.",
+      "Check the Status row: Upcoming means the date is still ahead, Past means it has gone by."
+    ],
+    "faqs": [
+      {
+        "q": "How is Days left calculated?",
+        "a": "The tool measures the time from right now to the target date and rounds up to whole days, so a deadline 1.2 days away shows as 2 days left. Partial days always count in your favor as remaining time."
+      },
+      {
+        "q": "Why does the count change depending on when I check?",
+        "a": "The countdown compares the target against the current time in your browser at the moment you calculate, so checking in the morning versus the evening can shift the rounded day count by one."
+      },
+      {
+        "q": "What time of day does the target date refer to?",
+        "a": "The target is interpreted as the start of that calendar date in UTC. For most planning purposes this means the count reaches zero as the date begins rather than ends."
+      },
+      {
+        "q": "What happens if I pick a date in the past?",
+        "a": "The Days left value goes negative and Status changes to Past, which doubles as a simple days-since counter for elapsed events."
+      },
+      {
+        "q": "Can I count down to a specific hour?",
+        "a": "No, the input is a date picker without a time component, so the resolution is one day. For hour-level countdowns you would need a timer rather than a date calculator."
+      }
+    ]
+  },
+  "length-converter": {
+    "intro": "Convert between meters, kilometers, feet, inches, and miles without hunting for the right multiplier. Every conversion routes through meters using exact international definitions, such as one foot equaling exactly 0.3048 meters, so results are precise to six decimal places rather than rounded rule-of-thumb figures.",
+    "howTo": [
+      "Type the measurement in the Amount field.",
+      "Select the unit you are converting from in the From dropdown.",
+      "Select the target unit in the To dropdown and read the converted result."
+    ],
+    "faqs": [
+      {
+        "q": "What conversion factors does this tool use?",
+        "a": "The exact international definitions: 1 foot is 0.3048 meters, 1 inch is 0.0254 meters, 1 mile is 1,609.344 meters, and 1 kilometer is 1,000 meters. Your amount is converted to meters first, then to the target unit."
+      },
+      {
+        "q": "How precise are the results?",
+        "a": "Results display up to six decimal places. Because the underlying factors are exact by definition, any rounding only occurs in that final display step."
+      },
+      {
+        "q": "Are these US survey feet or international feet?",
+        "a": "International feet, defined as exactly 0.3048 meters. The deprecated US survey foot differs by about 2 parts per million, which only matters in large-scale land surveying."
+      },
+      {
+        "q": "Can I convert between two units of the same system, like inches to feet?",
+        "a": "Yes. Any From and To combination works, including imperial to imperial and metric to metric, since everything passes through meters as a common base."
+      },
+      {
+        "q": "Does the tool handle decimal input?",
+        "a": "Yes, the Amount field accepts decimals like 5.75, and negative values convert mathematically if you need them for coordinate or offset arithmetic."
+      }
+    ]
+  },
+  "temperature-converter": {
+    "intro": "Move a temperature between Celsius, Fahrenheit, and Kelvin in one step. The converter normalizes your input to Celsius, then applies the standard formulas, F equals C times 9/5 plus 32 and K equals C plus 273.15, and displays the result to two decimal places. It handles any value, including negatives and scientific edge cases like absolute zero.",
+    "howTo": [
+      "Enter the value in the Temperature field.",
+      "Choose the source scale under From: Celsius, Fahrenheit, or Kelvin.",
+      "Choose the target scale under To and read the converted result."
+    ],
+    "faqs": [
+      {
+        "q": "What formulas are used?",
+        "a": "Fahrenheit to Celsius is (F - 32) x 5/9, Celsius to Fahrenheit is C x 9/5 + 32, and Kelvin is Celsius plus 273.15. Conversions between Fahrenheit and Kelvin chain through Celsius."
+      },
+      {
+        "q": "Why is Kelvin just Celsius plus 273.15?",
+        "a": "The Kelvin scale uses the same degree size as Celsius but starts at absolute zero, which sits at -273.15 degrees Celsius. That fixed offset is the entire conversion."
+      },
+      {
+        "q": "At what temperature are Celsius and Fahrenheit equal?",
+        "a": "At -40, the two scales cross: -40 degrees Celsius and -40 degrees Fahrenheit are the same temperature. You can verify it in the converter."
+      },
+      {
+        "q": "Can I enter negative temperatures?",
+        "a": "Yes, negatives are fine for Celsius and Fahrenheit. Note that Kelvin values below 0 have no physical meaning, since 0 K is absolute zero, though the arithmetic will still compute."
+      },
+      {
+        "q": "How many decimal places does the result show?",
+        "a": "Two. For example, 25 degrees Celsius converts to 77.00 Fahrenheit and 298.15 Kelvin."
+      }
+    ]
+  },
+  "weight-converter": {
+    "intro": "Convert between kilograms, grams, pounds, and ounces using the exact avoirdupois definitions rather than the rounded 2.2 shortcut. Every input is normalized to grams, with one pound defined as exactly 453.59237 grams, so recipe scaling, shipping weights, and fitness numbers come out accurate to six decimal places.",
+    "howTo": [
+      "Enter the weight in the Amount field.",
+      "Pick the current unit under From: Kilograms, Grams, Pounds, or Ounces.",
+      "Pick the target unit under To and read the converted value."
+    ],
+    "faqs": [
+      {
+        "q": "What conversion factors are used?",
+        "a": "One pound is exactly 453.59237 grams and one ounce is 28.349523125 grams, the international avoirdupois definitions. Kilograms and grams relate by a factor of 1,000, and all conversions pass through grams."
+      },
+      {
+        "q": "Why does 1 kg show as 2.204623 lb instead of 2.2?",
+        "a": "2.2 is a convenience approximation. The exact value is 1,000 divided by 453.59237, which is about 2.20462, and this tool reports the precise figure to six decimal places."
+      },
+      {
+        "q": "Are these fluid ounces?",
+        "a": "No. This converter handles weight ounces (avoirdupois); fluid ounces measure volume and cannot be converted to weight without knowing the substance's density."
+      },
+      {
+        "q": "Does it handle troy ounces for precious metals?",
+        "a": "No, only standard avoirdupois ounces. A troy ounce is heavier at about 31.103 grams, so do not use this tool for gold or silver weights."
+      },
+      {
+        "q": "Can I convert very small or very large amounts?",
+        "a": "Yes. The Amount field accepts decimals, so you can convert 0.5 g just as easily as 25,000 kg, with the same underlying factors applied."
+      }
+    ]
+  },
+  "data-size-converter": {
+    "intro": "Translate file and storage sizes between bytes, KB, MB, GB, and TB using binary base-1024 math, where 1 KB is 1,024 bytes and each step up multiplies by 1,024 again. This matches how operating systems like Windows report sizes, which is why a \"500 GB\" drive shows up smaller once formatted.",
+    "howTo": [
+      "Enter the size in the Amount field.",
+      "Choose the current unit under From: Bytes, KB, MB, GB, or TB.",
+      "Choose the target unit under To and read the converted figure."
+    ],
+    "faqs": [
+      {
+        "q": "Does this converter use 1,000 or 1,024 per step?",
+        "a": "1,024. One KB is 1,024 bytes, one MB is 1,048,576 bytes, one GB is 1,073,741,824 bytes, and one TB is 1,099,511,627,776 bytes, the binary convention most operating systems use."
+      },
+      {
+        "q": "Why does my 1 TB drive show as roughly 931 GB?",
+        "a": "Drive makers advertise decimal terabytes (1 trillion bytes), but your OS divides by 1,024 steps. Enter 1,000,000,000,000 bytes here and convert to GB to see the 931.32 GB figure yourself."
+      },
+      {
+        "q": "Is a KB here the same as a KiB?",
+        "a": "Numerically yes. The IEC names the 1,024-based units KiB, MiB, and GiB, while this tool uses the traditional KB, MB, and GB labels for the same binary quantities."
+      },
+      {
+        "q": "How do I estimate download time from a file size?",
+        "a": "Convert the file to MB, then note that internet speeds are quoted in megabits, which are one eighth of a megabyte. A 100 MB file on a 100 Mbps connection takes roughly 8 seconds plus overhead."
+      },
+      {
+        "q": "How precise are the results?",
+        "a": "Up to six decimal places, so converting 1,024 MB to GB shows exactly 1 and odd byte counts produce precise fractional values."
+      }
+    ]
+  },
+  "ladder-draw": {
+    "intro": "The ladder draw (known as Amidakuji or sadaritagi in East Asia) assigns people to outcomes by tracing paths down a ladder with randomly placed rungs. This version builds a real ladder on screen, animates each participant's colored path as it zigzags across the rungs, and lands everyone on an outcome, so the group can watch exactly how each pairing was decided. It handles up to 16 participants and works for coffee runs, chore splits, prize draws, and team assignments.",
+    "howTo": [
+      "List each participant on its own line under People or teams (up to 16).",
+      "List the prizes, chores, or slots one per line under Outcomes or prizes; if there are fewer outcomes than people, outcomes repeat in order.",
+      "Choose a Mode: Shuffle pairings maps every person to an outcome, while Pick one winner selects a single person and their ladder result.",
+      "Press Draw ladder and watch the rungs appear and each path trace down to its outcome."
+    ],
+    "faqs": [
+      {
+        "q": "Is the draw actually random or just an animation?",
+        "a": "The rung placement is generated with the browser's cryptographic random number generator, crypto.getRandomValues, and every pairing is then derived from the real ladder topology by tracing paths through those rungs. The animation replays the genuine traversal rather than decorating a predetermined answer."
+      },
+      {
+        "q": "How does a ladder guarantee fair one-to-one pairings?",
+        "a": "Each rung swaps two adjacent paths, and a sequence of swaps is a permutation, so every participant always lands on exactly one outcome slot with no collisions. This is the mathematical property that makes Amidakuji work."
+      },
+      {
+        "q": "How many people and outcomes can I enter?",
+        "a": "Up to 16 participants, each drawn with its own path color. You need at least one outcome; when outcomes are fewer than people, they cycle, so with 6 people and 2 outcomes each outcome is reachable by multiple people."
+      },
+      {
+        "q": "What does Pick one winner mode do?",
+        "a": "It first picks one participant uniformly at random using crypto.getRandomValues, then traces only that person's ladder path to reveal their outcome. Use it when only one person needs to be selected, such as who buys coffee."
+      },
+      {
+        "q": "Can anyone game the ladder by picking a certain column?",
+        "a": "No. The rungs are generated fresh for every draw after names are entered, and roughly 40 percent of possible rung slots are filled at random with every gap guaranteed at least one rung, so no starting column has a predictable destination."
+      },
+      {
+        "q": "Is anything sent to a server?",
+        "a": "No. Names, outcomes, and results stay in your browser; the whole draw runs locally."
+      }
+    ]
+  },
+  "coin-flip": {
+    "intro": "A virtual coin toss with a 3D flip animation, backed by the browser's cryptographic random number generator instead of a wobbly thumb. Flip once for a quick yes-or-no call, or run up to 100 flips at a time and get the full sequence plus a heads-versus-tails tally, which is also a neat way to demonstrate probability to students.",
+    "howTo": [
+      "Set Number of flips to 1 for a single decision or up to 100 for a batch.",
+      "Press the flip button and watch the coin spin and settle on the first result.",
+      "Review the headline result, the heads and tails counts, and the numbered list of every flip."
+    ],
+    "faqs": [
+      {
+        "q": "Is the coin flip truly 50/50?",
+        "a": "Each flip draws from crypto.getRandomValues, the browser's cryptographically secure random source, with two equally likely outcomes. Unlike a physical coin, there is no bias from weight, spin technique, or catching style."
+      },
+      {
+        "q": "What happens when I flip more than one coin?",
+        "a": "Every flip is independent and listed in order, the animation shows the first result, and the metrics report how many heads and tails occurred across the batch. The maximum is 100 flips per run."
+      },
+      {
+        "q": "Why did I get several heads in a row?",
+        "a": "Streaks are normal in genuine random sequences; five heads in a row has about a 3 percent chance in any five flips and will appear regularly across many runs. Past flips never influence the next one."
+      },
+      {
+        "q": "What is this useful for besides settling arguments?",
+        "a": "Common uses include choosing who goes first in a game, breaking a deadlocked two-option decision, randomizing A/B assignments informally, and classroom probability experiments using the multi-flip tally."
+      },
+      {
+        "q": "Does the flip animation affect the outcome?",
+        "a": "No. The result is drawn before the animation starts, and the coin simply rotates to land on the face that was already selected."
+      }
+    ]
+  },
+  "dice-roller": {
+    "intro": "Roll anywhere from one to one hundred dice with 2 to 1,000 sides each, plus an optional flat modifier, in standard tabletop notation like 2d6 or 4d20+3. The tray animates each die tumbling before settling on its value, and the result lists every individual roll alongside the modified total, with randomness supplied by the browser's crypto API rather than a pseudo-random shortcut.",
+    "howTo": [
+      "Set Dice count for the number of dice and Sides per die for the die type, such as 6 for standard dice or 20 for a d20.",
+      "Enter a Modifier to add or subtract a fixed amount from the total, or leave it at 0.",
+      "Press the roll button and read the Total, the individual Rolls, and the notation like 2d6."
+    ],
+    "faqs": [
+      {
+        "q": "Are the rolls fair?",
+        "a": "Yes. Each die uses crypto.getRandomValues, the same cryptographically secure generator browsers use for security keys, so every face from 1 to the side count is equally likely and rolls are independent."
+      },
+      {
+        "q": "What dice can I simulate?",
+        "a": "Anything from 2 to 1,000 sides, covering the full tabletop set (d4, d6, d8, d10, d12, d20, d100) as well as oddball dice, and up to 100 dice per roll."
+      },
+      {
+        "q": "How does the Modifier work?",
+        "a": "It is added once to the sum of all dice, not to each die, matching standard RPG notation, so 2d6+3 means roll two six-sided dice and add 3 to the combined result. Negative modifiers subtract."
+      },
+      {
+        "q": "Can I use this for picking a random number in a range?",
+        "a": "Yes. Set Dice count to 1 and Sides per die to your upper bound for a uniform pick from 1 to N, such as 1d1000 for a number between 1 and 1,000."
+      },
+      {
+        "q": "Why does the tray show fewer dice than I rolled?",
+        "a": "The animation displays up to 12 dice and summarizes the rest with a counter, but the Rolls list and Total always include every die."
+      },
+      {
+        "q": "Do the tumbling numbers during the animation mean anything?",
+        "a": "No, they are cosmetic. The real results are drawn before the animation and each die settles on its true value in order."
+      }
+    ]
+  },
+  "roulette-picker": {
+    "intro": "Paste a list of options, spin the wheel, and let it decide: the colored roulette turns for a few seconds and the pointer lands on the winning segment. It is built for lunch spots, coffee orders, task assignments, giveaway winners, and any choice a group cannot make on its own, with a multi-draw mode that can pick several winners with or without repeats.",
+    "howTo": [
+      "Enter each option on its own line in the Items field.",
+      "Set Draws to how many picks you need, and use Repeat items to choose between No repeats and Allow repeats.",
+      "Press Spin roulette and watch the wheel slow down onto the winner; the result panel lists every draw in order."
+    ],
+    "faqs": [
+      {
+        "q": "Is the wheel rigged or is the landing truly random?",
+        "a": "The winner is selected uniformly at random with crypto.getRandomValues, the browser's cryptographically secure generator, and the wheel is then animated to stop on that item's actual segment. Every item on the wheel has an equal chance regardless of its position or color."
+      },
+      {
+        "q": "What is the difference between No repeats and Allow repeats?",
+        "a": "With No repeats, the list is shuffled and draws walk through it, so no item is picked twice until every item has been used once. With Allow repeats, each draw is an independent uniform pick, so the same item can win multiple times."
+      },
+      {
+        "q": "How many items and draws can I use?",
+        "a": "Any number of items, one per line, and up to 100 draws per spin. Long labels are truncated on the wheel display, and wheels with many items use smaller text, but the full names appear in the results list."
+      },
+      {
+        "q": "Can I use this for giveaways?",
+        "a": "Yes. Paste entrant names one per line, set Draws to the number of winners, and keep No repeats so nobody wins twice; the numbered results give you the winner order."
+      },
+      {
+        "q": "Does the spin animation influence the result?",
+        "a": "No. The pick is decided before the wheel starts moving, and the rotation, including its slight random offset within the winning segment, is calculated to land the pointer on the predetermined winner."
+      },
+      {
+        "q": "Are my lists uploaded anywhere?",
+        "a": "No. Items and results stay in your browser; the picker runs entirely locally and works offline once loaded."
+      }
+    ]
+  }
+}
