@@ -1509,19 +1509,20 @@ h1 {
   gap: 10px;
 }
 
-.file-field-title {
+.tool-form .file-field-title {
   color: var(--ink);
   font-weight: 800;
 }
 
-.file-picker-button {
+.tool-form .file-picker-button {
   padding: 10px 16px;
-  border: 1px solid #0b5f59;
+  border: 1px solid #064e49;
   border-radius: 8px;
-  background: #0b5f59;
+  background: #064e49;
   color: #ffffff;
-  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22);
-  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(6, 78, 73, 0.28);
+  font-size: 1rem;
+  font-weight: 900;
 }
 
 .file-name,
@@ -1529,7 +1530,7 @@ h1 {
   font-size: 0.9rem;
 }
 
-.file-name {
+.tool-form .file-name {
   align-self: center;
   min-width: 0;
   padding: 7px 10px;
@@ -1537,16 +1538,16 @@ h1 {
   border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
-  font-weight: 700;
+  font-weight: 800;
   overflow-wrap: anywhere;
 }
 
-.file-field-hint {
+.tool-form .file-field-hint {
   color: color-mix(in srgb, var(--ink) 76%, var(--muted));
   font-weight: 600;
 }
 
-:root.dark .file-picker-button {
+:root.dark .tool-form .file-picker-button {
   border-color: #99f6e4;
   background: #99f6e4;
   color: #062a25;
