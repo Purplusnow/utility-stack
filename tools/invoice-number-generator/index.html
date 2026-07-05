@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoice Number Generator - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Design invoice numbering policies with date formats, reset rules, check digits, next-number previews, policy notes, and CSV download. Use this free business tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/invoice-number-generator/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/invoice-number-generator/">
+
   <meta property="og:title" content="Invoice Number Generator - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Design invoice numbering policies with date formats, reset rules, check digits, next-number previews, policy notes, and CSV download. Use this free business tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/invoice-number-generator/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/invoice-number-generator/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Invoice Number Generator","applicationCategory":"BusinessApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/invoice-number-generator/","description":"Design invoice numbering policies with date formats, reset rules, check digits, next-number previews, policy notes, and CSV download.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Invoice Number Generator","applicationCategory":"BusinessApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/invoice-number-generator/","description":"Design invoice numbering policies with date formats, reset rules, check digits, next-number previews, policy notes, and CSV download.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Business Tools","item":"https://tools.koreanblog.xyz/categories/business/"},{"@type":"ListItem","position":3,"name":"Invoice Number Generator","item":"https://tools.koreanblog.xyz/tools/invoice-number-generator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/invoice-number-generator/","mainEntity":[{"@type":"Question","name":"What does the reset rule change?","acceptedAnswer":{"@type":"Answer","text":"It defines when your sequence restarts: never (one continuous series), monthly, yearly, or a separate series per client. The result shows a period key — like a year-month stamp or client tag — that identifies which counter each number belongs to."}},{"@type":"Question","name":"How is the Mod 10 check digit computed?","acceptedAnswer":{"@type":"Answer","text":"All digits in the assembled number are weighted alternately by 3 and 1, summed, and the digit that rounds the sum up to a multiple of 10 is appended. It lets you catch most typos when a number is keyed in manually."}},{"@type":"Question","name":"What are the input limits?","acceptedAnswer":{"@type":"Answer","text":"Padding runs from 1 to 12 digits, the preview generates up to 100 numbers, and prefix and client codes are normalized to URL-safe characters."}},{"@type":"Question","name":"What do the two downloads contain?","acceptedAnswer":{"@type":"Answer","text":"The CSV lists each generated number with its successor, period key, reset rule, and check-digit setting; the Markdown file is a written numbering policy with the pattern and operational notes you can drop into your team docs."}},{"@type":"Question","name":"Can I reuse a voided invoice number?","acceptedAnswer":{"@type":"Answer","text":"Generally no — most accounting practices require gaps to stay documented rather than refilled, and the generated policy notes call this out explicitly."}},{"@type":"Question","name":"Are my client codes or sequences stored?","acceptedAnswer":{"@type":"Answer","text":"No. Everything is generated in your browser on the fly and nothing is transmitted or persisted."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>This tool designs a complete invoice numbering scheme rather than just spitting out one number. Combine a prefix, client code, and date stamp with a zero-padded sequence, optionally append a Mod 10 check digit, and choose a reset rule (never, monthly, yearly, or per client). It previews a batch of numbers with their successors, generates written policy notes in Markdown, and exports both a CSV and the policy document.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter a Prefix (like INV) and an optional Client code.</li><li>Set the starting Sequence, Number padding width, and how many numbers to preview with Generate count.</li><li>Pick a Separator, Date format, Reset rule, and whether to append a Mod 10 Check digit.</li><li>Copy the current invoice number, review the pattern and period key, and use the download buttons for the numbers CSV and policy notes.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>What does the reset rule change?</h3><p>It defines when your sequence restarts: never (one continuous series), monthly, yearly, or a separate series per client. The result shows a period key — like a year-month stamp or client tag — that identifies which counter each number belongs to.</p><h3>How is the Mod 10 check digit computed?</h3><p>All digits in the assembled number are weighted alternately by 3 and 1, summed, and the digit that rounds the sum up to a multiple of 10 is appended. It lets you catch most typos when a number is keyed in manually.</p><h3>What are the input limits?</h3><p>Padding runs from 1 to 12 digits, the preview generates up to 100 numbers, and prefix and client codes are normalized to URL-safe characters.</p><h3>What do the two downloads contain?</h3><p>The CSV lists each generated number with its successor, period key, reset rule, and check-digit setting; the Markdown file is a written numbering policy with the pattern and operational notes you can drop into your team docs.</p><h3>Can I reuse a voided invoice number?</h3><p>Generally no — most accounting practices require gaps to stay documented rather than refilled, and the generated policy notes call this out explicitly.</p><h3>Are my client codes or sequences stored?</h3><p>No. Everything is generated in your browser on the fly and nothing is transmitted or persisted.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/profit-margin-calculator/">Profit Margin Calculator</a></li><li><a href="/tools/roi-calculator/">ROI Calculator</a></li><li><a href="/tools/break-even-calculator/">Break Even Calculator</a></li><li><a href="/tools/hourly-to-salary-calculator/">Hourly to Salary Calculator</a></li><li><a href="/tools/cpm-rpm-calculator/">CPM RPM Calculator</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

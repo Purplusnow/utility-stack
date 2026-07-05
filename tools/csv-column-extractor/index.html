@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CSV Column Extractor - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Extract selected columns from CSV, including files with quoted commas and multiline fields. Use this free data tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/csv-column-extractor/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/csv-column-extractor/">
+
   <meta property="og:title" content="CSV Column Extractor - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Extract selected columns from CSV, including files with quoted commas and multiline fields. Use this free data tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/csv-column-extractor/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/csv-column-extractor/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CSV Column Extractor","applicationCategory":"DataApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/csv-column-extractor/","description":"Extract selected columns from CSV, including files with quoted commas and multiline fields.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CSV Column Extractor","applicationCategory":"DataApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/csv-column-extractor/","description":"Extract selected columns from CSV, including files with quoted commas and multiline fields.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Data Tools","item":"https://tools.koreanblog.xyz/categories/data/"},{"@type":"ListItem","position":3,"name":"CSV Column Extractor","item":"https://tools.koreanblog.xyz/tools/csv-column-extractor/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/csv-column-extractor/","mainEntity":[{"@type":"Question","name":"How do I specify which columns to keep?","acceptedAnswer":{"@type":"Answer","text":"Type the exact header names separated by commas, such as name,team. Names must match the header row exactly after trimming, including capitalization."}},{"@type":"Question","name":"What happens if a column name doesn't match?","acceptedAnswer":{"@type":"Answer","text":"Unmatched names are listed in the Missing metric so you can spot typos, and the extraction proceeds with the columns that did match. If nothing matches, you get an error."}},{"@type":"Question","name":"Does the output preserve column order from my list?","acceptedAnswer":{"@type":"Answer","text":"Columns appear in the order you list them in Columns to keep, not their original file order, so you can reorder while extracting."}},{"@type":"Question","name":"Are quoted values kept intact?","acceptedAnswer":{"@type":"Answer","text":"Yes. The parser handles quoted commas and multiline fields on input, and output cells are re-escaped properly, so complex values survive extraction."}},{"@type":"Question","name":"Is my file processed privately?","acceptedAnswer":{"@type":"Answer","text":"Yes. Reading, parsing, and extraction all run in your browser; no part of the file is uploaded."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>Pull just the columns you need out of a wide CSV file. Name the columns to keep, and the extractor builds a smaller CSV preserving quoting and row order, while telling you which requested columns were not found.</p>
+      <h2>How to use</h2>
+      <ol><li>Upload a .csv file or paste data into the Input area.</li><li>List the header names to keep, comma-separated, in the Columns to keep field.</li><li>Check the Kept and Missing metrics to confirm the right columns matched.</li><li>Download columns.csv or copy the output.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>How do I specify which columns to keep?</h3><p>Type the exact header names separated by commas, such as name,team. Names must match the header row exactly after trimming, including capitalization.</p><h3>What happens if a column name doesn&#039;t match?</h3><p>Unmatched names are listed in the Missing metric so you can spot typos, and the extraction proceeds with the columns that did match. If nothing matches, you get an error.</p><h3>Does the output preserve column order from my list?</h3><p>Columns appear in the order you list them in Columns to keep, not their original file order, so you can reorder while extracting.</p><h3>Are quoted values kept intact?</h3><p>Yes. The parser handles quoted commas and multiline fields on input, and output cells are re-escaped properly, so complex values survive extraction.</p><h3>Is my file processed privately?</h3><p>Yes. Reading, parsing, and extraction all run in your browser; no part of the file is uploaded.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/csv-to-json-converter/">CSV to JSON Converter</a></li><li><a href="/tools/json-to-csv-converter/">JSON to CSV Converter</a></li><li><a href="/tools/csv-cleaner/">CSV Cleaner</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Image Format Converter - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Convert images between PNG, JPG, WebP, and AVIF locally with resize, quality, and transparent-background controls. Use this free image tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/image-format-converter/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/image-format-converter/">
+
   <meta property="og:title" content="Image Format Converter - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Convert images between PNG, JPG, WebP, and AVIF locally with resize, quality, and transparent-background controls. Use this free image tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/image-format-converter/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/image-format-converter/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Image Format Converter","applicationCategory":"ImageApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/image-format-converter/","description":"Convert images between PNG, JPG, WebP, and AVIF locally with resize, quality, and transparent-background controls.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Image Format Converter","applicationCategory":"ImageApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/image-format-converter/","description":"Convert images between PNG, JPG, WebP, and AVIF locally with resize, quality, and transparent-background controls.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Image Tools","item":"https://tools.koreanblog.xyz/categories/image/"},{"@type":"ListItem","position":3,"name":"Image Format Converter","item":"https://tools.koreanblog.xyz/tools/image-format-converter/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/image-format-converter/","mainEntity":[{"@type":"Question","name":"Is the conversion done locally?","acceptedAnswer":{"@type":"Answer","text":"Yes. The file is decoded and re-encoded in your browser with the canvas API and is never uploaded to a server."}},{"@type":"Question","name":"What happens to transparency when converting to JPG?","acceptedAnswer":{"@type":"Answer","text":"JPG does not support transparency, so transparent pixels are flattened onto the JPG background color you specify (white by default). Converting to PNG, WebP, or AVIF preserves transparency when the source has it."}},{"@type":"Question","name":"Does converting to PNG lose quality?","acceptedAnswer":{"@type":"Answer","text":"No. PNG is lossless, and the result panel marks its quality as Lossless. For JPG, WebP, and AVIF, the Quality value controls the compression level, with 90 as the default."}},{"@type":"Question","name":"Can I convert AVIF images?","acceptedAnswer":{"@type":"Answer","text":"You can open AVIF files in any modern browser that decodes them. Exporting to AVIF depends on your browser's encoder; if it is not supported, choose WebP for similar compression."}},{"@type":"Question","name":"Can I resize while converting?","acceptedAnswer":{"@type":"Answer","text":"Yes. Enter an Output width or Output height and the other dimension is calculated automatically while Keep original ratio is checked. Leave both blank to keep the original dimensions."}},{"@type":"Question","name":"Is metadata preserved in the converted file?","acceptedAnswer":{"@type":"Answer","text":"No. Canvas re-encoding produces a clean file without the source's EXIF metadata, which is often preferable when sharing images publicly."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>This converter changes an image from one format to another, such as PNG to WebP or AVIF to JPG, without installing software or sending the file anywhere. You can resize during conversion and control what happens to transparent areas, which JPG cannot represent. The result panel reports dimensions, file size change, and how transparency was handled.</p>
+      <h2>How to use</h2>
+      <ol><li>Choose your source file under Image file; PNG, JPG, WebP, and AVIF are accepted.</li><li>Pick the target Format, and set the Quality for lossy formats.</li><li>Optionally enter an Output width or Output height, keeping Keep original ratio checked to preserve proportions.</li><li>If converting to JPG, set the JPG background color used to fill transparent areas, then download the converted file.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>Is the conversion done locally?</h3><p>Yes. The file is decoded and re-encoded in your browser with the canvas API and is never uploaded to a server.</p><h3>What happens to transparency when converting to JPG?</h3><p>JPG does not support transparency, so transparent pixels are flattened onto the JPG background color you specify (white by default). Converting to PNG, WebP, or AVIF preserves transparency when the source has it.</p><h3>Does converting to PNG lose quality?</h3><p>No. PNG is lossless, and the result panel marks its quality as Lossless. For JPG, WebP, and AVIF, the Quality value controls the compression level, with 90 as the default.</p><h3>Can I convert AVIF images?</h3><p>You can open AVIF files in any modern browser that decodes them. Exporting to AVIF depends on your browser&#039;s encoder; if it is not supported, choose WebP for similar compression.</p><h3>Can I resize while converting?</h3><p>Yes. Enter an Output width or Output height and the other dimension is calculated automatically while Keep original ratio is checked. Leave both blank to keep the original dimensions.</p><h3>Is metadata preserved in the converted file?</h3><p>No. Canvas re-encoding produces a clean file without the source&#039;s EXIF metadata, which is often preferable when sharing images publicly.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/aspect-ratio-calculator/">Aspect Ratio Calculator</a></li><li><a href="/tools/image-resize-calculator/">Image Resizer</a></li><li><a href="/tools/image-compressor/">Image Compressor</a></li><li><a href="/tools/square-image-maker/">Square Image Maker</a></li><li><a href="/tools/image-asset-pack-generator/">Image Asset Pack Generator</a></li><li><a href="/tools/pixel-art-converter/">Pixel Art Converter</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

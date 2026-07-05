@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weight Converter - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Convert kilograms, pounds, ounces, and grams. Use this free converters tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/weight-converter/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/weight-converter/">
+
   <meta property="og:title" content="Weight Converter - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Convert kilograms, pounds, ounces, and grams. Use this free converters tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/weight-converter/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/weight-converter/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Weight Converter","applicationCategory":"ConvertersApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/weight-converter/","description":"Convert kilograms, pounds, ounces, and grams.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Weight Converter","applicationCategory":"ConvertersApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/weight-converter/","description":"Convert kilograms, pounds, ounces, and grams.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Converters Tools","item":"https://tools.koreanblog.xyz/categories/converters/"},{"@type":"ListItem","position":3,"name":"Weight Converter","item":"https://tools.koreanblog.xyz/tools/weight-converter/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/weight-converter/","mainEntity":[{"@type":"Question","name":"What conversion factors are used?","acceptedAnswer":{"@type":"Answer","text":"One pound is exactly 453.59237 grams and one ounce is 28.349523125 grams, the international avoirdupois definitions. Kilograms and grams relate by a factor of 1,000, and all conversions pass through grams."}},{"@type":"Question","name":"Why does 1 kg show as 2.204623 lb instead of 2.2?","acceptedAnswer":{"@type":"Answer","text":"2.2 is a convenience approximation. The exact value is 1,000 divided by 453.59237, which is about 2.20462, and this tool reports the precise figure to six decimal places."}},{"@type":"Question","name":"Are these fluid ounces?","acceptedAnswer":{"@type":"Answer","text":"No. This converter handles weight ounces (avoirdupois); fluid ounces measure volume and cannot be converted to weight without knowing the substance's density."}},{"@type":"Question","name":"Does it handle troy ounces for precious metals?","acceptedAnswer":{"@type":"Answer","text":"No, only standard avoirdupois ounces. A troy ounce is heavier at about 31.103 grams, so do not use this tool for gold or silver weights."}},{"@type":"Question","name":"Can I convert very small or very large amounts?","acceptedAnswer":{"@type":"Answer","text":"Yes. The Amount field accepts decimals, so you can convert 0.5 g just as easily as 25,000 kg, with the same underlying factors applied."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>Convert between kilograms, grams, pounds, and ounces using the exact avoirdupois definitions rather than the rounded 2.2 shortcut. Every input is normalized to grams, with one pound defined as exactly 453.59237 grams, so recipe scaling, shipping weights, and fitness numbers come out accurate to six decimal places.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter the weight in the Amount field.</li><li>Pick the current unit under From: Kilograms, Grams, Pounds, or Ounces.</li><li>Pick the target unit under To and read the converted value.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>What conversion factors are used?</h3><p>One pound is exactly 453.59237 grams and one ounce is 28.349523125 grams, the international avoirdupois definitions. Kilograms and grams relate by a factor of 1,000, and all conversions pass through grams.</p><h3>Why does 1 kg show as 2.204623 lb instead of 2.2?</h3><p>2.2 is a convenience approximation. The exact value is 1,000 divided by 453.59237, which is about 2.20462, and this tool reports the precise figure to six decimal places.</p><h3>Are these fluid ounces?</h3><p>No. This converter handles weight ounces (avoirdupois); fluid ounces measure volume and cannot be converted to weight without knowing the substance&#039;s density.</p><h3>Does it handle troy ounces for precious metals?</h3><p>No, only standard avoirdupois ounces. A troy ounce is heavier at about 31.103 grams, so do not use this tool for gold or silver weights.</p><h3>Can I convert very small or very large amounts?</h3><p>Yes. The Amount field accepts decimals, so you can convert 0.5 g just as easily as 25,000 kg, with the same underlying factors applied.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/length-converter/">Length Converter</a></li><li><a href="/tools/temperature-converter/">Temperature Converter</a></li><li><a href="/tools/data-size-converter/">Data Size Converter</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

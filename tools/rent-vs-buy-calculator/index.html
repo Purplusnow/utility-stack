@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rent vs Buy Calculator - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Compare renting and buying with loan terms, closing costs, rent growth, home appreciation, investment return, equity, and CSV scenarios. Use this free finance tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/rent-vs-buy-calculator/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/rent-vs-buy-calculator/">
+
   <meta property="og:title" content="Rent vs Buy Calculator - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Compare renting and buying with loan terms, closing costs, rent growth, home appreciation, investment return, equity, and CSV scenarios. Use this free finance tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/rent-vs-buy-calculator/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/rent-vs-buy-calculator/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Rent vs Buy Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/rent-vs-buy-calculator/","description":"Compare renting and buying with loan terms, closing costs, rent growth, home appreciation, investment return, equity, and CSV scenarios.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Rent vs Buy Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/rent-vs-buy-calculator/","description":"Compare renting and buying with loan terms, closing costs, rent growth, home appreciation, investment return, equity, and CSV scenarios.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Finance Tools","item":"https://tools.koreanblog.xyz/categories/finance/"},{"@type":"ListItem","position":3,"name":"Rent vs Buy Calculator","item":"https://tools.koreanblog.xyz/tools/rent-vs-buy-calculator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/rent-vs-buy-calculator/","mainEntity":[{"@type":"Question","name":"How does the comparison define net worth?","acceptedAnswer":{"@type":"Answer","text":"The buyer's net worth is home equity after paying off the remaining loan and subtracting selling costs; the renter's is an investment account seeded with the down payment and closing costs, growing monthly at your investment return plus any month where owning would have cost more than rent."}},{"@type":"Question","name":"What is the break-even rent?","acceptedAnswer":{"@type":"Answer","text":"It is the starting monthly rent at which buying and renting end your comparison period with equal net worth, found by binary search. If your actual rent is above it, buying tends to win under your assumptions."}},{"@type":"Question","name":"Which sensitivity scenarios are included?","acceptedAnswer":{"@type":"Answer","text":"The base case plus rent ±10%, home appreciation ±1 percentage point, and mortgage rate +1 point, each showing both net worth figures and the winner so you can see which assumption matters most."}},{"@type":"Question","name":"What are the input limits?","acceptedAnswer":{"@type":"Answer","text":"The comparison horizon runs 1 to 40 years, the loan term 1 to 50 years, and the down payment must be less than the home price. Rent and home price must be positive."}},{"@type":"Question","name":"What does the model leave out?","acceptedAnswer":{"@type":"Answer","text":"Tax deductions, PMI, transaction timing, rent deposits, and inflation adjustments to maintenance or insurance. Results are directional estimates, not financial advice."}},{"@type":"Question","name":"Is any of this data collected?","acceptedAnswer":{"@type":"Answer","text":"No — the whole simulation, including the break-even search and CSV export, runs locally in your browser."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>This calculator compares the net worth of renting versus buying over a horizon you choose. The buyer&#039;s side tracks mortgage amortization, property tax, maintenance, insurance, HOA dues, and eventual selling costs; the renter&#039;s side invests the down payment, closing costs, and any monthly savings at your chosen return. It reports the winner, the break-even year, the break-even rent, a year-by-year table, and sensitivity scenarios — all exportable as CSV.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter the Home price, Down payment, Mortgage rate %, and Loan term years, plus your Current rent / month.</li><li>Set the Compare years horizon and growth assumptions: Rent growth, Home appreciation, and Investment return.</li><li>Fill in ownership costs: Buyer closing costs %, Property tax %, Maintenance %, Home insurance, HOA, and Selling cost %.</li><li>Review the better option, net advantage, and break-even year, then use Download rent vs buy CSV for the yearly and scenario detail.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>How does the comparison define net worth?</h3><p>The buyer&#039;s net worth is home equity after paying off the remaining loan and subtracting selling costs; the renter&#039;s is an investment account seeded with the down payment and closing costs, growing monthly at your investment return plus any month where owning would have cost more than rent.</p><h3>What is the break-even rent?</h3><p>It is the starting monthly rent at which buying and renting end your comparison period with equal net worth, found by binary search. If your actual rent is above it, buying tends to win under your assumptions.</p><h3>Which sensitivity scenarios are included?</h3><p>The base case plus rent ±10%, home appreciation ±1 percentage point, and mortgage rate +1 point, each showing both net worth figures and the winner so you can see which assumption matters most.</p><h3>What are the input limits?</h3><p>The comparison horizon runs 1 to 40 years, the loan term 1 to 50 years, and the down payment must be less than the home price. Rent and home price must be positive.</p><h3>What does the model leave out?</h3><p>Tax deductions, PMI, transaction timing, rent deposits, and inflation adjustments to maintenance or insurance. Results are directional estimates, not financial advice.</p><h3>Is any of this data collected?</h3><p>No — the whole simulation, including the break-even search and CSV export, runs locally in your browser.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/loan-payment-calculator/">Loan Payment Calculator</a></li><li><a href="/tools/credit-card-payoff-calculator/">Credit Card Payoff Calculator</a></li><li><a href="/tools/debt-payoff-planner/">Debt Payoff Planner</a></li><li><a href="/tools/compound-interest-calculator/">Compound Interest Calculator</a></li><li><a href="/tools/retirement-calculator/">Retirement Calculator</a></li><li><a href="/tools/sales-tax-calculator/">Sales Tax Calculator</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

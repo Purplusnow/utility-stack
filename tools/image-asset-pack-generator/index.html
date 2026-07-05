@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Image Asset Pack Generator - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Generate favicon, app icon, Open Graph, social, and launch image packs from one source image locally. Use this free image tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/image-asset-pack-generator/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/image-asset-pack-generator/">
+
   <meta property="og:title" content="Image Asset Pack Generator - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Generate favicon, app icon, Open Graph, social, and launch image packs from one source image locally. Use this free image tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/image-asset-pack-generator/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/image-asset-pack-generator/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Image Asset Pack Generator","applicationCategory":"ImageApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/image-asset-pack-generator/","description":"Generate favicon, app icon, Open Graph, social, and launch image packs from one source image locally.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Image Asset Pack Generator","applicationCategory":"ImageApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/image-asset-pack-generator/","description":"Generate favicon, app icon, Open Graph, social, and launch image packs from one source image locally.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Image Tools","item":"https://tools.koreanblog.xyz/categories/image/"},{"@type":"ListItem","position":3,"name":"Image Asset Pack Generator","item":"https://tools.koreanblog.xyz/tools/image-asset-pack-generator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/image-asset-pack-generator/","mainEntity":[{"@type":"Question","name":"Is my logo uploaded during generation?","acceptedAnswer":{"@type":"Answer","text":"No. Every asset is rendered on canvases in your browser via the canvas API, and nothing is transmitted to a server."}},{"@type":"Question","name":"What sizes are in each pack?","acceptedAnswer":{"@type":"Answer","text":"The favicon pack produces 16, 32, and 48 pixel favicons plus a 180 pixel Apple touch icon and 192 and 512 pixel PWA icons. Social cards includes Open Graph 1200 x 630, Twitter card 1200 x 675, square social 1080 x 1080, story 1080 x 1920, and a YouTube thumbnail 1280 x 720. The PWA pack adds a 512 pixel maskable icon and a 1024 pixel App Store icon, and the Launch kit combines favicons, the first three social sizes, and the maskable and App Store icons."}},{"@type":"Question","name":"What are the metadata HTML and manifest downloads for?","acceptedAnswer":{"@type":"Answer","text":"The metadata HTML contains ready-to-paste link and meta tags (favicon links, apple-touch-icon, og:image, twitter:image) that reference the generated filenames, and manifest.webmanifest lists the icons with sizes, types, and purposes for PWA installation."}},{"@type":"Question","name":"What is a maskable icon?","acceptedAnswer":{"@type":"Answer","text":"It is a PWA icon marked with purpose maskable in the manifest, meaning the operating system may crop it into a circle or rounded shape. Use Fit with padding and enough Padding % so your logo survives the crop."}},{"@type":"Question","name":"Should I export icons as PNG or JPG?","acceptedAnswer":{"@type":"Answer","text":"PNG is the standard choice for icons because it is lossless and supports transparency. JPG flattens everything onto the background color, which is usually only acceptable for social card images."}},{"@type":"Question","name":"How do the fit and padding controls affect the assets?","acceptedAnswer":{"@type":"Answer","text":"Fit with padding scales your image to fit inside each frame with a margin of up to 45 percent, filled with the Background color; Fill crop covers each frame edge to edge, trimming overflow. Corner radius % rounds the drawn image within each asset."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>Launching a site or app means producing the same logo at a dozen sizes: favicons, Apple touch icons, PWA icons, Open Graph cards, and more. This generator renders a full pack from one source image in your browser, each asset individually downloadable, and also writes the HTML link tags and web manifest that reference them. Four pack types cover favicons, social cards, PWA icons, or a combined launch kit.</p>
+      <h2>How to use</h2>
+      <ol><li>Choose your logo or source image under Image file.</li><li>Select a Pack: Launch kit, Favicon and app icons, Social cards, or PWA app icons.</li><li>Set Fit mode, Background, Padding %, and Corner radius % to control how the image sits in each frame, plus the output Format and Quality.</li><li>Download each generated asset, then grab the metadata HTML and web manifest files to wire them into your site.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>Is my logo uploaded during generation?</h3><p>No. Every asset is rendered on canvases in your browser via the canvas API, and nothing is transmitted to a server.</p><h3>What sizes are in each pack?</h3><p>The favicon pack produces 16, 32, and 48 pixel favicons plus a 180 pixel Apple touch icon and 192 and 512 pixel PWA icons. Social cards includes Open Graph 1200 x 630, Twitter card 1200 x 675, square social 1080 x 1080, story 1080 x 1920, and a YouTube thumbnail 1280 x 720. The PWA pack adds a 512 pixel maskable icon and a 1024 pixel App Store icon, and the Launch kit combines favicons, the first three social sizes, and the maskable and App Store icons.</p><h3>What are the metadata HTML and manifest downloads for?</h3><p>The metadata HTML contains ready-to-paste link and meta tags (favicon links, apple-touch-icon, og:image, twitter:image) that reference the generated filenames, and manifest.webmanifest lists the icons with sizes, types, and purposes for PWA installation.</p><h3>What is a maskable icon?</h3><p>It is a PWA icon marked with purpose maskable in the manifest, meaning the operating system may crop it into a circle or rounded shape. Use Fit with padding and enough Padding % so your logo survives the crop.</p><h3>Should I export icons as PNG or JPG?</h3><p>PNG is the standard choice for icons because it is lossless and supports transparency. JPG flattens everything onto the background color, which is usually only acceptable for social card images.</p><h3>How do the fit and padding controls affect the assets?</h3><p>Fit with padding scales your image to fit inside each frame with a margin of up to 45 percent, filled with the Background color; Fill crop covers each frame edge to edge, trimming overflow. Corner radius % rounds the drawn image within each asset.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/aspect-ratio-calculator/">Aspect Ratio Calculator</a></li><li><a href="/tools/image-resize-calculator/">Image Resizer</a></li><li><a href="/tools/image-compressor/">Image Compressor</a></li><li><a href="/tools/image-format-converter/">Image Format Converter</a></li><li><a href="/tools/square-image-maker/">Square Image Maker</a></li><li><a href="/tools/pixel-art-converter/">Pixel Art Converter</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

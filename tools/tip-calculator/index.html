@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tip Calculator - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Calculate tips with tax, service charge, split payments, rounding, scenarios, and CSV download. Use this free finance tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/tip-calculator/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/tip-calculator/">
+
   <meta property="og:title" content="Tip Calculator - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Calculate tips with tax, service charge, split payments, rounding, scenarios, and CSV download. Use this free finance tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/tip-calculator/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/tip-calculator/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tip Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/tip-calculator/","description":"Calculate tips with tax, service charge, split payments, rounding, scenarios, and CSV download.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tip Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/tip-calculator/","description":"Calculate tips with tax, service charge, split payments, rounding, scenarios, and CSV download.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Finance Tools","item":"https://tools.koreanblog.xyz/categories/finance/"},{"@type":"ListItem","position":3,"name":"Tip Calculator","item":"https://tools.koreanblog.xyz/tools/tip-calculator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/tip-calculator/","mainEntity":[{"@type":"Question","name":"Should I tip on the pre-tax or post-tax amount?","acceptedAnswer":{"@type":"Answer","text":"Convention in the US is pre-tax, which is the default here, but some people tip on the final total — switching Tip base to Post-tax computes the tip on the bill plus tax so you can see both."}},{"@type":"Question","name":"How does rounding work?","acceptedAnswer":{"@type":"Answer","text":"\"Round up\" raises the grand total to the next whole dollar and \"Nearest dollar\" rounds either way; the difference is shown as a rounding adjustment so you know exactly how much the rounding added or removed."}},{"@type":"Question","name":"How is the per-person amount computed?","acceptedAnswer":{"@type":"Answer","text":"The rounded grand total — bill, tax, service charge, and tip — is divided evenly by the number of people. The tool splits everything equally rather than itemizing by person."}},{"@type":"Question","name":"What if the bill already includes a service charge?","acceptedAnswer":{"@type":"Answer","text":"Enter it as the Service charge %. It is added to the total separately from the tip, so you can decide whether an additional tip is warranted on top."}},{"@type":"Question","name":"What is in the scenario table and CSV?","acceptedAnswer":{"@type":"Answer","text":"Your selected settings recomputed at 15%, 18%, 20%, and 25% tips, each showing the tip amount, total, per-person share, and rounding adjustment."}},{"@type":"Question","name":"Is my bill information private?","acceptedAnswer":{"@type":"Answer","text":"Yes — all calculations run locally in your browser with nothing uploaded or stored."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>This tip calculator goes beyond a flat percentage: it handles tax, an existing service charge, tipping on the pre-tax or post-tax amount, per-person splitting, and rounding the final total up or to the nearest dollar. A comparison table shows the bill at 15%, 18%, 20%, and 25% tips, and you can download the scenarios as a CSV.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter the Bill amount and your Tip % (before tax and tip).</li><li>Set People to split the total, and enter the local Tax % plus any Service charge % already on the bill.</li><li>Choose a Tip base (Pre-tax or Post-tax) and an optional Round total mode.</li><li>Read the tip, total, and per-person amounts, then use Download tip scenarios CSV to compare tip rates.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>Should I tip on the pre-tax or post-tax amount?</h3><p>Convention in the US is pre-tax, which is the default here, but some people tip on the final total — switching Tip base to Post-tax computes the tip on the bill plus tax so you can see both.</p><h3>How does rounding work?</h3><p>&quot;Round up&quot; raises the grand total to the next whole dollar and &quot;Nearest dollar&quot; rounds either way; the difference is shown as a rounding adjustment so you know exactly how much the rounding added or removed.</p><h3>How is the per-person amount computed?</h3><p>The rounded grand total — bill, tax, service charge, and tip — is divided evenly by the number of people. The tool splits everything equally rather than itemizing by person.</p><h3>What if the bill already includes a service charge?</h3><p>Enter it as the Service charge %. It is added to the total separately from the tip, so you can decide whether an additional tip is warranted on top.</p><h3>What is in the scenario table and CSV?</h3><p>Your selected settings recomputed at 15%, 18%, 20%, and 25% tips, each showing the tip amount, total, per-person share, and rounding adjustment.</p><h3>Is my bill information private?</h3><p>Yes — all calculations run locally in your browser with nothing uploaded or stored.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/loan-payment-calculator/">Loan Payment Calculator</a></li><li><a href="/tools/credit-card-payoff-calculator/">Credit Card Payoff Calculator</a></li><li><a href="/tools/debt-payoff-planner/">Debt Payoff Planner</a></li><li><a href="/tools/compound-interest-calculator/">Compound Interest Calculator</a></li><li><a href="/tools/retirement-calculator/">Retirement Calculator</a></li><li><a href="/tools/sales-tax-calculator/">Sales Tax Calculator</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

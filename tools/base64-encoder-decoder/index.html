@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Base64 Encoder Decoder - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Encode or decode Base64 strings safely on-device. Use this free developer tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/base64-encoder-decoder/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/base64-encoder-decoder/">
+
   <meta property="og:title" content="Base64 Encoder Decoder - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Encode or decode Base64 strings safely on-device. Use this free developer tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/base64-encoder-decoder/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/base64-encoder-decoder/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Base64 Encoder Decoder","applicationCategory":"DeveloperApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/base64-encoder-decoder/","description":"Encode or decode Base64 strings safely on-device.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Base64 Encoder Decoder","applicationCategory":"DeveloperApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/base64-encoder-decoder/","description":"Encode or decode Base64 strings safely on-device.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Developer Tools","item":"https://tools.koreanblog.xyz/categories/developer/"},{"@type":"ListItem","position":3,"name":"Base64 Encoder Decoder","item":"https://tools.koreanblog.xyz/tools/base64-encoder-decoder/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/base64-encoder-decoder/","mainEntity":[{"@type":"Question","name":"Does it handle Unicode and emoji?","acceptedAnswer":{"@type":"Answer","text":"Yes. Input is converted to UTF-8 bytes (via the encodeURIComponent technique) before Base64 encoding, and decoded output is interpreted as UTF-8, so multibyte characters survive the round trip."}},{"@type":"Question","name":"Can I encode binary files?","acceptedAnswer":{"@type":"Answer","text":"No, this tool works on text you paste into the field. For images or other binary files you would need a file-based encoder."}},{"@type":"Question","name":"What happens if I decode an invalid string?","acceptedAnswer":{"@type":"Answer","text":"You get a clear \"Input is not valid Base64\" error instead of garbled output. Check for stray characters, missing padding, or accidental line breaks."}},{"@type":"Question","name":"Is URL-safe Base64 supported?","acceptedAnswer":{"@type":"Answer","text":"The encoder produces standard Base64 with + and / characters. To decode URL-safe Base64, replace - with + and _ with / first."}},{"@type":"Question","name":"Is my text sent to a server?","acceptedAnswer":{"@type":"Answer","text":"No. Encoding and decoding use the browser's built-in atob and btoa functions, so everything stays on your device."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>Convert text to Base64 and back without leaving the page. The tool handles Unicode correctly by transcoding input to UTF-8 bytes before encoding, so emoji, accented characters, and non-Latin scripts round-trip cleanly.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter your string in the Text field.</li><li>Set Mode to Encode to produce Base64, or Decode to convert Base64 back to text.</li><li>Copy the result from the output box.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>Does it handle Unicode and emoji?</h3><p>Yes. Input is converted to UTF-8 bytes (via the encodeURIComponent technique) before Base64 encoding, and decoded output is interpreted as UTF-8, so multibyte characters survive the round trip.</p><h3>Can I encode binary files?</h3><p>No, this tool works on text you paste into the field. For images or other binary files you would need a file-based encoder.</p><h3>What happens if I decode an invalid string?</h3><p>You get a clear &quot;Input is not valid Base64&quot; error instead of garbled output. Check for stray characters, missing padding, or accidental line breaks.</p><h3>Is URL-safe Base64 supported?</h3><p>The encoder produces standard Base64 with + and / characters. To decode URL-safe Base64, replace - with + and _ with / first.</p><h3>Is my text sent to a server?</h3><p>No. Encoding and decoding use the browser&#039;s built-in atob and btoa functions, so everything stays on your device.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/json-formatter/">JSON Formatter Inspector</a></li><li><a href="/tools/uuid-generator/">UUID Generator</a></li><li><a href="/tools/url-encoder-decoder/">URL Encoder Decoder</a></li><li><a href="/tools/regex-tester/">Regex Tester</a></li><li><a href="/tools/hex-rgb-converter/">Hex RGB Converter</a></li><li><a href="/tools/markdown-preview/">Markdown Preview</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

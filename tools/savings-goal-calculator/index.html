@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Savings Goal Calculator - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Plan a savings goal with interest, target date, monthly gap, timeline, and CSV download. Use this free finance tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/savings-goal-calculator/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/savings-goal-calculator/">
+
   <meta property="og:title" content="Savings Goal Calculator - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Plan a savings goal with interest, target date, monthly gap, timeline, and CSV download. Use this free finance tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/savings-goal-calculator/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/savings-goal-calculator/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Savings Goal Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/savings-goal-calculator/","description":"Plan a savings goal with interest, target date, monthly gap, timeline, and CSV download.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Savings Goal Calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/savings-goal-calculator/","description":"Plan a savings goal with interest, target date, monthly gap, timeline, and CSV download.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Finance Tools","item":"https://tools.koreanblog.xyz/categories/finance/"},{"@type":"ListItem","position":3,"name":"Savings Goal Calculator","item":"https://tools.koreanblog.xyz/tools/savings-goal-calculator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/savings-goal-calculator/","mainEntity":[{"@type":"Question","name":"How is the \"Monthly needed\" amount calculated?","acceptedAnswer":{"@type":"Answer","text":"The tool grows your current savings forward at the monthly rate, subtracts that from the goal, and divides the rest by the future-value annuity factor — the standard formula for level monthly deposits with monthly compounding."}},{"@type":"Question","name":"What does \"Reach goal in\" mean if it differs from my target months?","acceptedAnswer":{"@type":"Answer","text":"It projects your planned monthly deposit for up to 600 months and reports the first month your balance crosses the goal. If that never happens within 50 years, it shows \"Not within 50y\"."}},{"@type":"Question","name":"How is interest applied each month?","acceptedAnswer":{"@type":"Answer","text":"The balance earns one month of interest (annual rate divided by 12) and then your deposit is added, so deposits made late in the schedule earn less than early ones."}},{"@type":"Question","name":"What does the CSV include?","acceptedAnswer":{"@type":"Answer","text":"Every month of your target window with cumulative contributions, cumulative interest, the balance, and the remaining amount to the goal — the on-screen table shows a condensed subset."}},{"@type":"Question","name":"Do my savings figures stay private?","acceptedAnswer":{"@type":"Answer","text":"Yes. The projection and the CSV are generated entirely in your browser with no upload or account."}},{"@type":"Question","name":"Will my bank's interest match this projection?","acceptedAnswer":{"@type":"Answer","text":"Approximately. Banks may compound daily and rates change over time, so treat the output as an estimate rather than a guarantee or financial advice."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>Set a savings target and a deadline, and this calculator tells you the exact monthly deposit needed to get there with interest, how your planned deposit compares, and when you would actually reach the goal at your current pace. A month-by-month timeline tracks contributions, interest, and the remaining gap, and the full schedule downloads as a CSV.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter your Savings goal and Current savings.</li><li>Set Target months to your deadline and the Annual interest % your account pays.</li><li>Enter your Planned monthly savings.</li><li>Compare Monthly needed with your plan, check the goal status and &quot;Reach goal in&quot; estimate, then use Download savings plan CSV for the monthly timeline.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>How is the &quot;Monthly needed&quot; amount calculated?</h3><p>The tool grows your current savings forward at the monthly rate, subtracts that from the goal, and divides the rest by the future-value annuity factor — the standard formula for level monthly deposits with monthly compounding.</p><h3>What does &quot;Reach goal in&quot; mean if it differs from my target months?</h3><p>It projects your planned monthly deposit for up to 600 months and reports the first month your balance crosses the goal. If that never happens within 50 years, it shows &quot;Not within 50y&quot;.</p><h3>How is interest applied each month?</h3><p>The balance earns one month of interest (annual rate divided by 12) and then your deposit is added, so deposits made late in the schedule earn less than early ones.</p><h3>What does the CSV include?</h3><p>Every month of your target window with cumulative contributions, cumulative interest, the balance, and the remaining amount to the goal — the on-screen table shows a condensed subset.</p><h3>Do my savings figures stay private?</h3><p>Yes. The projection and the CSV are generated entirely in your browser with no upload or account.</p><h3>Will my bank&#039;s interest match this projection?</h3><p>Approximately. Banks may compound daily and rates change over time, so treat the output as an estimate rather than a guarantee or financial advice.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/loan-payment-calculator/">Loan Payment Calculator</a></li><li><a href="/tools/credit-card-payoff-calculator/">Credit Card Payoff Calculator</a></li><li><a href="/tools/debt-payoff-planner/">Debt Payoff Planner</a></li><li><a href="/tools/compound-interest-calculator/">Compound Interest Calculator</a></li><li><a href="/tools/retirement-calculator/">Retirement Calculator</a></li><li><a href="/tools/sales-tax-calculator/">Sales Tax Calculator</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>

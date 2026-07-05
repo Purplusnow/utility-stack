@@ -5,16 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UUID Generator - Free Online Tool | UtilityStack</title>
   <meta name="description" content="Generate random UUID v4 values. Use this free developer tool directly in your browser.">
-  <link rel="canonical" href="https://utilitystack.github.io/tools/uuid-generator/">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/tools/uuid-generator/">
+
   <meta property="og:title" content="UUID Generator - Free Online Tool | UtilityStack">
   <meta property="og:description" content="Generate random UUID v4 values. Use this free developer tool directly in your browser.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://utilitystack.github.io/tools/uuid-generator/">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/tools/uuid-generator/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="/favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"UUID Generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any","url":"https://utilitystack.github.io/tools/uuid-generator/","description":"Generate random UUID v4 values.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"UUID Generator","applicationCategory":"DeveloperApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/uuid-generator/","description":"Generate random UUID v4 values.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Developer Tools","item":"https://tools.koreanblog.xyz/categories/developer/"},{"@type":"ListItem","position":3,"name":"UUID Generator","item":"https://tools.koreanblog.xyz/tools/uuid-generator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/uuid-generator/","mainEntity":[{"@type":"Question","name":"Which UUID version is generated?","acceptedAnswer":{"@type":"Answer","text":"Version 4 (random) UUIDs, produced by the browser's native crypto.randomUUID function."}},{"@type":"Question","name":"How random are these values?","acceptedAnswer":{"@type":"Answer","text":"crypto.randomUUID uses the browser's cryptographically secure random number generator, the same source used for keys and tokens, so collisions are effectively impossible in practice."}},{"@type":"Question","name":"Can I generate more than 50 at once?","acceptedAnswer":{"@type":"Answer","text":"The count is capped at 50 per run to keep the output manageable. Run the tool again for additional batches; every batch is independent."}},{"@type":"Question","name":"Are the UUIDs sortable by creation time?","acceptedAnswer":{"@type":"Answer","text":"No. Version 4 UUIDs are fully random and carry no timestamp. If you need time-ordered identifiers, look at UUID v7 or ULIDs instead."}},{"@type":"Question","name":"Could anyone else see the UUIDs I generate?","acceptedAnswer":{"@type":"Answer","text":"No. Generation happens entirely in your browser and nothing is transmitted, so the values exist only on your machine until you paste them somewhere."}}]}]</script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
   <header class="site-header">
@@ -22,7 +34,13 @@
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
   <main id="top">
     <section class="hero">
@@ -38,7 +56,11 @@
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="../../categories/finance/">Finance tools</a><a href="../../categories/business/">Business tools</a><a href="../../categories/developer/">Developer tools</a><a href="../../categories/text/">Text tools</a><a href="../../categories/health/">Health tools</a><a href="../../categories/converters/">Converters tools</a><a href="../../categories/seo/">SEO tools</a><a href="../../categories/generators/">Generators tools</a><a href="../../categories/security/">Security tools</a><a href="../../categories/time/">Time tools</a><a href="../../categories/data/">Data tools</a><a href="../../categories/image/">Image tools</a><a href="../../categories/writing/">Writing tools</a><a href="../../categories/education/">Education tools</a><a href="../../categories/network/">Network tools</a>
+          <a href="#image" data-category-anchor="image">Image tools</a><a href="#decision" data-category-anchor="decision">Decision tools</a><a href="#data" data-category-anchor="data">Data tools</a><a href="#dev" data-category-anchor="dev">Developer tools</a><a href="#text" data-category-anchor="text">Text tools</a><a href="#finance" data-category-anchor="finance">Finance tools</a><a href="#business" data-category-anchor="business">Business tools</a><a href="#seo" data-category-anchor="seo">SEO tools</a><a href="#security" data-category-anchor="security">Security tools</a><a href="#time" data-category-anchor="time">Time tools</a><a href="#converters" data-category-anchor="converters">Converters tools</a><a href="#writing" data-category-anchor="writing">Writing tools</a><a href="#education" data-category-anchor="education">Education tools</a><a href="#network" data-category-anchor="network">Network tools</a><a href="#health" data-category-anchor="health">Health tools</a><a href="#generators" data-category-anchor="generators">Generators tools</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -50,6 +72,17 @@
         <section class="tool-workspace" id="tool-workspace" aria-live="polite"></section>
       </div>
     </section>
+    
+    <section class="content-page tool-seo-content">
+      <h2>About this tool</h2>
+      <p>Generate one to fifty random UUID v4 identifiers in a single click. Each value comes from the browser&#039;s crypto.randomUUID function, which draws on a cryptographically secure random source, and results are listed one per line for easy copying.</p>
+      <h2>How to use</h2>
+      <ol><li>Enter the number of identifiers you need in the How many field (1 to 50).</li><li>Review the generated list in the output box.</li><li>Copy the values into your code, database seed, or config.</li></ol>
+      <h2>Frequently asked questions</h2>
+      <h3>Which UUID version is generated?</h3><p>Version 4 (random) UUIDs, produced by the browser&#039;s native crypto.randomUUID function.</p><h3>How random are these values?</h3><p>crypto.randomUUID uses the browser&#039;s cryptographically secure random number generator, the same source used for keys and tokens, so collisions are effectively impossible in practice.</p><h3>Can I generate more than 50 at once?</h3><p>The count is capped at 50 per run to keep the output manageable. Run the tool again for additional batches; every batch is independent.</p><h3>Are the UUIDs sortable by creation time?</h3><p>No. Version 4 UUIDs are fully random and carry no timestamp. If you need time-ordered identifiers, look at UUID v7 or ULIDs instead.</p><h3>Could anyone else see the UUIDs I generate?</h3><p>No. Generation happens entirely in your browser and nothing is transmitted, so the values exist only on your machine until you paste them somewhere.</p>
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/json-formatter/">JSON Formatter Inspector</a></li><li><a href="/tools/base64-encoder-decoder/">Base64 Encoder Decoder</a></li><li><a href="/tools/url-encoder-decoder/">URL Encoder Decoder</a></li><li><a href="/tools/regex-tester/">Regex Tester</a></li><li><a href="/tools/hex-rgb-converter/">Hex RGB Converter</a></li><li><a href="/tools/markdown-preview/">Markdown Preview</a></li></ul>
+    </section>
+  
   </main>
   <footer class="site-footer">
     <span>UtilityStack</span>
@@ -57,6 +90,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783140988333"></script>
+  <script src="../../app.js?v=1783218995658"></script>
 </body>
 </html>
