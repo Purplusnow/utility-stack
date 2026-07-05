@@ -519,6 +519,70 @@ const tools = [
     }
   },
   {
+    id: "utm-campaign-url-builder",
+    category: "SEO",
+    anchor: "seo",
+    title: "UTM Campaign URL Builder",
+    description: "Build campaign tracking URLs with UTM parameters, presets, validation, clean naming, variants, and CSV export.",
+    fields: [
+      { id: "url", label: "Landing page URL", type: "text", value: "https://example.com/pricing?ref=homepage" },
+      { id: "source", label: "utm_source", type: "text", value: "newsletter" },
+      { id: "medium", label: "utm_medium", type: "select", value: "email", options: [["email", "email"], ["social", "social"], ["paid_social", "paid_social"], ["cpc", "cpc"], ["organic_social", "organic_social"], ["referral", "referral"], ["display", "display"], ["affiliate", "affiliate"]] },
+      { id: "campaign", label: "utm_campaign", type: "text", value: "summer_launch" },
+      { id: "term", label: "utm_term", type: "text", value: "" },
+      { id: "content", label: "utm_content", type: "text", value: "hero_cta" },
+      { id: "campaignId", label: "utm_id", type: "text", value: "launch-2026" },
+      { id: "variantList", label: "Content variants", type: "textarea", value: "hero_cta\nfooter_link\npricing_card" },
+      { id: "naming", label: "Naming cleanup", type: "select", value: "snake", options: [["snake", "lowercase_underscore"], ["dash", "lowercase-dash"], ["raw", "Keep as typed"]] },
+      { id: "existing", label: "Existing URL parameters", type: "select", value: "preserve", options: [["preserve", "Preserve non-UTM parameters"], ["replace", "Replace existing UTM only"], ["clean", "Remove all existing parameters"]] }
+    ],
+    calculate(values) {
+      return renderUtmCampaignBuilder(values);
+    }
+  },
+  {
+    id: "open-graph-preview-generator",
+    category: "SEO",
+    anchor: "seo",
+    title: "Open Graph Preview Generator",
+    description: "Generate Open Graph and Twitter Card meta tags with live social preview, length checks, and downloadable HTML snippet.",
+    fields: [
+      { id: "title", label: "Page title", type: "text", value: "UtilityStack - Free Browser Tools" },
+      { id: "description", label: "Social description", type: "textarea", value: "Fast calculators, converters, SEO helpers, image tools, and developer utilities that run directly in your browser." },
+      { id: "url", label: "Canonical URL", type: "text", value: "https://tools.koreanblog.xyz/" },
+      { id: "image", label: "Social image URL", type: "text", value: "https://tools.koreanblog.xyz/og-image.png" },
+      { id: "siteName", label: "Site name", type: "text", value: "UtilityStack" },
+      { id: "type", label: "Content type", type: "select", value: "website", options: [["website", "website"], ["article", "article"], ["product", "product"], ["profile", "profile"]] },
+      { id: "twitterCard", label: "Twitter card", type: "select", value: "summary_large_image", options: [["summary_large_image", "summary_large_image"], ["summary", "summary"]] },
+      { id: "locale", label: "Locale", type: "text", value: "en_US" }
+    ],
+    calculate(values) {
+      return renderOpenGraphPreview(values);
+    }
+  },
+  {
+    id: "schema-markup-generator",
+    category: "SEO",
+    anchor: "seo",
+    title: "Schema Markup Generator",
+    description: "Generate validated JSON-LD for Article, Product, FAQ, HowTo, Breadcrumb, and LocalBusiness pages with quality checks and downloads.",
+    fields: [
+      { id: "type", label: "Schema type", type: "select", value: "FAQPage", options: [["FAQPage", "FAQPage"], ["Article", "Article"], ["Product", "Product"], ["HowTo", "HowTo"], ["BreadcrumbList", "BreadcrumbList"], ["LocalBusiness", "LocalBusiness"]] },
+      { id: "name", label: "Name or headline", type: "text", value: "UtilityStack - Free Browser Tools" },
+      { id: "description", label: "Description", type: "textarea", value: "Fast calculators, converters, SEO helpers, image tools, and developer utilities that run directly in your browser." },
+      { id: "url", label: "Canonical URL", type: "text", value: "https://tools.koreanblog.xyz/" },
+      { id: "image", label: "Image URL", type: "text", value: "https://tools.koreanblog.xyz/og-image.png" },
+      { id: "publisher", label: "Publisher or brand", type: "text", value: "UtilityStack" },
+      { id: "author", label: "Author", type: "text", value: "UtilityStack Team" },
+      { id: "price", label: "Product price", type: "number", value: 0, step: 0.01 },
+      { id: "currency", label: "Currency", type: "text", value: "USD" },
+      { id: "items", label: "FAQ / steps / breadcrumbs", type: "textarea", value: "What is UtilityStack?|A collection of free browser-based tools.\nDoes it upload my files?|No. File tools run locally in your browser.\nCan I use it without an account?|Yes. No account is required." }
+    ],
+    calculate(values) {
+      return renderSchemaMarkupGenerator(values);
+    }
+  },
+  {
     id: "qr-code-generator",
     category: "Generators",
     anchor: "generators",
@@ -1012,6 +1076,22 @@ const tools = [
     }
   },
   {
+    id: "readability-analyzer",
+    category: "Writing",
+    anchor: "writing",
+    title: "Readability Analyzer",
+    description: "Analyze article readability, sentence length, grade level, reading time, keyword density, and rewrite opportunities.",
+    fields: [
+      { id: "text", label: "Draft text", type: "textarea", value: "UtilityStack helps people finish small but important browser tasks without installing software. Paste your article, landing page copy, newsletter, or support document here to review readability, sentence length, and rewrite opportunities before publishing." },
+      { id: "keyword", label: "Focus keyword", type: "text", value: "browser tools" },
+      { id: "audience", label: "Audience", type: "select", value: "general", options: [["general", "General readers"], ["expert", "Expert readers"], ["young", "Younger readers"]] },
+      { id: "wpm", label: "Words per minute", type: "number", value: 225, step: 1 }
+    ],
+    calculate(values) {
+      return renderReadabilityAnalyzer(values);
+    }
+  },
+  {
     id: "gpa-calculator",
     category: "Education",
     anchor: "education",
@@ -1044,6 +1124,23 @@ const tools = [
       const total = 2 ** (32 - cidr);
       const usable = cidr >= 31 ? total : Math.max(0, total - 2);
       return metrics([["Subnet mask", parts.join(".")], ["Addresses", total.toLocaleString("en-US")], ["Usable hosts", usable.toLocaleString("en-US")]]);
+    }
+  },
+  {
+    id: "subnet-planner",
+    category: "Network",
+    anchor: "network",
+    title: "Subnet Planner",
+    description: "Split an IPv4 network into smaller subnets with network, gateway, host range, broadcast, utilization, and CSV export.",
+    fields: [
+      { id: "network", label: "Base network", type: "text", value: "192.168.10.0/24" },
+      { id: "newPrefix", label: "New subnet prefix", type: "number", value: 28, step: 1 },
+      { id: "count", label: "Subnet count", type: "number", value: 8, step: 1 },
+      { id: "gateway", label: "Gateway position", type: "select", value: "first", options: [["first", "First usable"], ["last", "Last usable"], ["none", "None"]] },
+      { id: "names", label: "Subnet names", type: "textarea", value: "Office Wi-Fi\nGuest Wi-Fi\nCameras\nPrinters\nVoIP\nLab\nVPN\nSpare" }
+    ],
+    calculate(values) {
+      return renderSubnetPlanner(values);
     }
   },
   {
@@ -1295,6 +1392,24 @@ const languages = [
   ["th", "ไทย"]
 ];
 const languageCodes = new Set(languages.map(([code]) => code));
+const localeProfiles = {
+  en: { locale: "en-US", currency: "USD", salary: 90000, payFrequency: "biweekly", incomeTax: 14, localTax: 5, payrollTax: 7.65, retirement: 6, benefits: 250, salesTax: 8.875 },
+  ko: { locale: "ko-KR", currency: "KRW", salary: 60000000, payFrequency: "monthly", incomeTax: 6, localTax: 0.6, payrollTax: 9.9, retirement: 0, benefits: 0, salesTax: 10 },
+  ja: { locale: "ja-JP", currency: "JPY", salary: 6000000, payFrequency: "monthly", incomeTax: 10, localTax: 10, payrollTax: 15, retirement: 0, benefits: 30000, salesTax: 10 },
+  zh: { locale: "zh-CN", currency: "CNY", salary: 180000, payFrequency: "monthly", incomeTax: 8, localTax: 0, payrollTax: 10, retirement: 0, benefits: 800, salesTax: 13 },
+  es: { locale: "es-ES", currency: "EUR", salary: 35000, payFrequency: "monthly", incomeTax: 15, localTax: 0, payrollTax: 6.35, retirement: 0, benefits: 0, salesTax: 21 },
+  fr: { locale: "fr-FR", currency: "EUR", salary: 40000, payFrequency: "monthly", incomeTax: 11, localTax: 0, payrollTax: 22, retirement: 0, benefits: 0, salesTax: 20 },
+  de: { locale: "de-DE", currency: "EUR", salary: 50000, payFrequency: "monthly", incomeTax: 18, localTax: 0, payrollTax: 20, retirement: 0, benefits: 0, salesTax: 19 },
+  pt: { locale: "pt-BR", currency: "BRL", salary: 90000, payFrequency: "monthly", incomeTax: 12, localTax: 0, payrollTax: 8, retirement: 0, benefits: 0, salesTax: 17 },
+  it: { locale: "it-IT", currency: "EUR", salary: 35000, payFrequency: "monthly", incomeTax: 23, localTax: 2, payrollTax: 10, retirement: 0, benefits: 0, salesTax: 22 },
+  nl: { locale: "nl-NL", currency: "EUR", salary: 50000, payFrequency: "monthly", incomeTax: 20, localTax: 0, payrollTax: 27, retirement: 0, benefits: 0, salesTax: 21 },
+  ru: { locale: "ru-RU", currency: "RUB", salary: 2400000, payFrequency: "monthly", incomeTax: 13, localTax: 0, payrollTax: 0, retirement: 0, benefits: 0, salesTax: 20 },
+  ar: { locale: "ar-SA", currency: "SAR", salary: 180000, payFrequency: "monthly", incomeTax: 0, localTax: 0, payrollTax: 10, retirement: 0, benefits: 0, salesTax: 15 },
+  hi: { locale: "hi-IN", currency: "INR", salary: 1200000, payFrequency: "monthly", incomeTax: 10, localTax: 0, payrollTax: 12, retirement: 0, benefits: 0, salesTax: 18 },
+  id: { locale: "id-ID", currency: "IDR", salary: 180000000, payFrequency: "monthly", incomeTax: 5, localTax: 0, payrollTax: 4, retirement: 0, benefits: 0, salesTax: 11 },
+  vi: { locale: "vi-VN", currency: "VND", salary: 300000000, payFrequency: "monthly", incomeTax: 10, localTax: 0, payrollTax: 10.5, retirement: 0, benefits: 0, salesTax: 10 },
+  th: { locale: "th-TH", currency: "THB", salary: 600000, payFrequency: "monthly", incomeTax: 10, localTax: 0, payrollTax: 5, retirement: 0, benefits: 0, salesTax: 7 }
+};
 const decisionCopy = {
   en: {
     empty: "Set the options, then run the decision.",
@@ -2055,12 +2170,152 @@ Object.entries({
   Object.assign(titleTerms[code], terms);
 });
 
+Object.entries({
+  ko: { "UTM Campaign URL": "UTM 캠페인 URL", "Builder": "빌더" },
+  ja: { "UTM Campaign URL": "UTMキャンペーンURL", "Builder": "ビルダー" },
+  zh: { "UTM Campaign URL": "UTM 营销活动 URL", "Builder": "生成器" },
+  es: { "UTM Campaign URL": "URL de campaña UTM", "Builder": "Constructor" },
+  fr: { "UTM Campaign URL": "URL de campagne UTM", "Builder": "Générateur" },
+  de: { "UTM Campaign URL": "UTM-Kampagnen-URL", "Builder": "Builder" },
+  pt: { "UTM Campaign URL": "URL de campanha UTM", "Builder": "Construtor" },
+  it: { "UTM Campaign URL": "URL campagna UTM", "Builder": "Generatore" },
+  nl: { "UTM Campaign URL": "UTM-campagne-URL", "Builder": "Builder" },
+  ru: { "UTM Campaign URL": "URL UTM-кампании", "Builder": "Конструктор" },
+  ar: { "UTM Campaign URL": "رابط حملة UTM", "Builder": "منشئ" },
+  hi: { "UTM Campaign URL": "UTM अभियान URL", "Builder": "बिल्डर" },
+  id: { "UTM Campaign URL": "URL kampanye UTM", "Builder": "Pembuat" },
+  vi: { "UTM Campaign URL": "URL chiến dịch UTM", "Builder": "Bộ tạo" },
+  th: { "UTM Campaign URL": "URL แคมเปญ UTM", "Builder": "ตัวสร้าง" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
+Object.entries({
+  ko: { "Open Graph Preview": "오픈그래프 미리보기" },
+  ja: { "Open Graph Preview": "Open Graphプレビュー" },
+  zh: { "Open Graph Preview": "Open Graph 预览" },
+  es: { "Open Graph Preview": "Vista previa Open Graph" },
+  fr: { "Open Graph Preview": "Aperçu Open Graph" },
+  de: { "Open Graph Preview": "Open-Graph-Vorschau" },
+  pt: { "Open Graph Preview": "Prévia Open Graph" },
+  it: { "Open Graph Preview": "Anteprima Open Graph" },
+  nl: { "Open Graph Preview": "Open Graph-voorbeeld" },
+  ru: { "Open Graph Preview": "Предпросмотр Open Graph" },
+  ar: { "Open Graph Preview": "معاينة Open Graph" },
+  hi: { "Open Graph Preview": "Open Graph पूर्वावलोकन" },
+  id: { "Open Graph Preview": "Pratinjau Open Graph" },
+  vi: { "Open Graph Preview": "Xem trước Open Graph" },
+  th: { "Open Graph Preview": "ตัวอย่าง Open Graph" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
+Object.entries({
+  ko: { "Schema Markup": "스키마 마크업" },
+  ja: { "Schema Markup": "Schemaマークアップ" },
+  zh: { "Schema Markup": "Schema 标记" },
+  es: { "Schema Markup": "Marcado Schema" },
+  fr: { "Schema Markup": "Balisage Schema" },
+  de: { "Schema Markup": "Schema-Markup" },
+  pt: { "Schema Markup": "Marcação Schema" },
+  it: { "Schema Markup": "Markup Schema" },
+  nl: { "Schema Markup": "Schema-markup" },
+  ru: { "Schema Markup": "Разметка Schema" },
+  ar: { "Schema Markup": "ترميز Schema" },
+  hi: { "Schema Markup": "Schema मार्कअप" },
+  id: { "Schema Markup": "Markup Schema" },
+  vi: { "Schema Markup": "Đánh dấu Schema" },
+  th: { "Schema Markup": "มาร์กอัป Schema" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
+Object.entries({
+  ko: { "Readability": "가독성" },
+  ja: { "Readability": "読みやすさ" },
+  zh: { "Readability": "可读性" },
+  es: { "Readability": "Legibilidad" },
+  fr: { "Readability": "Lisibilité" },
+  de: { "Readability": "Lesbarkeit" },
+  pt: { "Readability": "Legibilidade" },
+  it: { "Readability": "Leggibilità" },
+  nl: { "Readability": "Leesbaarheid" },
+  ru: { "Readability": "Читабельность" },
+  ar: { "Readability": "قابلية القراءة" },
+  hi: { "Readability": "पठनीयता" },
+  id: { "Readability": "Keterbacaan" },
+  vi: { "Readability": "Độ dễ đọc" },
+  th: { "Readability": "ความอ่านง่าย" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
+Object.entries({
+  ko: { "Subnet": "서브넷" },
+  ja: { "Subnet": "サブネット" },
+  zh: { "Subnet": "子网" },
+  es: { "Subnet": "Subred" },
+  fr: { "Subnet": "Sous-réseau" },
+  de: { "Subnet": "Subnetz" },
+  pt: { "Subnet": "Sub-rede" },
+  it: { "Subnet": "Sottorete" },
+  nl: { "Subnet": "Subnet" },
+  ru: { "Subnet": "Подсеть" },
+  ar: { "Subnet": "الشبكة الفرعية" },
+  hi: { "Subnet": "सबनेट" },
+  id: { "Subnet": "Subnet" },
+  vi: { "Subnet": "Mạng con" },
+  th: { "Subnet": "ซับเน็ต" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
+Object.entries({
+  es: { Password: "contraseña" },
+  fr: { Password: "mot de passe" },
+  de: { Password: "Passwort" },
+  pt: { Password: "senha" },
+  it: { Password: "password" },
+  nl: { Password: "wachtwoord" },
+  ru: { Password: "пароль" },
+  ar: { Password: "كلمة المرور" },
+  hi: { Password: "पासवर्ड" },
+  id: { Password: "kata sandi" },
+  vi: { Password: "mật khẩu" },
+  th: { Password: "รหัสผ่าน" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
 const highValueCategories = new Set(["Finance", "Business", "SEO", "Image", "Data", "Decision"]);
 const categoryOrder = ["Image", "Decision", "Data", "Developer", "Text", "Finance", "Business", "SEO", "Security", "Time", "Converters", "Writing", "Education", "Network", "Health", "Generators"];
-let currentLanguage = languageCodes.has(storageGet(LANGUAGE_STORAGE_KEY)) ? storageGet(LANGUAGE_STORAGE_KEY) : "en";
-if (!languageCodes.has(storageGet(LANGUAGE_STORAGE_KEY)) && location.pathname.startsWith("/ko/")) {
-  currentLanguage = "ko";
+
+function normalizeLanguageCode(value) {
+  const normalized = String(value || "").trim().toLowerCase().replace("_", "-");
+  if (!normalized) return "";
+  const exact = normalized.split("-")[0] === "zh" ? "zh" : normalized;
+  if (languageCodes.has(exact)) return exact;
+  const base = normalized.split("-")[0];
+  return languageCodes.has(base) ? base : "";
 }
+
+function languageFromPath(pathname = location.pathname) {
+  const firstSegment = String(pathname || "").split("/").filter(Boolean)[0];
+  return normalizeLanguageCode(firstSegment);
+}
+
+function languageFromBrowser() {
+  const candidates = Array.isArray(navigator.languages) && navigator.languages.length
+    ? navigator.languages
+    : [navigator.language];
+  return candidates.map(normalizeLanguageCode).find(Boolean) || "";
+}
+
+function initialLanguage() {
+  const saved = normalizeLanguageCode(storageGet(LANGUAGE_STORAGE_KEY));
+  return languageFromPath() || saved || languageFromBrowser() || "en";
+}
+let currentLanguage = initialLanguage();
 const provenDemandTools = new Set([
   "mortgage-affordability-calculator",
   "rent-vs-buy-calculator",
@@ -2300,6 +2555,625 @@ function dataHref(type, value) {
   return `data:${type};charset=utf-8,${encodeURIComponent(value)}`;
 }
 
+function normalizeUtmValue(value, mode) {
+  const text = String(value || "").trim();
+  if (mode === "raw") return text;
+  const cleaned = text
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['"]/g, "")
+    .replace(/&/g, " and ")
+    .replace(/[^a-zA-Z0-9]+/g, mode === "dash" ? "-" : "_")
+    .replace(/^[-_]+|[-_]+$/g, "")
+    .toLowerCase();
+  return cleaned;
+}
+
+function buildUtmUrl(values, contentOverride = "") {
+  const base = String(values.url || "").trim();
+  let url;
+  try {
+    url = new URL(base);
+    if (!/^https?:$/.test(url.protocol)) {
+      url = new URL(`https://${base}`);
+    }
+  } catch {
+    try {
+      url = new URL(`https://${base}`);
+    } catch {
+      return { error: "Enter a valid landing page URL." };
+    }
+  }
+
+  const params = url.searchParams;
+  if (values.existing === "clean") {
+    [...params.keys()].forEach((key) => params.delete(key));
+  } else {
+    ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"].forEach((key) => params.delete(key));
+  }
+
+  const naming = values.naming || "snake";
+  const utm = {
+    utm_source: normalizeUtmValue(values.source, naming),
+    utm_medium: normalizeUtmValue(values.medium, naming),
+    utm_campaign: normalizeUtmValue(values.campaign, naming),
+    utm_term: normalizeUtmValue(values.term, naming),
+    utm_content: normalizeUtmValue(contentOverride || values.content, naming),
+    utm_id: normalizeUtmValue(values.campaignId, naming)
+  };
+
+  Object.entries(utm).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+  return { url: url.toString(), params: utm };
+}
+
+function utmChecklist(values, built) {
+  const warnings = [];
+  if (!built.params?.utm_source) warnings.push("utm_source is required for reliable reporting.");
+  if (!built.params?.utm_medium) warnings.push("utm_medium is required for channel grouping.");
+  if (!built.params?.utm_campaign) warnings.push("utm_campaign is required for campaign reporting.");
+  if (/[A-Z\s]/.test(`${built.params?.utm_source || ""}${built.params?.utm_medium || ""}${built.params?.utm_campaign || ""}`)) {
+    warnings.push("Use lowercase and separators consistently to avoid split reports.");
+  }
+  if (String(values.url || "").includes("#")) warnings.push("Fragments are kept after query parameters; test the final URL before publishing.");
+  return warnings;
+}
+
+function renderUtmCampaignBuilder(values) {
+  const built = buildUtmUrl(values);
+  if (built.error) return error(built.error);
+  const variants = listLines(values.variantList || values.content || "")
+    .slice(0, 25)
+    .map((content) => ({ content, ...buildUtmUrl(values, content) }))
+    .filter((item) => item.url);
+  const rows = variants.length ? variants : [{ content: built.params.utm_content || "default", url: built.url, params: built.params }];
+  const warnings = utmChecklist(values, built);
+  const csv = [
+    ["content", "url", "utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id"],
+    ...rows.map((row) => [
+      row.content,
+      row.url,
+      row.params.utm_source,
+      row.params.utm_medium,
+      row.params.utm_campaign,
+      row.params.utm_term,
+      row.params.utm_content,
+      row.params.utm_id
+    ])
+  ].map((row) => row.map(csvEscape).join(",")).join("\n");
+  const csvHref = dataHref("text/csv", csv);
+  const jsonHref = dataHref("application/json", JSON.stringify({ url: built.url, variants: rows, warnings }, null, 2));
+  const qrHref = `#generators`;
+
+  return `
+    ${metrics([
+      ["Campaign URL", built.url.length > 120 ? `${built.url.slice(0, 117)}...` : built.url],
+      ["Variants", rows.length],
+      ["Source", built.params.utm_source || "-"],
+      ["Medium", built.params.utm_medium || "-"],
+      ["Campaign", built.params.utm_campaign || "-"],
+      ["Warnings", warnings.length]
+    ])}
+    <pre class="tool-output">${escapeHtml(built.url)}</pre>
+    <button class="copy-button" type="button" data-copy="${escapeAttr(built.url)}">Copy result</button>
+    ${warnings.length ? `<div class="privacy-note" data-privacy-level="browser"><strong>Campaign QA</strong><span>${warnings.map(escapeHtml).join(" ")}</span></div>` : ""}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Variant</th><th>utm_content</th><th>Final URL</th></tr></thead>
+        <tbody>
+          ${rows.map((row, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${escapeHtml(row.params.utm_content || "-")}</td>
+              <td><code>${escapeHtml(row.url)}</code></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="download-actions">
+      <a class="download-button" href="${csvHref}" download="utm-campaign-urls.csv">Download campaign CSV</a>
+      <a class="download-button secondary" href="${jsonHref}" download="utm-campaign.json">Download JSON</a>
+      <a class="download-button secondary" href="${qrHref}">Open QR generator</a>
+    </div>
+  `;
+}
+
+function metaTag(name, content, property = false) {
+  if (!String(content || "").trim()) return "";
+  const attr = property ? "property" : "name";
+  return `<meta ${attr}="${escapeAttr(name)}" content="${escapeAttr(String(content).trim())}">`;
+}
+
+function openGraphChecks(values) {
+  const title = String(values.title || "").trim();
+  const description = String(values.description || "").trim();
+  const image = String(values.image || "").trim();
+  const warnings = [];
+  if (title.length < 20) warnings.push("Title may be too short for a compelling share card.");
+  if (title.length > 70) warnings.push("Title may truncate on social previews.");
+  if (description.length < 80) warnings.push("Description may be too short for a rich preview.");
+  if (description.length > 200) warnings.push("Description may truncate on social previews.");
+  if (!/^https?:\/\//i.test(String(values.url || ""))) warnings.push("Canonical URL should be absolute.");
+  if (image && !/^https?:\/\//i.test(image)) warnings.push("Social image URL should be absolute.");
+  if (image && !/\.(png|jpe?g|webp)(\?|#|$)/i.test(image)) warnings.push("Use a crawlable PNG, JPG, or WebP image URL when possible.");
+  return warnings;
+}
+
+function renderOpenGraphPreview(values) {
+  const title = String(values.title || "").trim();
+  const description = String(values.description || "").trim();
+  const url = String(values.url || "").trim();
+  const image = String(values.image || "").trim();
+  const siteName = String(values.siteName || "").trim();
+  const type = String(values.type || "website").trim();
+  const twitterCard = String(values.twitterCard || "summary_large_image").trim();
+  const localeValue = String(values.locale || "").trim();
+  if (!title || !description || !url) return error("Enter a title, description, and canonical URL.");
+
+  const tags = [
+    metaTag("og:title", title, true),
+    metaTag("og:description", description, true),
+    metaTag("og:url", url, true),
+    metaTag("og:type", type, true),
+    metaTag("og:image", image, true),
+    metaTag("og:site_name", siteName, true),
+    metaTag("og:locale", localeValue, true),
+    metaTag("twitter:card", twitterCard),
+    metaTag("twitter:title", title),
+    metaTag("twitter:description", description),
+    metaTag("twitter:image", image)
+  ].filter(Boolean).join("\n");
+  const htmlSnippet = `<!-- Open Graph / Twitter Card -->\n${tags}`;
+  const warnings = openGraphChecks(values);
+  const htmlHref = dataHref("text/html", htmlSnippet);
+  const jsonHref = dataHref("application/json", JSON.stringify({ title, description, url, image, siteName, type, twitterCard, locale: localeValue, warnings }, null, 2));
+  const domain = (() => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return url.replace(/^https?:\/\//i, "").split("/")[0];
+    }
+  })();
+
+  return `
+    ${metrics([
+      ["Title length", title.length],
+      ["Description length", description.length],
+      ["Card type", twitterCard],
+      ["Content type", type],
+      ["Warnings", warnings.length],
+      ["Domain", domain || "-"]
+    ])}
+    <div class="social-preview">
+      ${image ? `<div class="social-preview-image" style="background-image:url('${escapeAttr(image)}')"></div>` : ""}
+      <div class="social-preview-body">
+        <span>${escapeHtml(domain || siteName || "Preview")}</span>
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(description)}</p>
+      </div>
+    </div>
+    ${warnings.length ? `<div class="privacy-note" data-privacy-level="browser"><strong>Preview QA</strong><span>${warnings.map(escapeHtml).join(" ")}</span></div>` : ""}
+    <pre class="tool-output">${escapeHtml(htmlSnippet)}</pre>
+    <button class="copy-button" type="button" data-copy="${escapeAttr(htmlSnippet)}">Copy result</button>
+    <div class="download-actions">
+      <a class="download-button" href="${htmlHref}" download="open-graph-meta-tags.html">Download HTML snippet</a>
+      <a class="download-button secondary" href="${jsonHref}" download="open-graph-preview.json">Download JSON</a>
+    </div>
+  `;
+}
+
+function schemaPairs(text) {
+  return listLines(text).map((line, index) => {
+    const [first = "", ...rest] = line.split("|");
+    return {
+      name: first.trim() || `Item ${index + 1}`,
+      value: rest.join("|").trim()
+    };
+  }).filter((item) => item.name || item.value);
+}
+
+function cleanJson(value) {
+  if (Array.isArray(value)) return value.map(cleanJson).filter((item) => item !== undefined);
+  if (!value || typeof value !== "object") return value === "" ? undefined : value;
+  const cleaned = Object.fromEntries(
+    Object.entries(value)
+      .map(([key, item]) => [key, cleanJson(item)])
+      .filter(([, item]) => item !== undefined && item !== null && !(Array.isArray(item) && item.length === 0))
+  );
+  return Object.keys(cleaned).length ? cleaned : undefined;
+}
+
+function schemaObject(values) {
+  const type = String(values.type || "FAQPage");
+  const name = String(values.name || "").trim();
+  const description = String(values.description || "").trim();
+  const url = String(values.url || "").trim();
+  const image = String(values.image || "").trim();
+  const publisher = String(values.publisher || "").trim();
+  const author = String(values.author || "").trim();
+  const currency = String(values.currency || "USD").trim().toUpperCase();
+  const price = Number(values.price || 0);
+  const rows = schemaPairs(values.items || "");
+  const base = { "@context": "https://schema.org", "@type": type, name, description, url, image };
+
+  if (type === "Article") {
+    return cleanJson({
+      ...base,
+      headline: name,
+      author: author ? { "@type": "Person", name: author } : undefined,
+      publisher: publisher ? { "@type": "Organization", name: publisher } : undefined,
+      mainEntityOfPage: url,
+      datePublished: new Date().toISOString().slice(0, 10),
+      dateModified: new Date().toISOString().slice(0, 10)
+    });
+  }
+
+  if (type === "Product") {
+    return cleanJson({
+      ...base,
+      brand: publisher ? { "@type": "Brand", name: publisher } : undefined,
+      offers: {
+        "@type": "Offer",
+        url,
+        priceCurrency: currency,
+        price: Number.isFinite(price) ? price : 0,
+        availability: "https://schema.org/InStock"
+      }
+    });
+  }
+
+  if (type === "HowTo") {
+    return cleanJson({
+      ...base,
+      step: rows.map((row, index) => ({
+        "@type": "HowToStep",
+        position: index + 1,
+        name: row.name,
+        text: row.value || row.name
+      }))
+    });
+  }
+
+  if (type === "BreadcrumbList") {
+    return cleanJson({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: rows.map((row, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: row.name,
+        item: row.value || url
+      }))
+    });
+  }
+
+  if (type === "LocalBusiness") {
+    return cleanJson({
+      ...base,
+      "@type": "LocalBusiness",
+      address: rows[0]?.value ? { "@type": "PostalAddress", streetAddress: rows[0].value } : undefined,
+      telephone: rows[1]?.value,
+      priceRange: Number.isFinite(price) && price > 0 ? `${currency} ${price}` : undefined
+    });
+  }
+
+  return cleanJson({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: rows.map((row) => ({
+      "@type": "Question",
+      name: row.name,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: row.value || "Add a clear answer."
+      }
+    }))
+  });
+}
+
+function schemaChecks(values, schema) {
+  const type = String(values.type || "FAQPage");
+  const rows = schemaPairs(values.items || "");
+  const warnings = [];
+  if (!String(values.name || "").trim() && !["FAQPage", "BreadcrumbList"].includes(type)) warnings.push("Name or headline is recommended.");
+  if (!/^https?:\/\//i.test(String(values.url || "")) && !["FAQPage", "BreadcrumbList"].includes(type)) warnings.push("Canonical URL should be absolute.");
+  if (["FAQPage", "HowTo", "BreadcrumbList"].includes(type) && rows.length < 2) warnings.push("Add at least two items for a useful rich result.");
+  if (type === "Product" && !String(values.currency || "").trim()) warnings.push("Product schema should include a currency.");
+  if (type === "Article" && !String(values.author || "").trim()) warnings.push("Article schema should include an author.");
+  if (!schema) warnings.push("Schema could not be generated.");
+  return warnings;
+}
+
+function renderSchemaMarkupGenerator(values) {
+  const schema = schemaObject(values);
+  if (!schema) return error("Enter enough information to generate schema markup.");
+  const json = JSON.stringify(schema, null, 2);
+  const script = `<script type="application/ld+json">\n${json}\n</script>`;
+  const warnings = schemaChecks(values, schema);
+  const type = schema["@type"] || String(values.type || "Schema");
+  const items = schema.mainEntity?.length || schema.step?.length || schema.itemListElement?.length || 1;
+  const jsonHref = dataHref("application/ld+json", json);
+  const htmlHref = dataHref("text/html", script);
+
+  return `
+    ${metrics([
+      ["Schema type", type],
+      ["Structured items", items],
+      ["Warnings", warnings.length],
+      ["Output size", `${json.length} chars`]
+    ])}
+    <div class="schema-summary">
+      <strong>${escapeHtml(type)} JSON-LD</strong>
+      <span>${escapeHtml(items)} structured item${items === 1 ? "" : "s"} ready for a page head or body snippet.</span>
+    </div>
+    ${warnings.length ? `<div class="privacy-note" data-privacy-level="browser"><strong>Schema QA</strong><span>${warnings.map(escapeHtml).join(" ")}</span></div>` : ""}
+    <pre class="tool-output">${escapeHtml(script)}</pre>
+    <button class="copy-button" type="button" data-copy="${escapeAttr(script)}">Copy result</button>
+    <div class="download-actions">
+      <a class="download-button" href="${htmlHref}" download="schema-markup.html">Download HTML snippet</a>
+      <a class="download-button secondary" href="${jsonHref}" download="schema-markup.jsonld">Download JSON-LD</a>
+    </div>
+  `;
+}
+
+function readabilityWords(text) {
+  const normalized = String(text || "").trim();
+  if (!normalized) return [];
+  const latinWords = normalized.match(/[A-Za-z0-9]+(?:['-][A-Za-z0-9]+)*/g) || [];
+  const cjkChars = normalized.match(/[\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/g) || [];
+  if (latinWords.length) return [...latinWords, ...cjkChars.map((char) => char)];
+  return cjkChars.length ? cjkChars : normalized.split(/\s+/).filter(Boolean);
+}
+
+function readabilitySentences(text) {
+  const normalized = String(text || "").replace(/\s+/g, " ").trim();
+  if (!normalized) return [];
+  const matches = normalized.match(/[^.!?。！？]+[.!?。！？]*/g) || [normalized];
+  return matches.map((sentence) => sentence.trim()).filter(Boolean);
+}
+
+function syllableCount(word) {
+  const text = String(word || "").toLowerCase().replace(/[^a-z]/g, "");
+  if (!text) return 1;
+  const compact = text.replace(/(?:e|es|ed)$/, "");
+  const groups = compact.match(/[aeiouy]+/g);
+  return Math.max(1, groups ? groups.length : 1);
+}
+
+function readabilitySummary(values) {
+  const text = String(values.text || "");
+  const words = readabilityWords(text);
+  const sentences = readabilitySentences(text);
+  const characters = text.replace(/\s/g, "").length;
+  const latinWordCount = words.filter((word) => /[a-z]/i.test(word)).length;
+  const syllables = words.reduce((sum, word) => sum + syllableCount(word), 0);
+  const wordCount = words.length;
+  const sentenceCount = Math.max(1, sentences.length);
+  const wordsPerSentence = wordCount / sentenceCount;
+  const syllablesPerWord = wordCount ? syllables / wordCount : 0;
+  const flesch = latinWordCount
+    ? Math.max(0, Math.min(100, 206.835 - (1.015 * wordsPerSentence) - (84.6 * syllablesPerWord)))
+    : Math.max(0, Math.min(100, 100 - (wordsPerSentence * 2.2)));
+  const grade = latinWordCount
+    ? Math.max(0, (0.39 * wordsPerSentence) + (11.8 * syllablesPerWord) - 15.59)
+    : Math.max(1, wordsPerSentence / 3);
+  const longThreshold = values.audience === "expert" ? 32 : values.audience === "young" ? 18 : 24;
+  const longSentences = sentences.map((sentence) => ({
+    sentence,
+    words: readabilityWords(sentence).length
+  })).filter((item) => item.words > longThreshold).slice(0, 8);
+  const wpm = Math.max(1, num(values.wpm || 225));
+  const minutes = wordCount / wpm;
+  const keyword = String(values.keyword || "").trim().toLowerCase();
+  const keywordMatches = keyword
+    ? (text.toLowerCase().match(new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) || []).length
+    : 0;
+  const density = wordCount && keyword ? (keywordMatches / wordCount) * 100 : 0;
+  const recommendations = [];
+  if (wordsPerSentence > longThreshold * 0.9) recommendations.push("Shorten long sentences to improve scanning.");
+  if (flesch < 50) recommendations.push("Use simpler words or break complex ideas into smaller paragraphs.");
+  if (sentences.length < 3) recommendations.push("Add more sample text for a more reliable readability estimate.");
+  if (keyword && density < 0.3) recommendations.push("Use the focus keyword naturally in headings or opening copy.");
+  if (keyword && density > 3) recommendations.push("Reduce repeated keyword use so the copy reads naturally.");
+  if (!recommendations.length) recommendations.push("Readability looks balanced for the selected audience.");
+  return {
+    words: wordCount,
+    sentences: sentences.length,
+    characters,
+    wordsPerSentence,
+    flesch,
+    grade,
+    minutes,
+    keyword,
+    keywordMatches,
+    density,
+    longSentences,
+    recommendations
+  };
+}
+
+function readabilityLevel(score) {
+  if (score >= 80) return "Easy";
+  if (score >= 60) return "Clear";
+  if (score >= 40) return "Moderate";
+  return "Difficult";
+}
+
+function renderReadabilityAnalyzer(values) {
+  const summary = readabilitySummary(values);
+  if (!summary.words) return error("Paste text to analyze readability.");
+  const csv = [
+    ["metric", "value"],
+    ["words", summary.words],
+    ["sentences", summary.sentences],
+    ["characters", summary.characters],
+    ["words_per_sentence", summary.wordsPerSentence.toFixed(1)],
+    ["flesch_score", summary.flesch.toFixed(1)],
+    ["grade_level", summary.grade.toFixed(1)],
+    ["reading_minutes", summary.minutes.toFixed(2)],
+    ["keyword_matches", summary.keywordMatches],
+    ["keyword_density", `${summary.density.toFixed(2)}%`]
+  ].map((row) => row.map(csvEscape).join(",")).join("\n");
+  const jsonHref = dataHref("application/json", JSON.stringify(summary, null, 2));
+  const csvHref = dataHref("text/csv", csv);
+  const score = summary.flesch.toFixed(0);
+
+  return `
+    ${metrics([
+      ["Readability score", score],
+      ["Level", readabilityLevel(summary.flesch)],
+      ["Grade level", summary.grade.toFixed(1)],
+      ["Words", summary.words],
+      ["Sentences", summary.sentences],
+      ["Reading time", `${Math.max(1, Math.ceil(summary.minutes))} min`],
+      ["Keyword matches", summary.keywordMatches],
+      ["Keyword density", `${summary.density.toFixed(2)}%`]
+    ])}
+    <div class="readability-panel">
+      <div class="readability-score" style="--score:${Math.round(summary.flesch)}%">
+        <strong>${escapeHtml(score)}</strong>
+        <span>${escapeHtml(readabilityLevel(summary.flesch))}</span>
+      </div>
+      <div class="readability-advice">
+        <strong>Rewrite opportunities</strong>
+        <ul>${summary.recommendations.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </div>
+    </div>
+    ${summary.longSentences.length ? `
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Long sentence</th><th>Words</th></tr></thead>
+          <tbody>
+            ${summary.longSentences.map((item) => `<tr><td>${escapeHtml(item.sentence)}</td><td>${item.words}</td></tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    ` : ""}
+    <div class="download-actions">
+      <a class="download-button" href="${csvHref}" download="readability-report.csv">Download readability CSV</a>
+      <a class="download-button secondary" href="${jsonHref}" download="readability-report.json">Download JSON</a>
+    </div>
+  `;
+}
+
+function ipToInt(ip) {
+  const parts = String(ip || "").trim().split(".");
+  if (parts.length !== 4) return null;
+  const nums = parts.map((part) => Number(part));
+  if (nums.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return null;
+  return (((nums[0] * 256 + nums[1]) * 256 + nums[2]) * 256 + nums[3]) >>> 0;
+}
+
+function intToIp(value) {
+  const int = Number(value) >>> 0;
+  return [24, 16, 8, 0].map((shift) => (int >>> shift) & 255).join(".");
+}
+
+function prefixMask(prefix) {
+  if (prefix <= 0) return 0;
+  return (0xffffffff << (32 - prefix)) >>> 0;
+}
+
+function parseCidrBlock(value) {
+  const match = String(value || "").trim().match(/^([^/]+)\/(\d{1,2})$/);
+  if (!match) return { error: "Enter a network like 192.168.10.0/24." };
+  const ip = ipToInt(match[1]);
+  const prefix = Number(match[2]);
+  if (ip === null || !Number.isInteger(prefix) || prefix < 0 || prefix > 32) return { error: "Enter a valid IPv4 CIDR block." };
+  const mask = prefixMask(prefix);
+  const network = (ip & mask) >>> 0;
+  const size = 2 ** (32 - prefix);
+  return { network, prefix, mask, size, broadcast: (network + size - 1) >>> 0 };
+}
+
+function subnetUsableRange(network, prefix) {
+  const size = 2 ** (32 - prefix);
+  if (prefix >= 31) {
+    return { first: network >>> 0, last: (network + size - 1) >>> 0, usable: size };
+  }
+  return { first: (network + 1) >>> 0, last: (network + size - 2) >>> 0, usable: Math.max(0, size - 2) };
+}
+
+function subnetPlanSummary(values) {
+  const base = parseCidrBlock(values.network);
+  if (base.error) return base;
+  const newPrefix = Math.min(32, Math.max(0, Math.floor(num(values.newPrefix))));
+  if (newPrefix < base.prefix) return { error: "New subnet prefix must be larger than or equal to the base prefix." };
+  const subnetSize = 2 ** (32 - newPrefix);
+  const maxSubnets = 2 ** (newPrefix - base.prefix);
+  const requested = Math.min(Math.max(1, Math.floor(num(values.count || maxSubnets))), Math.min(maxSubnets, 512));
+  const names = listLines(values.names || "");
+  const rows = Array.from({ length: requested }, (_, index) => {
+    const network = (base.network + (index * subnetSize)) >>> 0;
+    const broadcast = (network + subnetSize - 1) >>> 0;
+    const range = subnetUsableRange(network, newPrefix);
+    const gateway = values.gateway === "last" ? range.last : values.gateway === "none" ? "" : range.first;
+    return {
+      name: names[index] || `Subnet ${index + 1}`,
+      cidr: `${intToIp(network)}/${newPrefix}`,
+      network: intToIp(network),
+      gateway: gateway === "" ? "" : intToIp(gateway),
+      firstHost: intToIp(range.first),
+      lastHost: intToIp(range.last),
+      broadcast: intToIp(broadcast),
+      addresses: subnetSize,
+      usableHosts: range.usable
+    };
+  });
+  return {
+    base: `${intToIp(base.network)}/${base.prefix}`,
+    newPrefix,
+    mask: intToIp(prefixMask(newPrefix)),
+    maxSubnets,
+    rows
+  };
+}
+
+function renderSubnetPlanner(values) {
+  const summary = subnetPlanSummary(values);
+  if (summary.error) return error(summary.error);
+  const csv = [
+    ["name", "cidr", "network", "gateway", "first_host", "last_host", "broadcast", "addresses", "usable_hosts"],
+    ...summary.rows.map((row) => [row.name, row.cidr, row.network, row.gateway, row.firstHost, row.lastHost, row.broadcast, row.addresses, row.usableHosts])
+  ].map((row) => row.map(csvEscape).join(",")).join("\n");
+  const csvHref = dataHref("text/csv", csv);
+  const jsonHref = dataHref("application/json", JSON.stringify(summary, null, 2));
+
+  return `
+    ${metrics([
+      ["Base network", summary.base],
+      ["Subnet prefix", `/${summary.newPrefix}`],
+      ["Subnet mask", summary.mask],
+      ["Subnets shown", summary.rows.length],
+      ["Max subnets", summary.maxSubnets],
+      ["Usable hosts each", summary.rows[0]?.usableHosts || 0]
+    ])}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>CIDR</th><th>Gateway</th><th>Usable range</th><th>Broadcast</th><th>Hosts</th></tr></thead>
+        <tbody>
+          ${summary.rows.map((row) => `
+            <tr>
+              <td>${escapeHtml(row.name)}</td>
+              <td><code>${escapeHtml(row.cidr)}</code></td>
+              <td>${escapeHtml(row.gateway || "-")}</td>
+              <td>${escapeHtml(row.firstHost)} - ${escapeHtml(row.lastHost)}</td>
+              <td>${escapeHtml(row.broadcast)}</td>
+              <td>${row.usableHosts.toLocaleString("en-US")}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+    <div class="download-actions">
+      <a class="download-button" href="${csvHref}" download="subnet-plan.csv">Download subnet CSV</a>
+      <a class="download-button secondary" href="${jsonHref}" download="subnet-plan.json">Download JSON</a>
+    </div>
+  `;
+}
+
 function privacyNotice(tool) {
   const level = toolPrivacyLevel(tool);
   const copy = privacyCopy[currentLanguage] || privacyCopy.en;
@@ -2426,7 +3300,52 @@ function localizedToolTitleFor(tool, language = currentLanguage) {
   if (language === "en") return tool.title;
   const terms = titleTerms[language] || {};
   const orderedTerms = Object.keys(terms).sort((a, b) => b.length - a.length);
-  return orderedTerms.reduce((title, term) => title.replaceAll(term, terms[term]), tool.title);
+  const translated = orderedTerms.reduce((title, term) => title.replaceAll(term, terms[term]), tool.title);
+  return naturalizedToolTitle(translated, language);
+}
+
+function lowerInitial(value) {
+  return String(value || "").replace(/^(\p{Lu})/u, (match) => match.toLocaleLowerCase());
+}
+
+function naturalizedToolTitle(title, language) {
+  const value = String(title || "").trim();
+  if (!value) return "";
+  const typeWords = {
+    es: ["Calculadora", "Convertidor", "Generador", "Verificador", "Planificador", "Formateador", "Probador", "Limpiador", "Extractor", "Redimensionador", "Compresor", "Creador", "Contador", "Eliminador"],
+    fr: ["Calculateur", "Convertisseur", "Générateur", "Vérificateur", "Planificateur", "Formateur", "Testeur", "Nettoyeur", "Extracteur", "Redimensionneur", "Compresseur", "Créateur", "Compteur", "Suppresseur"],
+    pt: ["Calculadora", "Conversor", "Gerador", "Verificador", "Planejador", "Formatador", "Testador", "Limpador", "Extrator", "Redimensionador", "Compressor", "Criador", "Contador", "Removedor"],
+    it: ["Calcolatore", "Convertitore", "Generatore", "Verificatore", "Pianificatore", "Formatore", "Pulitore", "Estrattore", "Ridimensionatore", "Compressore", "Creatore", "Contatore"],
+    nl: ["Calculator", "Converter", "Generator", "Checker", "Planner", "Formatter", "Extractor", "Compressor", "Maker"],
+    de: ["Rechner", "Konverter", "Generator", "Prüfer", "Planer", "Formatierer", "Tester", "Bereiniger", "Extraktor"],
+    ru: ["Калькулятор", "Конвертер", "Генератор", "Проверка", "Планировщик", "Форматтер", "Тестер"],
+    id: ["Kalkulator", "Konverter", "Generator", "Pemeriksa", "Perencana", "Pemformat", "Penguji", "Pembersih", "Ekstraktor", "Penghitung"],
+    vi: ["Máy tính", "Bộ chuyển đổi", "Bộ tạo", "Bộ kiểm tra", "Bộ lập kế hoạch", "Bộ định dạng", "Bộ thử", "Bộ làm sạch", "Bộ trích xuất", "Bộ đếm"],
+    hi: ["कैलकुलेटर", "कन्वर्टर", "जनरेटर", "चेकर", "प्लानर", "फ़ॉर्मैटर", "टेस्टर", "क्लीनर", "एक्सट्रैक्टर", "काउंटर"]
+  }[language] || [];
+  const connective = {
+    es: "de",
+    fr: "de",
+    pt: "de",
+    it: "per",
+    nl: "voor",
+    de: "für",
+    ru: "для",
+    id: "untuk",
+    vi: "cho",
+    hi: "के लिए"
+  }[language] || "for";
+  const type = typeWords.find((word) => value.endsWith(` ${word}`));
+  if (!type) return value;
+  const base = value.slice(0, -type.length).trim();
+  if (!base || base.includes(`${type} `)) return value;
+  if (language === "fr" && /^[aeiouyàâäéèêëîïôöùûü]/i.test(base)) {
+    return `${type} d'${lowerInitial(base)}`;
+  }
+  if (language === "de") {
+    return `${type} ${connective} ${base}`;
+  }
+  return `${type} ${connective} ${lowerInitial(base)}`;
 }
 
 function localizedToolDescription(tool) {
@@ -2600,12 +3519,192 @@ function num(value) {
   return Number.parseFloat(value) || 0;
 }
 
+function activeLocaleProfile() {
+  return localeProfiles[currentLanguage] || localeProfiles.en;
+}
+
 function money(value) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value);
+  const profile = activeLocaleProfile();
+  const zeroDecimalCurrencies = new Set(["JPY", "KRW", "VND", "IDR"]);
+  return new Intl.NumberFormat(profile.locale, {
+    style: "currency",
+    currency: profile.currency,
+    maximumFractionDigits: zeroDecimalCurrencies.has(profile.currency) ? 0 : 2
+  }).format(value);
 }
 
 function pct(value) {
   return `${(value * 100).toFixed(2)}%`;
+}
+
+function localizedTaxEstimateLabel() {
+  const labels = {
+    en: "Locale tax estimate",
+    ko: "지역별 세금 추정",
+    ja: "地域別の税額見積もり",
+    zh: "本地化税费估算",
+    es: "Estimación fiscal local",
+    fr: "Estimation fiscale locale",
+    de: "Lokale Steuerschätzung",
+    pt: "Estimativa fiscal local",
+    it: "Stima fiscale locale",
+    nl: "Lokale belastingschatting",
+    ru: "Локальная налоговая оценка",
+    ar: "تقدير ضريبي محلي",
+    hi: "स्थानीय कर अनुमान",
+    id: "Estimasi pajak lokal",
+    vi: "Ước tính thuế theo địa phương",
+    th: "ประมาณการภาษีตามพื้นที่"
+  };
+  return labels[currentLanguage] || labels.en;
+}
+
+function progressiveTax(amount, brackets = []) {
+  const taxable = Math.max(0, amount);
+  return brackets.reduce((tax, bracket, index) => {
+    const next = brackets[index + 1]?.threshold ?? Infinity;
+    const slice = Math.max(0, Math.min(taxable, next) - bracket.threshold);
+    return tax + slice * bracket.rate;
+  }, 0);
+}
+
+function payrollTaxFromParts(grossAnnual, parts = []) {
+  return parts.reduce((total, part) => {
+    const base = Math.min(Math.max(0, grossAnnual), part.cap ?? Infinity);
+    return total + base * part.rate;
+  }, 0);
+}
+
+function koreanEarnedIncomeDeduction(grossAnnual) {
+  const income = Math.max(0, grossAnnual);
+  if (income <= 5000000) return income * 0.70;
+  if (income <= 15000000) return 3500000 + (income - 5000000) * 0.40;
+  if (income <= 45000000) return 7500000 + (income - 15000000) * 0.15;
+  if (income <= 100000000) return 12000000 + (income - 45000000) * 0.05;
+  return Math.min(20000000, 14750000 + (income - 100000000) * 0.02);
+}
+
+function modeledIncomeTaxBase(taxableAnnual, grossAnnual, model) {
+  let base = Math.max(0, taxableAnnual - (model.standardDeduction || 0));
+  if (model.earnedIncomeDeduction === "ko") {
+    base -= koreanEarnedIncomeDeduction(grossAnnual);
+  }
+  base -= model.basicDeduction || 0;
+  return Math.max(0, base);
+}
+
+function localeTaxModel() {
+  const models = {
+    en: {
+      year: "2026",
+      standardDeduction: 16100,
+      brackets: [
+        { threshold: 0, rate: 0.10 },
+        { threshold: 12000, rate: 0.12 },
+        { threshold: 49000, rate: 0.22 },
+        { threshold: 105000, rate: 0.24 },
+        { threshold: 200000, rate: 0.32 },
+        { threshold: 255000, rate: 0.35 },
+        { threshold: 630000, rate: 0.37 }
+      ],
+      payrollParts: [{ rate: 0.062, cap: 184500 }, { rate: 0.0145 }],
+      note: "Uses a 2026 U.S. single-filer federal estimate with standard deduction and FICA-style payroll tax. State tax still uses the editable field."
+    },
+    ko: {
+      year: "2026",
+      earnedIncomeDeduction: "ko",
+      basicDeduction: 1500000,
+      incomeTaxCredit: 660000,
+      brackets: [
+        { threshold: 0, rate: 0.06 },
+        { threshold: 14000000, rate: 0.15 },
+        { threshold: 50000000, rate: 0.24 },
+        { threshold: 88000000, rate: 0.35 },
+        { threshold: 150000000, rate: 0.38 },
+        { threshold: 300000000, rate: 0.40 },
+        { threshold: 500000000, rate: 0.42 },
+        { threshold: 1000000000, rate: 0.45 }
+      ],
+      localTaxOnIncomeTax: 0.10,
+      payrollParts: [{ rate: 0.045, cap: 76440000 }, { rate: 0.03545 }, { rate: 0.00459 }, { rate: 0.009 }],
+      note: "2026년 한국 근로소득 추정을 위해 근로소득공제/기본공제/근로소득세액공제, 지방소득세, 국민연금 상한, 건강보험/장기요양/고용보험 근사치를 사용합니다. 부양가족, 비과세 식대, 지역별 예외는 단순화했습니다."
+    },
+    ja: {
+      year: "2026",
+      brackets: [
+        { threshold: 0, rate: 0.05 },
+        { threshold: 1950000, rate: 0.10 },
+        { threshold: 3300000, rate: 0.20 },
+        { threshold: 6950000, rate: 0.23 },
+        { threshold: 9000000, rate: 0.33 },
+        { threshold: 18000000, rate: 0.40 },
+        { threshold: 40000000, rate: 0.45 }
+      ],
+      localTaxRate: 0.10,
+      payrollParts: [{ rate: 0.15 }],
+      note: "Uses Japanese national income tax brackets with resident tax and social-insurance estimates."
+    },
+    zh: {
+      year: "2026",
+      standardDeduction: 60000,
+      brackets: [
+        { threshold: 0, rate: 0.03 },
+        { threshold: 36000, rate: 0.10 },
+        { threshold: 144000, rate: 0.20 },
+        { threshold: 300000, rate: 0.25 },
+        { threshold: 420000, rate: 0.30 },
+        { threshold: 660000, rate: 0.35 },
+        { threshold: 960000, rate: 0.45 }
+      ],
+      payrollParts: [{ rate: 0.105 }],
+      note: "Uses China annualized comprehensive income brackets with a basic deduction and social contribution estimate."
+    },
+    de: {
+      year: "2026",
+      standardDeduction: 12356,
+      brackets: [{ threshold: 0, rate: 0.14 }, { threshold: 18103, rate: 0.24 }, { threshold: 70425, rate: 0.42 }, { threshold: 287052, rate: 0.45 }],
+      payrollParts: [{ rate: 0.093, cap: 101400 }, { rate: 0.013, cap: 101400 }, { rate: 0.091, cap: 69750 }, { rate: 0.018, cap: 69750 }],
+      note: "Uses German 2026-style thresholds with employee social-security estimates; tax class details are not modeled."
+    },
+    fr: {
+      year: "2026",
+      brackets: [{ threshold: 0, rate: 0 }, { threshold: 11500, rate: 0.11 }, { threshold: 29300, rate: 0.30 }, { threshold: 83800, rate: 0.41 }, { threshold: 180000, rate: 0.45 }],
+      payrollParts: [{ rate: 0.22 }],
+      note: "Uses a France single-person income-tax estimate with employee social contribution approximation."
+    },
+    es: {
+      year: "2026",
+      brackets: [{ threshold: 0, rate: 0.19 }, { threshold: 12450, rate: 0.24 }, { threshold: 20200, rate: 0.30 }, { threshold: 35200, rate: 0.37 }, { threshold: 60000, rate: 0.45 }, { threshold: 300000, rate: 0.47 }],
+      payrollParts: [{ rate: 0.0645 }],
+      note: "Uses a Spain combined income-tax style estimate and employee social-security approximation."
+    },
+    it: {
+      year: "2026",
+      brackets: [{ threshold: 0, rate: 0.23 }, { threshold: 28000, rate: 0.35 }, { threshold: 50000, rate: 0.43 }],
+      localTaxRate: 0.02,
+      payrollParts: [{ rate: 0.10 }],
+      note: "Uses Italy IRPEF-style brackets with local and social contribution approximations."
+    },
+    nl: {
+      year: "2026",
+      brackets: [{ threshold: 0, rate: 0.358 }, { threshold: 75500, rate: 0.495 }],
+      payrollParts: [{ rate: 0.07 }],
+      note: "Uses a Dutch box-1 style wage-tax approximation."
+    },
+    pt: {
+      year: "2026",
+      brackets: [{ threshold: 0, rate: 0.13 }, { threshold: 8000, rate: 0.165 }, { threshold: 12000, rate: 0.22 }, { threshold: 17000, rate: 0.25 }, { threshold: 25000, rate: 0.32 }, { threshold: 40000, rate: 0.37 }, { threshold: 80000, rate: 0.45 }],
+      payrollParts: [{ rate: 0.08 }],
+      note: "Uses a broad Portuguese/Brazilian-language locale estimate; choose exact rates manually for your country."
+    },
+    ru: { year: "2026", brackets: [{ threshold: 0, rate: 0.13 }, { threshold: 5000000, rate: 0.15 }], payrollParts: [], note: "Uses a simplified Russian personal income tax estimate." },
+    ar: { year: "2026", brackets: [{ threshold: 0, rate: 0 }], payrollParts: [{ rate: 0.10 }], note: "Uses a Saudi-style no personal income tax assumption with social insurance estimate." },
+    hi: { year: "2026", brackets: [{ threshold: 0, rate: 0 }, { threshold: 300000, rate: 0.05 }, { threshold: 700000, rate: 0.10 }, { threshold: 1000000, rate: 0.15 }, { threshold: 1200000, rate: 0.20 }, { threshold: 1500000, rate: 0.30 }], payrollParts: [{ rate: 0.12 }], note: "Uses a simplified India salary-tax estimate with provident-fund style contribution." },
+    id: { year: "2026", brackets: [{ threshold: 0, rate: 0.05 }, { threshold: 60000000, rate: 0.15 }, { threshold: 250000000, rate: 0.25 }, { threshold: 500000000, rate: 0.30 }, { threshold: 5000000000, rate: 0.35 }], payrollParts: [{ rate: 0.04 }], note: "Uses Indonesian progressive income-tax and employee contribution approximations." },
+    vi: { year: "2026", brackets: [{ threshold: 0, rate: 0.05 }, { threshold: 60000000, rate: 0.10 }, { threshold: 120000000, rate: 0.15 }, { threshold: 216000000, rate: 0.20 }, { threshold: 384000000, rate: 0.25 }, { threshold: 624000000, rate: 0.30 }, { threshold: 960000000, rate: 0.35 }], payrollParts: [{ rate: 0.105 }], note: "Uses Vietnam progressive personal income tax and social insurance approximations." },
+    th: { year: "2026", brackets: [{ threshold: 0, rate: 0 }, { threshold: 150000, rate: 0.05 }, { threshold: 300000, rate: 0.10 }, { threshold: 500000, rate: 0.15 }, { threshold: 750000, rate: 0.20 }, { threshold: 1000000, rate: 0.25 }, { threshold: 2000000, rate: 0.30 }, { threshold: 5000000, rate: 0.35 }], payrollParts: [{ rate: 0.05 }], note: "Uses Thailand progressive income-tax and social-security approximations." }
+  };
+  return models[currentLanguage] || models.en;
 }
 
 function slugPart(value) {
@@ -4930,6 +6029,7 @@ function renderTakeHomePay(values) {
   const summary = takeHomePaySummary(values);
   if (summary.error) return error(summary.error);
   const href = `data:text/csv;charset=utf-8,${encodeURIComponent(summary.csv)}`;
+  const copy = takeHomePayCopy();
   const rows = summary.scenarios.map((scenario) => `
     <tr>
       <td>${scenario.label}</td>
@@ -4942,41 +6042,166 @@ function renderTakeHomePay(values) {
 
   return `
     ${metrics([
-      ["Net per paycheck", money(summary.netPerPaycheck)],
-      ["Monthly net pay", money(summary.monthlyNet)],
-      ["Annual net pay", money(summary.netAnnual)],
-      ["Annual taxes", money(summary.totalTax)],
-      ["Pre-tax deductions", money(summary.preTaxAnnual)],
-      ["Take-home rate", pct(summary.effectiveTakeHomeRate)]
+      [copy.netPerPaycheck, money(summary.netPerPaycheck)],
+      [copy.monthlyNet, money(summary.monthlyNet)],
+      [copy.annualNet, money(summary.netAnnual)],
+      [copy.annualTaxes, money(summary.totalTax)],
+      [copy.preTaxDeductions, money(summary.preTaxAnnual)],
+      [copy.takeHomeRate, pct(summary.effectiveTakeHomeRate)]
     ])}
     <div class="result-grid">
-      <div><span>Gross per paycheck</span><strong>${money(summary.grossPerPaycheck)}</strong></div>
-      <div><span>Federal tax estimate</span><strong>${money(summary.federalTax)}</strong></div>
-      <div><span>State/local tax estimate</span><strong>${money(summary.stateTax)}</strong></div>
-      <div><span>Payroll tax estimate</span><strong>${money(summary.payrollTax)}</strong></div>
-      <div><span>Post-tax deductions</span><strong>${money(summary.postTaxAnnual)}</strong></div>
-      <div><span>Paychecks per year</span><strong>${summary.payPeriods}</strong></div>
+      <div><span>${copy.grossPerPaycheck}</span><strong>${money(summary.grossPerPaycheck)}</strong></div>
+      <div><span>${copy.incomeTax}</span><strong>${money(summary.federalTax)}</strong></div>
+      <div><span>${copy.localTax}</span><strong>${money(summary.stateTax)}</strong></div>
+      <div><span>${copy.payrollTax}</span><strong>${money(summary.payrollTax)}</strong></div>
+      <div><span>${copy.postTaxDeductions}</span><strong>${money(summary.postTaxAnnual)}</strong></div>
+      <div><span>${copy.paychecksPerYear}</span><strong>${summary.payPeriods}</strong></div>
+    </div>
+    <div class="privacy-note" data-privacy-level="browser">
+      <strong>${escapeHtml(localizedTaxEstimateLabel())}</strong>
+      <span>${escapeHtml(summary.taxModelNote)}</span>
     </div>
     <div class="data-table-wrap">
       <table class="data-table">
         <thead>
           <tr>
-            <th>Scenario</th>
-            <th>Gross annual</th>
-            <th>Net annual</th>
-            <th>Net paycheck</th>
-            <th>Take-home rate</th>
+            <th>${copy.scenario}</th>
+            <th>${copy.grossAnnual}</th>
+            <th>${copy.annualNet}</th>
+            <th>${copy.netPaycheck}</th>
+            <th>${copy.takeHomeRate}</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    <a class="download-button" href="${href}" download="take-home-pay-scenarios.csv">Download paycheck CSV</a>
+    <a class="download-button" href="${href}" download="take-home-pay-scenarios.csv">${copy.downloadCsv}</a>
   `;
+}
+
+function takeHomePayCopy(language = currentLanguage) {
+  const packs = {
+    en: {
+      netPerPaycheck: "Net per paycheck",
+      monthlyNet: "Monthly net pay",
+      annualNet: "Annual net pay",
+      annualTaxes: "Annual taxes",
+      preTaxDeductions: "Pre-tax deductions",
+      takeHomeRate: "Take-home rate",
+      grossPerPaycheck: "Gross per paycheck",
+      incomeTax: "Income tax estimate",
+      localTax: "State/local tax estimate",
+      payrollTax: "Payroll/social insurance estimate",
+      postTaxDeductions: "Post-tax deductions",
+      paychecksPerYear: "Paychecks per year",
+      scenario: "Scenario",
+      grossAnnual: "Gross annual",
+      grossPaycheck: "Gross paycheck",
+      taxableAnnual: "Taxable annual",
+      netPaycheck: "Net paycheck",
+      downloadCsv: "Download paycheck CSV",
+      selected: "Selected",
+      raise5: "5% raise",
+      raise10: "10% raise",
+      retirementPlus1: "+1% retirement",
+      positiveSalary: "Enter positive annual gross pay.",
+      taxTooHigh: "Tax estimates look too high. Keep combined tax estimates below 80%.",
+      retirementTooHigh: "Pre-tax retirement estimate should be below 75%."
+    },
+    ko: {
+      netPerPaycheck: "급여 1회 실수령액",
+      monthlyNet: "월 실수령액",
+      annualNet: "연 실수령액",
+      annualTaxes: "연간 세금/보험",
+      preTaxDeductions: "세전 공제",
+      takeHomeRate: "실수령률",
+      grossPerPaycheck: "급여 1회 세전 금액",
+      incomeTax: "소득세 추정",
+      localTax: "지방소득세 추정",
+      payrollTax: "4대보험 추정",
+      postTaxDeductions: "세후 공제",
+      paychecksPerYear: "연간 급여 횟수",
+      scenario: "시나리오",
+      grossAnnual: "연간 총급여",
+      grossPaycheck: "급여 1회 세전",
+      taxableAnnual: "과세 대상 금액",
+      netPaycheck: "급여 1회 실수령",
+      downloadCsv: "급여 CSV 다운로드",
+      selected: "선택값",
+      raise5: "연봉 5% 인상",
+      raise10: "연봉 10% 인상",
+      retirementPlus1: "연금 공제 +1%",
+      positiveSalary: "연간 총급여를 0보다 크게 입력하세요.",
+      taxTooHigh: "세금 추정치가 너무 높습니다. 합산 세율은 80% 미만으로 입력하세요.",
+      retirementTooHigh: "세전 연금 공제는 75% 미만이어야 합니다."
+    },
+    ja: {
+      netPerPaycheck: "1回あたり手取り",
+      monthlyNet: "月額手取り",
+      annualNet: "年間手取り",
+      annualTaxes: "年間税額",
+      preTaxDeductions: "税前控除",
+      takeHomeRate: "手取り率",
+      grossPerPaycheck: "1回あたり総支給",
+      incomeTax: "所得税見積",
+      localTax: "地方税見積",
+      payrollTax: "社会保険見積",
+      postTaxDeductions: "税後控除",
+      paychecksPerYear: "年間支給回数",
+      scenario: "シナリオ",
+      grossAnnual: "年間総支給",
+      grossPaycheck: "1回あたり総支給",
+      taxableAnnual: "年間課税所得",
+      netPaycheck: "1回あたり手取り",
+      downloadCsv: "給与CSVをダウンロード",
+      selected: "選択値",
+      raise5: "5%昇給",
+      raise10: "10%昇給",
+      retirementPlus1: "年金控除+1%"
+    },
+    zh: {
+      netPerPaycheck: "每次到手收入",
+      monthlyNet: "月到手收入",
+      annualNet: "年到手收入",
+      annualTaxes: "年度税费",
+      preTaxDeductions: "税前扣除",
+      takeHomeRate: "到手率",
+      grossPerPaycheck: "每次税前收入",
+      incomeTax: "所得税估算",
+      localTax: "地方税估算",
+      payrollTax: "社保估算",
+      postTaxDeductions: "税后扣除",
+      paychecksPerYear: "每年发薪次数",
+      scenario: "情景",
+      grossAnnual: "年度税前收入",
+      grossPaycheck: "每次税前收入",
+      taxableAnnual: "年度应税收入",
+      netPaycheck: "每次到手收入",
+      downloadCsv: "下载工资CSV",
+      selected: "当前选择",
+      raise5: "加薪5%",
+      raise10: "加薪10%",
+      retirementPlus1: "养老金+1%"
+    },
+    es: { netPerPaycheck: "Neto por pago", monthlyNet: "Neto mensual", annualNet: "Neto anual", annualTaxes: "Impuestos anuales", preTaxDeductions: "Deducciones antes de impuestos", takeHomeRate: "Tasa neta", grossPerPaycheck: "Bruto por pago", incomeTax: "Impuesto sobre la renta estimado", localTax: "Impuesto local estimado", payrollTax: "Seguridad social estimada", postTaxDeductions: "Deducciones después de impuestos", paychecksPerYear: "Pagos por año", scenario: "Escenario", grossAnnual: "Bruto anual", grossPaycheck: "Bruto por pago", taxableAnnual: "Base imponible anual", netPaycheck: "Neto por pago", downloadCsv: "Descargar CSV de nómina", selected: "Seleccionado", raise5: "Aumento del 5%", raise10: "Aumento del 10%", retirementPlus1: "Jubilación +1%" },
+    fr: { netPerPaycheck: "Net par paie", monthlyNet: "Net mensuel", annualNet: "Net annuel", annualTaxes: "Impôts annuels", preTaxDeductions: "Déductions avant impôt", takeHomeRate: "Taux net", grossPerPaycheck: "Brut par paie", incomeTax: "Impôt sur le revenu estimé", localTax: "Taxe locale estimée", payrollTax: "Cotisations estimées", postTaxDeductions: "Déductions après impôt", paychecksPerYear: "Paies par an", scenario: "Scénario", grossAnnual: "Brut annuel", grossPaycheck: "Brut par paie", taxableAnnual: "Revenu imposable annuel", netPaycheck: "Net par paie", downloadCsv: "Télécharger le CSV de paie", selected: "Sélection", raise5: "Hausse de 5%", raise10: "Hausse de 10%", retirementPlus1: "Retraite +1%" },
+    de: { netPerPaycheck: "Netto pro Zahlung", monthlyNet: "Monatliches Netto", annualNet: "Jährliches Netto", annualTaxes: "Jährliche Steuern", preTaxDeductions: "Vorsteuerabzüge", takeHomeRate: "Nettoquote", grossPerPaycheck: "Brutto pro Zahlung", incomeTax: "Einkommensteuer geschätzt", localTax: "Lokale Steuer geschätzt", payrollTax: "Sozialabgaben geschätzt", postTaxDeductions: "Nachsteuerabzüge", paychecksPerYear: "Zahlungen pro Jahr", scenario: "Szenario", grossAnnual: "Jahresbrutto", grossPaycheck: "Brutto pro Zahlung", taxableAnnual: "Zu versteuerndes Jahreseinkommen", netPaycheck: "Netto pro Zahlung", downloadCsv: "Gehalts-CSV herunterladen", selected: "Ausgewählt", raise5: "5% Gehaltserhöhung", raise10: "10% Gehaltserhöhung", retirementPlus1: "Vorsorge +1%" },
+    pt: { netPerPaycheck: "Líquido por pagamento", monthlyNet: "Líquido mensal", annualNet: "Líquido anual", annualTaxes: "Impostos anuais", preTaxDeductions: "Deduções antes do imposto", takeHomeRate: "Taxa líquida", grossPerPaycheck: "Bruto por pagamento", incomeTax: "Imposto de renda estimado", localTax: "Imposto local estimado", payrollTax: "Contribuição social estimada", postTaxDeductions: "Deduções pós-imposto", paychecksPerYear: "Pagamentos por ano", scenario: "Cenário", grossAnnual: "Bruto anual", grossPaycheck: "Bruto por pagamento", taxableAnnual: "Renda tributável anual", netPaycheck: "Líquido por pagamento", downloadCsv: "Baixar CSV de salário", selected: "Selecionado", raise5: "Aumento de 5%", raise10: "Aumento de 10%", retirementPlus1: "Previdência +1%" },
+    it: { netPerPaycheck: "Netto per busta paga", monthlyNet: "Netto mensile", annualNet: "Netto annuale", annualTaxes: "Imposte annue", preTaxDeductions: "Detrazioni pre-imposta", takeHomeRate: "Aliquota netta", grossPerPaycheck: "Lordo per busta paga", incomeTax: "Imposta sul reddito stimata", localTax: "Imposta locale stimata", payrollTax: "Contributi stimati", postTaxDeductions: "Detrazioni post-imposta", paychecksPerYear: "Buste paga annue", scenario: "Scenario", grossAnnual: "Lordo annuo", grossPaycheck: "Lordo per busta paga", taxableAnnual: "Imponibile annuo", netPaycheck: "Netto per busta paga", downloadCsv: "Scarica CSV stipendio", selected: "Selezionato", raise5: "Aumento 5%", raise10: "Aumento 10%", retirementPlus1: "Pensione +1%" },
+    nl: { netPerPaycheck: "Netto per betaling", monthlyNet: "Netto per maand", annualNet: "Netto per jaar", annualTaxes: "Jaarlijkse belastingen", preTaxDeductions: "Aftrek voor belasting", takeHomeRate: "Nettopercentage", grossPerPaycheck: "Bruto per betaling", incomeTax: "Inkomstenbelasting schatting", localTax: "Lokale belasting schatting", payrollTax: "Sociale lasten schatting", postTaxDeductions: "Aftrek na belasting", paychecksPerYear: "Betalingen per jaar", scenario: "Scenario", grossAnnual: "Bruto per jaar", grossPaycheck: "Bruto per betaling", taxableAnnual: "Belastbaar jaarinkomen", netPaycheck: "Netto per betaling", downloadCsv: "Loonstrook-CSV downloaden", selected: "Geselecteerd", raise5: "5% verhoging", raise10: "10% verhoging", retirementPlus1: "Pensioen +1%" },
+    ru: { netPerPaycheck: "Чистыми за выплату", monthlyNet: "Чистыми в месяц", annualNet: "Чистыми в год", annualTaxes: "Годовые налоги", preTaxDeductions: "Вычеты до налога", takeHomeRate: "Доля чистыми", grossPerPaycheck: "Брутто за выплату", incomeTax: "Оценка подоходного налога", localTax: "Оценка местного налога", payrollTax: "Оценка взносов", postTaxDeductions: "Вычеты после налога", paychecksPerYear: "Выплат в год", scenario: "Сценарий", grossAnnual: "Годовой брутто", grossPaycheck: "Брутто за выплату", taxableAnnual: "Налогооблагаемый годовой доход", netPaycheck: "Чистыми за выплату", downloadCsv: "Скачать CSV зарплаты", selected: "Выбрано", raise5: "Повышение 5%", raise10: "Повышение 10%", retirementPlus1: "Пенсия +1%" },
+    ar: { netPerPaycheck: "الصافي لكل دفعة", monthlyNet: "الصافي الشهري", annualNet: "الصافي السنوي", annualTaxes: "الضرائب السنوية", preTaxDeductions: "استقطاعات قبل الضريبة", takeHomeRate: "نسبة الصافي", grossPerPaycheck: "الإجمالي لكل دفعة", incomeTax: "تقدير ضريبة الدخل", localTax: "تقدير الضريبة المحلية", payrollTax: "تقدير التأمينات", postTaxDeductions: "استقطاعات بعد الضريبة", paychecksPerYear: "عدد الدفعات سنوياً", scenario: "السيناريو", grossAnnual: "الإجمالي السنوي", grossPaycheck: "الإجمالي لكل دفعة", taxableAnnual: "الدخل السنوي الخاضع للضريبة", netPaycheck: "الصافي لكل دفعة", downloadCsv: "تنزيل CSV الراتب", selected: "المحدد", raise5: "زيادة 5%", raise10: "زيادة 10%", retirementPlus1: "التقاعد +1%" },
+    hi: { netPerPaycheck: "प्रति भुगतान नेट", monthlyNet: "मासिक नेट", annualNet: "वार्षिक नेट", annualTaxes: "वार्षिक कर", preTaxDeductions: "कर-पूर्व कटौतियां", takeHomeRate: "टेक-होम दर", grossPerPaycheck: "प्रति भुगतान सकल", incomeTax: "आयकर अनुमान", localTax: "स्थानीय कर अनुमान", payrollTax: "सामाजिक/पेरोल अनुमान", postTaxDeductions: "कर-पश्चात कटौतियां", paychecksPerYear: "प्रति वर्ष भुगतान", scenario: "परिदृश्य", grossAnnual: "वार्षिक सकल", grossPaycheck: "प्रति भुगतान सकल", taxableAnnual: "वार्षिक कर योग्य आय", netPaycheck: "प्रति भुगतान नेट", downloadCsv: "वेतन CSV डाउनलोड करें", selected: "चयनित", raise5: "5% वृद्धि", raise10: "10% वृद्धि", retirementPlus1: "सेवानिवृत्ति +1%" },
+    id: { netPerPaycheck: "Bersih per gaji", monthlyNet: "Bersih bulanan", annualNet: "Bersih tahunan", annualTaxes: "Pajak tahunan", preTaxDeductions: "Potongan sebelum pajak", takeHomeRate: "Rasio bersih", grossPerPaycheck: "Bruto per gaji", incomeTax: "Estimasi pajak penghasilan", localTax: "Estimasi pajak lokal", payrollTax: "Estimasi iuran sosial", postTaxDeductions: "Potongan setelah pajak", paychecksPerYear: "Gaji per tahun", scenario: "Skenario", grossAnnual: "Bruto tahunan", grossPaycheck: "Bruto per gaji", taxableAnnual: "Penghasilan kena pajak tahunan", netPaycheck: "Bersih per gaji", downloadCsv: "Unduh CSV gaji", selected: "Terpilih", raise5: "Kenaikan 5%", raise10: "Kenaikan 10%", retirementPlus1: "Pensiun +1%" },
+    vi: { netPerPaycheck: "Thực nhận mỗi kỳ", monthlyNet: "Thực nhận hằng tháng", annualNet: "Thực nhận hằng năm", annualTaxes: "Thuế hằng năm", preTaxDeductions: "Khấu trừ trước thuế", takeHomeRate: "Tỷ lệ thực nhận", grossPerPaycheck: "Lương gộp mỗi kỳ", incomeTax: "Ước tính thuế thu nhập", localTax: "Ước tính thuế địa phương", payrollTax: "Ước tính bảo hiểm", postTaxDeductions: "Khấu trừ sau thuế", paychecksPerYear: "Kỳ lương mỗi năm", scenario: "Kịch bản", grossAnnual: "Lương gộp năm", grossPaycheck: "Lương gộp mỗi kỳ", taxableAnnual: "Thu nhập chịu thuế năm", netPaycheck: "Thực nhận mỗi kỳ", downloadCsv: "Tải CSV bảng lương", selected: "Đã chọn", raise5: "Tăng 5%", raise10: "Tăng 10%", retirementPlus1: "Hưu trí +1%" },
+    th: { netPerPaycheck: "สุทธิต่อรอบจ่าย", monthlyNet: "สุทธิต่อเดือน", annualNet: "สุทธิต่อปี", annualTaxes: "ภาษีต่อปี", preTaxDeductions: "หักก่อนภาษี", takeHomeRate: "อัตรารับสุทธิ", grossPerPaycheck: "รายได้รวมต่อรอบจ่าย", incomeTax: "ประมาณการภาษีเงินได้", localTax: "ประมาณการภาษีท้องถิ่น", payrollTax: "ประมาณการประกันสังคม", postTaxDeductions: "หักหลังภาษี", paychecksPerYear: "รอบจ่ายต่อปี", scenario: "สถานการณ์", grossAnnual: "รายได้รวมต่อปี", grossPaycheck: "รายได้รวมต่อรอบจ่าย", taxableAnnual: "รายได้ที่ต้องเสียภาษีต่อปี", netPaycheck: "สุทธิต่อรอบจ่าย", downloadCsv: "ดาวน์โหลด CSV เงินเดือน", selected: "ค่าที่เลือก", raise5: "ขึ้น 5%", raise10: "ขึ้น 10%", retirementPlus1: "เกษียณ +1%" }
+  };
+  return { ...packs.en, ...(packs[language] || {}) };
 }
 
 function takeHomePaySummary(values) {
   const salary = num(values.salary);
+  const copy = takeHomePayCopy();
   const frequency = values.frequency || "biweekly";
   const federalRate = Math.max(0, num(values.federal)) / 100;
   const stateRate = Math.max(0, num(values.state)) / 100;
@@ -4984,21 +6209,32 @@ function takeHomePaySummary(values) {
   const retirementRate = Math.max(0, num(values.retirement)) / 100;
   const healthMonthly = Math.max(0, num(values.health));
   const postTaxMonthly = Math.max(0, num(values.postTax));
+  const taxModel = localeTaxModel();
   const periodMap = { weekly: 52, biweekly: 26, semimonthly: 24, monthly: 12, annual: 1 };
   const payPeriods = periodMap[frequency] || 26;
 
-  if (salary <= 0) return { error: "Enter positive annual gross pay." };
-  if (federalRate + stateRate + payrollRate > 0.8) return { error: "Tax estimates look too high. Keep combined tax estimates below 80%." };
-  if (retirementRate > 0.75) return { error: "Pre-tax retirement estimate should be below 75%." };
+  if (salary <= 0) return { error: copy.positiveSalary };
+  if (federalRate + stateRate + payrollRate > 0.8) return { error: copy.taxTooHigh };
+  if (retirementRate > 0.75) return { error: copy.retirementTooHigh };
 
   const calculateScenario = (label, grossAnnual, retirementOverride = retirementRate) => {
     const retirementAnnual = grossAnnual * retirementOverride;
     const healthAnnual = healthMonthly * 12;
     const preTaxAnnual = Math.min(grossAnnual, retirementAnnual + healthAnnual);
     const taxableAnnual = Math.max(0, grossAnnual - preTaxAnnual);
-    const federalTax = taxableAnnual * federalRate;
-    const stateTax = taxableAnnual * stateRate;
-    const payrollTax = Math.max(0, grossAnnual - retirementAnnual) * payrollRate;
+    const modeledTaxableAnnual = modeledIncomeTaxBase(taxableAnnual, grossAnnual, taxModel);
+    const hasModeledIncomeTax = Array.isArray(taxModel.brackets) && taxModel.brackets.length > 0;
+    const hasModeledPayrollTax = Array.isArray(taxModel.payrollParts) && taxModel.payrollParts.length > 0;
+    const federalTaxBeforeCredits = hasModeledIncomeTax
+      ? progressiveTax(modeledTaxableAnnual, taxModel.brackets)
+      : taxableAnnual * federalRate;
+    const federalTax = Math.max(0, federalTaxBeforeCredits - (taxModel.incomeTaxCredit || 0));
+    const stateTax = taxModel.localTaxOnIncomeTax
+      ? federalTax * taxModel.localTaxOnIncomeTax
+      : taxableAnnual * (taxModel.localTaxRate ?? stateRate);
+    const payrollTax = hasModeledPayrollTax
+      ? payrollTaxFromParts(Math.max(0, grossAnnual - retirementAnnual), taxModel.payrollParts)
+      : Math.max(0, grossAnnual - retirementAnnual) * payrollRate;
     const postTaxAnnual = postTaxMonthly * 12;
     const totalTax = federalTax + stateTax + payrollTax;
     const netAnnual = Math.max(0, grossAnnual - preTaxAnnual - totalTax - postTaxAnnual);
@@ -5014,6 +6250,8 @@ function takeHomePaySummary(values) {
       payrollTax,
       postTaxAnnual,
       totalTax,
+      taxModelYear: taxModel.year,
+      taxModelNote: taxModel.note,
       netAnnual,
       netPerPaycheck: netAnnual / payPeriods,
       grossPerPaycheck: grossAnnual / payPeriods,
@@ -5022,15 +6260,15 @@ function takeHomePaySummary(values) {
     };
   };
 
-  const selected = calculateScenario("Selected", salary);
+  const selected = calculateScenario(copy.selected, salary);
   const scenarios = [
     selected,
-    calculateScenario("5% raise", salary * 1.05),
-    calculateScenario("10% raise", salary * 1.1),
-    calculateScenario("+1% retirement", salary, Math.min(0.75, retirementRate + 0.01))
+    calculateScenario(copy.raise5, salary * 1.05),
+    calculateScenario(copy.raise10, salary * 1.1),
+    calculateScenario(copy.retirementPlus1, salary, Math.min(0.75, retirementRate + 0.01))
   ];
   const csvRows = [
-    ["Scenario", "Gross annual", "Gross paycheck", "Pre-tax deductions", "Taxable annual", "Federal tax", "State local tax", "Payroll tax", "Post-tax deductions", "Net annual", "Net paycheck", "Take-home rate"],
+    [copy.scenario, copy.grossAnnual, copy.grossPaycheck, copy.preTaxDeductions, copy.taxableAnnual, copy.incomeTax, copy.localTax, copy.payrollTax, copy.postTaxDeductions, copy.annualNet, copy.netPaycheck, copy.takeHomeRate],
     ...scenarios.map((scenario) => [
       scenario.label,
       scenario.grossAnnual,
@@ -5855,14 +7093,531 @@ function renderToolCard(tool) {
   `;
 }
 
-function fieldMarkup(field) {
+function localizedFieldDefault(tool, field) {
+  const profile = activeLocaleProfile();
+  if (tool?.id === "take-home-pay-calculator") {
+    const values = {
+      salary: profile.salary,
+      frequency: profile.payFrequency,
+      federal: profile.incomeTax,
+      state: profile.localTax,
+      fica: profile.payrollTax,
+      retirement: profile.retirement,
+      health: profile.benefits,
+      postTax: 0
+    };
+    return values[field.id] ?? field.value;
+  }
+  if (["sales-tax-calculator", "discount-calculator", "tip-calculator"].includes(tool?.id) && field.id === "tax") {
+    return profile.salesTax;
+  }
+  return field.value;
+}
+
+function localizedFieldLabel(tool, field) {
+  if (tool?.id !== "take-home-pay-calculator") return field.label;
+  const labels = {
+    en: { salary: "Annual gross pay", frequency: "Pay frequency", federal: "National income tax estimate %", state: "Local tax estimate %", fica: "Payroll/social insurance estimate %", retirement: "Pre-tax pension/retirement %", health: "Pre-tax benefits / month", postTax: "Post-tax deductions / month" },
+    ko: { salary: "연간 총급여", frequency: "급여 주기", federal: "소득세 추정 %", state: "지방소득세 추정 %", fica: "4대보험/급여세 추정 %", retirement: "세전 연금 공제 %", health: "세전 복리후생 / 월", postTax: "세후 공제 / 월" },
+    ja: { salary: "年間総支給額", frequency: "給与頻度", federal: "所得税見積 %", state: "住民税見積 %", fica: "社会保険見積 %", retirement: "税前年金控除 %", health: "税前福利 / 月", postTax: "税後控除 / 月" },
+    zh: { salary: "年度税前收入", frequency: "发薪频率", federal: "个人所得税估算 %", state: "地方税估算 %", fica: "社保/工资税估算 %", retirement: "税前养老金扣除 %", health: "税前福利 / 月", postTax: "税后扣除 / 月" },
+    es: { salary: "Salario bruto anual", frequency: "Frecuencia de pago", federal: "Impuesto sobre la renta estimado %", state: "Impuesto local estimado %", fica: "Seguridad social estimada %", retirement: "Aporte preimpuesto/pensión %", health: "Beneficios preimpuesto / mes", postTax: "Deducciones postimpuesto / mes" },
+    fr: { salary: "Salaire brut annuel", frequency: "Fréquence de paie", federal: "Impôt sur le revenu estimé %", state: "Taxe locale estimée %", fica: "Cotisations sociales estimées %", retirement: "Retraite avant impôt %", health: "Avantages avant impôt / mois", postTax: "Déductions après impôt / mois" },
+    de: { salary: "Jährliches Bruttogehalt", frequency: "Zahlungsrhythmus", federal: "Einkommensteuer geschätzt %", state: "Lokale Steuer geschätzt %", fica: "Sozialabgaben geschätzt %", retirement: "Vorsorge vor Steuer %", health: "Leistungen vor Steuer / Monat", postTax: "Abzüge nach Steuer / Monat" },
+    pt: { salary: "Salário bruto anual", frequency: "Frequência de pagamento", federal: "Imposto de renda estimado %", state: "Imposto local estimado %", fica: "Contribuição social estimada %", retirement: "Previdência antes do imposto %", health: "Benefícios antes do imposto / mês", postTax: "Deduções pós-imposto / mês" }
+  };
+  return labels[currentLanguage]?.[field.id] || labels.en[field.id] || field.label;
+}
+
+function fieldMarkup(field, tool) {
+  const label = localizedFieldLabel(tool, field);
+  const value = localizedFieldDefault(tool, field);
   if (field.type === "textarea") {
-    return `<label><span class="field-head">${field.label}<button type="button" class="clear-field-button" data-clear-field="${field.id}">Clear</button></span><textarea id="${field.id}" name="${field.id}" rows="7">${escapeHtml(field.value || "")}</textarea></label>`;
+    return `<label><span class="field-head">${label}<button type="button" class="clear-field-button" data-clear-field="${field.id}">Clear</button></span><textarea id="${field.id}" name="${field.id}" rows="7">${escapeHtml(value || "")}</textarea></label>`;
   }
   if (field.type === "select") {
-    return `<label><span>${field.label}</span><select id="${field.id}" name="${field.id}">${field.options.map(([value, label]) => `<option value="${value}" ${value === field.value ? "selected" : ""}>${label}</option>`).join("")}</select></label>`;
+    return `<label><span>${label}</span><select id="${field.id}" name="${field.id}">${field.options.map(([optionValue, optionLabel]) => `<option value="${optionValue}" ${optionValue === value ? "selected" : ""}>${optionLabel}</option>`).join("")}</select></label>`;
   }
-  return `<label><span>${field.label}</span><input id="${field.id}" name="${field.id}" type="${field.type}" value="${escapeAttr(field.value ?? "")}" step="${field.step || "any"}"></label>`;
+  return `<label><span>${label}</span><input id="${field.id}" name="${field.id}" type="${field.type}" value="${escapeAttr(value ?? "")}" step="${field.step || "any"}"></label>`;
+}
+
+const koreanResultPhraseMap = {
+  "Monthly payment": "월 납입액",
+  "Campaign URL": "캠페인 URL",
+  "Title length": "제목 길이",
+  "Description length": "설명 길이",
+  "Card type": "카드 유형",
+  "Content type": "콘텐츠 유형",
+  "Domain": "도메인",
+  "Preview QA": "미리보기 점검",
+  "Download HTML snippet": "HTML 스니펫 다운로드",
+  "Schema type": "스키마 유형",
+  "Structured items": "구조화 항목",
+  "Output size": "출력 크기",
+  "Schema QA": "스키마 점검",
+  "Download JSON-LD": "JSON-LD 다운로드",
+  "Readability score": "가독성 점수",
+  "Level": "수준",
+  "Grade level": "학년 수준",
+  "Keyword matches": "키워드 일치",
+  "Keyword density": "키워드 밀도",
+  "Long sentence": "긴 문장",
+  "Rewrite opportunities": "수정 기회",
+  "Download readability CSV": "가독성 CSV 다운로드",
+  "Easy": "쉬움",
+  "Clear": "명확함",
+  "Moderate": "보통",
+  "Difficult": "어려움",
+  "Base network": "기준 네트워크",
+  "Subnet prefix": "서브넷 프리픽스",
+  "Subnet mask": "서브넷 마스크",
+  "Subnets shown": "표시된 서브넷",
+  "Max subnets": "최대 서브넷",
+  "Usable hosts each": "서브넷당 사용 가능 호스트",
+  "Gateway": "게이트웨이",
+  "Usable range": "사용 가능 범위",
+  "Broadcast": "브로드캐스트",
+  "Hosts": "호스트",
+  "Download subnet CSV": "서브넷 CSV 다운로드",
+  "Variants": "변형",
+  "Source": "소스",
+  "Medium": "매체",
+  "Campaign": "캠페인",
+  "Campaign QA": "캠페인 점검",
+  "Final URL": "최종 URL",
+  "Variant": "변형",
+  "Download campaign CSV": "캠페인 CSV 다운로드",
+  "Open QR generator": "QR 생성기 열기",
+  "Enter a valid landing page URL.": "올바른 랜딩 페이지 URL을 입력하세요.",
+  "Total interest": "총 이자",
+  "Total repayment": "총 상환액",
+  "Payoff time": "상환 기간",
+  "Remaining balance": "남은 원금",
+  "Principal paid": "상환 원금",
+  "Interest share": "이자 비중",
+  "Interest": "이자",
+  "Interest saved": "절감 이자",
+  "Monthly payment now": "현재 월 납입액",
+  "Total interest paid": "총 납부 이자",
+  "Needed for target": "목표 달성 필요액",
+  "Needed payment": "필요 납입액",
+  "Minimum-only payoff": "최소 납입만 할 때 상환",
+  "Minimum-only": "최소 납입만",
+  "Months saved": "절약된 개월",
+  "paid": "납부됨",
+  "saved": "절약됨",
+  "amortization": "상환 스케줄",
+  "Primary strategy": "주요 전략",
+  "Avalanche": "고금리 우선",
+  "Debt-free time": "부채 상환 완료 기간",
+  "payoff": "상환",
+  "Best strategy": "최적 전략",
+  "Interest difference": "이자 차이",
+  "Future value": "미래 가치",
+  "Total contributed": "총 납입액",
+  "Estimated gain": "예상 수익",
+  "Return share": "수익 비중",
+  "Final monthly contribution": "최종 월 납입액",
+  "Average monthly contribution": "평균 월 납입액",
+  "Average monthly growth": "평균 월 성장",
+  "Contributed": "납입액",
+  "Growth": "성장",
+  "Balance": "잔액",
+  "growth": "성장",
+  "Retirement status": "은퇴 준비 상태",
+  "Needs more": "추가 필요",
+  "need": "필요",
+  "retirement": "은퇴",
+  "Inflation-adjusted": "물가 반영",
+  "Projected savings": "예상 저축액",
+  "Projected gap": "예상 부족액",
+  "Monthly needed": "월 필요액",
+  "Retirement income": "은퇴 소득",
+  "Target nest egg": "목표 은퇴자금",
+  "Break-even price": "손익분기 가격",
+  "Effective rate": "실효세율",
+  "Price per item": "개당 가격",
+  "amount": "금액",
+  "per": "당",
+  "item": "항목",
+  "rate": "비율",
+  "Quantity": "수량",
+  "tax scenarios": "세금 시나리오",
+  "Net revenue": "순매출",
+  "Net profit": "순이익",
+  "Profit per sale": "판매당 이익",
+  "Profit": "이익",
+  "price": "가격",
+  "sales": "판매",
+  "discount margin": "할인 후 마진",
+  "Fee amount": "수수료",
+  "Current invoice": "현재 송장 번호",
+  "Next invoice": "다음 송장 번호",
+  "Sequence width": "일련번호 자릿수",
+  "Reset": "초기화",
+  "Generated count": "생성 개수",
+  "Date stamp": "날짜 표기",
+  "policy": "정책",
+  "each": "각각",
+  "Top level keys": "최상위 키",
+  "Top level": "최상위",
+  "keys": "키",
+  "Path": "경로",
+  "Depth": "깊이",
+  "Paths": "경로",
+  "Size": "크기",
+  "Copy result": "결과 복사",
+  "Reading time": "읽기 시간",
+  "min": "분",
+  "Percent": "백분율",
+  "Base value": "기준값",
+  "Original lines": "원본 줄 수",
+  "New lines": "새 줄 수",
+  "Total rows": "전체 행",
+  "First match": "첫 번째 일치",
+  "Pattern length": "패턴 길이",
+  "Text": "텍스트",
+  "Recommended": "권장 범위",
+  "Too short": "너무 짧음",
+  "User-agent": "사용자 에이전트",
+  "First result": "첫 번째 결과",
+  "Pool size": "후보 수",
+  "Character sets": "문자 구성",
+  "Very strong": "매우 강함",
+  "Local": "로컬 시간",
+  "Birth year": "출생연도",
+  "Output Size": "출력 크기",
+  "Download converted": "변환 결과 다운로드",
+  "Download diff": "차이 다운로드",
+  "Download": "다운로드",
+  "Scenario": "시나리오",
+  "Current": "현재",
+  "Selected": "선택값",
+  "Target": "목표",
+  "Status": "상태",
+  "Good": "좋음",
+  "Result": "결과",
+  "Total": "합계",
+  "Subtotal": "소계",
+  "Discount": "할인",
+  "Taxable": "과세 대상",
+  "Sales tax": "판매세",
+  "Tax": "세금",
+  "Margin": "마진",
+  "Markup": "마크업",
+  "Pattern": "패턴",
+  "Mode": "모드",
+  "Pretty": "보기 좋게",
+  "Type": "유형",
+  "Object": "객체",
+  "Objects": "객체",
+  "Arrays": "배열",
+  "Scalars": "스칼라",
+  "Words": "단어",
+  "Characters": "문자",
+  "Sentences": "문장",
+  "Category": "분류",
+  "Normal": "정상",
+  "Formula": "공식",
+  "From": "변환 전",
+  "Matches": "일치 항목",
+  "Flags": "플래그",
+  "Groups": "그룹",
+  "Added": "추가됨",
+  "Removed": "삭제됨",
+  "Unchanged": "변경 없음",
+  "Original": "원본",
+  "Changed": "변경본",
+  "Allow": "허용",
+  "Disallow": "차단",
+  "Sitemap": "사이트맵",
+  "Participants": "참가자",
+  "Outcomes": "결과",
+  "Name": "이름",
+  "Outcome": "결과",
+  "Flips": "던진 횟수",
+  "Rolls": "굴린 횟수",
+  "Dice": "주사위",
+  "Modifier": "보정값",
+  "Draws": "추첨 횟수",
+  "Repeats": "중복",
+  "repeats until exhausted": "모두 뽑을 때까지 중복 없음",
+  "Password": "비밀번호",
+  "Generated": "생성됨",
+  "Length": "길이",
+  "Entropy": "엔트로피",
+  "Strength": "강도",
+  "Warnings": "경고",
+  "Use a mix of letters, numbers, and symbols": "문자, 숫자, 기호를 섞어 사용하세요",
+  "No common weaknesses detected": "흔한 취약점이 감지되지 않았습니다",
+  "Score": "점수",
+  "Year": "연도",
+  "Days": "일",
+  "Weeks": "주",
+  "Direction": "방향",
+  "Forward": "앞으로",
+  "Age": "나이",
+  "Headings": "제목",
+  "Links": "링크",
+  "Lists": "목록",
+  "Rows": "행",
+  "Columns": "열",
+  "Output": "출력"
+};
+
+Object.assign(koreanResultPhraseMap, {
+  "Choose an image to resize it locally in your browser.": "브라우저에서 처리할 이미지를 선택하세요.",
+  "Choose an image to compress it locally in your browser.": "브라우저에서 압축할 이미지를 선택하세요.",
+  "Choose an image to convert it locally in your browser.": "브라우저에서 변환할 이미지를 선택하세요.",
+  "Choose an image to turn it into a centered square.": "정사각형으로 만들 이미지를 선택하세요.",
+  "Choose an image to convert it into pixel art.": "픽셀아트로 변환할 이미지를 선택하세요.",
+  "Upload a file or paste content to begin.": "파일을 업로드하거나 내용을 붙여넣어 시작하세요.",
+  "Enter text or a URL to generate a QR code.": "QR 코드를 만들 텍스트나 URL을 입력하세요.",
+  "Loading QR generator...": "QR 생성기를 불러오는 중...",
+  "Generating asset pack...": "에셋 팩을 생성하는 중...",
+  "Choose a valid image file.": "올바른 이미지 파일을 선택하세요.",
+  "Could not generate this asset pack.": "이 에셋 팩을 생성할 수 없습니다.",
+  "Could not resize this image.": "이 이미지를 처리할 수 없습니다.",
+  "Could not read this image.": "이 이미지를 읽을 수 없습니다.",
+  "QR code library could not be loaded. Reload the page and try again.": "QR 코드 라이브러리를 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 시도하세요.",
+  "No CSV rows found.": "CSV 행을 찾을 수 없습니다.",
+  "Enter a header row and at least one data row.": "헤더 행과 최소 1개의 데이터 행을 입력하세요.",
+  "No matching columns found.": "일치하는 열을 찾을 수 없습니다.",
+  "Upload file": "파일 업로드",
+  "Image file": "이미지 파일",
+  "Choose file": "파일 선택",
+  "No file selected": "선택된 파일 없음",
+  "Click to browse or drop a file here": "클릭해서 파일을 선택하거나 여기에 놓으세요",
+  "Input": "입력",
+  "Mode": "모드",
+  "Pretty print": "보기 좋게 정렬",
+  "Minify": "압축",
+  "Normalize headers": "헤더 정규화",
+  "Remove duplicate rows": "중복 행 제거",
+  "Keep empty columns": "빈 열 유지",
+  "Columns to keep": "유지할 열",
+  "Text or URL": "텍스트 또는 URL",
+  "Margin": "여백",
+  "Foreground": "전경색",
+  "Background": "배경",
+  "Error correction": "오류 보정",
+  "Low": "낮음",
+  "Medium": "중간",
+  "Quartile": "상위 25%",
+  "High": "높음",
+  "Image": "이미지",
+  "Preset": "프리셋",
+  "Custom": "직접 설정",
+  "Output width": "출력 너비",
+  "Output height": "출력 높이",
+  "Max width": "최대 너비",
+  "Target size KB": "목표 용량 KB",
+  "Keep original ratio": "원본 비율 유지",
+  "Never upscale small images": "작은 이미지는 확대하지 않음",
+  "Keep original": "원본 유지",
+  "JPG background": "JPG 배경",
+  "Square size": "정사각형 크기",
+  "Fit mode": "맞춤 방식",
+  "Fit entire image": "전체 이미지 맞추기",
+  "Fill square crop": "정사각형에 채워 자르기",
+  "Padding %": "여백 %",
+  "Corner radius %": "모서리 반경 %",
+  "Pack": "팩",
+  "Launch kit": "런칭 키트",
+  "Favicon and app icons": "파비콘 및 앱 아이콘",
+  "Social cards": "소셜 카드",
+  "PWA app icons": "PWA 앱 아이콘",
+  "Fit with padding": "여백을 두고 맞추기",
+  "Fill crop": "채워서 자르기",
+  "Pixel grid width": "픽셀 그리드 너비",
+  "Export scale": "내보내기 배율",
+  "Palette": "팔레트",
+  "Keep source colors": "원본 색상 유지",
+  "Retro 216 colors": "레트로 216색",
+  "Arcade 64 colors": "아케이드 64색",
+  "Poster 27 colors": "포스터 27색",
+  "Game Boy 8 colors": "게임보이 8색",
+  "Use dithering": "디더링 사용",
+  "Flatten transparent background": "투명 배경 합치기",
+  "Export grid overlay": "그리드 오버레이 내보내기",
+  "Grid color": "그리드 색상",
+  "Sprite columns": "스프라이트 열",
+  "Sprite rows": "스프라이트 행",
+  "Format": "형식",
+  "Quality": "품질",
+  "File size": "파일 크기",
+  "Download SVG mosaic": "SVG 모자이크 다운로드",
+  "Download frame CSV": "프레임 CSV 다운로드",
+  "Download metadata HTML": "메타데이터 HTML 다운로드",
+  "Download web manifest": "웹 매니페스트 다운로드",
+  "Download palette JSON": "팔레트 JSON 다운로드",
+  "Download palette CSS": "팔레트 CSS 다운로드",
+  "Download GPL palette": "GPL 팔레트 다운로드",
+  "Download cleaned CSV": "정리된 CSV 다운로드",
+  "Download quality report": "품질 리포트 다운로드",
+  "Download formatted JSON": "정리된 JSON 다운로드",
+  "Download inspection report": "검사 리포트 다운로드",
+  "Download SVG": "SVG 다운로드",
+  "Download PNG": "PNG 다운로드"
+});
+["per", "need", "item", "rate", "min"].forEach((phrase) => {
+  delete koreanResultPhraseMap[phrase];
+});
+
+const resultPhraseMaps = { ko: koreanResultPhraseMap };
+
+Object.entries({
+  ja: {
+    "Monthly payment": "月々の支払い", "Campaign URL": "キャンペーンURL", "Title length": "タイトル文字数", "Description length": "説明文字数", "Card type": "カード種類", "Content type": "コンテンツ種類", "Domain": "ドメイン", "Download HTML snippet": "HTMLスニペットをダウンロード", "Variants": "バリエーション", "Source": "ソース", "Medium": "メディア", "Campaign": "キャンペーン", "Final URL": "最終URL", "Download campaign CSV": "キャンペーンCSVをダウンロード", "Open QR generator": "QR生成を開く", "Total interest": "利息合計", "Copy result": "結果をコピー", "Download": "ダウンロード", "Rows": "行", "Columns": "列", "Size": "サイズ", "Original": "元画像", "Output": "出力", "Format": "形式", "Quality": "品質", "Text or URL": "テキストまたはURL", "Upload file": "ファイルをアップロード", "Input": "入力", "Mode": "モード", "Pretty print": "整形表示", "Minify": "圧縮", "Normalize headers": "ヘッダーを正規化", "Remove duplicate rows": "重複行を削除", "Keep empty columns": "空の列を保持", "Columns to keep": "保持する列", "Pixel grid width": "ピクセルグリッド幅", "Use dithering": "ディザリングを使用", "Enter text or a URL to generate a QR code.": "QRコードを作成するテキストまたはURLを入力してください。", "Upload a file or paste content to begin.": "ファイルをアップロードするか内容を貼り付けて開始してください。"
+  },
+  zh: {
+    "Monthly payment": "每月还款", "Total interest": "总利息", "Copy result": "复制结果", "Download": "下载", "Rows": "行", "Columns": "列", "Size": "大小", "Original": "原始", "Output": "输出", "Format": "格式", "Quality": "质量", "Text or URL": "文本或 URL", "Upload file": "上传文件", "Input": "输入", "Mode": "模式", "Pretty print": "格式化输出", "Minify": "压缩", "Normalize headers": "规范化表头", "Remove duplicate rows": "删除重复行", "Keep empty columns": "保留空列", "Columns to keep": "保留的列", "Pixel grid width": "像素网格宽度", "Use dithering": "使用抖动", "Enter text or a URL to generate a QR code.": "输入文本或 URL 生成二维码。", "Upload a file or paste content to begin.": "上传文件或粘贴内容开始。"
+  },
+  es: {
+    "Monthly payment": "Pago mensual", "Campaign URL": "URL de campaña", "Title length": "Longitud del título", "Description length": "Longitud de la descripción", "Card type": "Tipo de tarjeta", "Content type": "Tipo de contenido", "Domain": "Dominio", "Download HTML snippet": "Descargar snippet HTML", "Variants": "Variantes", "Source": "Fuente", "Medium": "Medio", "Campaign": "Campaña", "Final URL": "URL final", "Download campaign CSV": "Descargar CSV de campaña", "Open QR generator": "Abrir generador QR", "Total interest": "Interés total", "Copy result": "Copiar resultado", "Download": "Descargar", "Rows": "Filas", "Columns": "Columnas", "Size": "Tamaño", "Original": "Original", "Output": "Salida", "Format": "Formato", "Quality": "Calidad", "Text or URL": "Texto o URL", "Upload file": "Subir archivo", "Input": "Entrada", "Mode": "Modo", "Pretty print": "Formato legible", "Minify": "Minificar", "Normalize headers": "Normalizar encabezados", "Remove duplicate rows": "Eliminar filas duplicadas", "Keep empty columns": "Conservar columnas vacías", "Columns to keep": "Columnas a conservar", "Pixel grid width": "Ancho de cuadrícula de píxeles", "Use dithering": "Usar tramado", "Enter text or a URL to generate a QR code.": "Introduce texto o una URL para generar un código QR.", "Upload a file or paste content to begin.": "Sube un archivo o pega contenido para empezar."
+  },
+  fr: {
+    "Monthly payment": "Paiement mensuel", "Total interest": "Intérêts totaux", "Copy result": "Copier le résultat", "Download": "Télécharger", "Rows": "Lignes", "Columns": "Colonnes", "Size": "Taille", "Original": "Original", "Output": "Sortie", "Format": "Format", "Quality": "Qualité", "Text or URL": "Texte ou URL", "Upload file": "Importer un fichier", "Input": "Entrée", "Mode": "Mode", "Pretty print": "Format lisible", "Minify": "Minifier", "Normalize headers": "Normaliser les en-têtes", "Remove duplicate rows": "Supprimer les lignes en double", "Keep empty columns": "Conserver les colonnes vides", "Columns to keep": "Colonnes à conserver", "Pixel grid width": "Largeur de grille pixel", "Use dithering": "Utiliser le tramage", "Enter text or a URL to generate a QR code.": "Saisissez un texte ou une URL pour générer un QR code.", "Upload a file or paste content to begin.": "Importez un fichier ou collez du contenu pour commencer."
+  },
+  de: {
+    "Monthly payment": "Monatliche Zahlung", "Total interest": "Zinsen gesamt", "Copy result": "Ergebnis kopieren", "Download": "Herunterladen", "Rows": "Zeilen", "Columns": "Spalten", "Size": "Größe", "Original": "Original", "Output": "Ausgabe", "Format": "Format", "Quality": "Qualität", "Text or URL": "Text oder URL", "Upload file": "Datei hochladen", "Input": "Eingabe", "Mode": "Modus", "Pretty print": "Lesbar formatieren", "Minify": "Minifizieren", "Normalize headers": "Kopfzeilen normalisieren", "Remove duplicate rows": "Doppelte Zeilen entfernen", "Keep empty columns": "Leere Spalten behalten", "Columns to keep": "Zu behaltende Spalten", "Pixel grid width": "Pixelraster-Breite", "Use dithering": "Dithering verwenden", "Enter text or a URL to generate a QR code.": "Gib Text oder eine URL ein, um einen QR-Code zu erstellen.", "Upload a file or paste content to begin.": "Lade eine Datei hoch oder füge Inhalte ein, um zu beginnen."
+  },
+  pt: {
+    "Monthly payment": "Pagamento mensal", "Total interest": "Juros totais", "Copy result": "Copiar resultado", "Download": "Baixar", "Rows": "Linhas", "Columns": "Colunas", "Size": "Tamanho", "Original": "Original", "Output": "Saída", "Format": "Formato", "Quality": "Qualidade", "Text or URL": "Texto ou URL", "Upload file": "Enviar arquivo", "Input": "Entrada", "Mode": "Modo", "Pretty print": "Formatar legível", "Minify": "Minificar", "Normalize headers": "Normalizar cabeçalhos", "Remove duplicate rows": "Remover linhas duplicadas", "Keep empty columns": "Manter colunas vazias", "Columns to keep": "Colunas a manter", "Pixel grid width": "Largura da grade de pixels", "Use dithering": "Usar dithering", "Enter text or a URL to generate a QR code.": "Insira texto ou uma URL para gerar um QR code.", "Upload a file or paste content to begin.": "Envie um arquivo ou cole conteúdo para começar."
+  },
+  it: {
+    "Monthly payment": "Pagamento mensile", "Total interest": "Interessi totali", "Copy result": "Copia risultato", "Download": "Scarica", "Rows": "Righe", "Columns": "Colonne", "Size": "Dimensione", "Original": "Originale", "Output": "Output", "Format": "Formato", "Quality": "Qualità", "Text or URL": "Testo o URL", "Upload file": "Carica file", "Input": "Input", "Mode": "Modalità", "Pretty print": "Formato leggibile", "Minify": "Minifica", "Normalize headers": "Normalizza intestazioni", "Remove duplicate rows": "Rimuovi righe duplicate", "Keep empty columns": "Mantieni colonne vuote", "Columns to keep": "Colonne da mantenere", "Pixel grid width": "Larghezza griglia pixel", "Use dithering": "Usa dithering", "Enter text or a URL to generate a QR code.": "Inserisci testo o un URL per generare un codice QR.", "Upload a file or paste content to begin.": "Carica un file o incolla contenuti per iniziare."
+  },
+  nl: {
+    "Monthly payment": "Maandbetaling", "Total interest": "Totale rente", "Copy result": "Resultaat kopiëren", "Download": "Downloaden", "Rows": "Rijen", "Columns": "Kolommen", "Size": "Grootte", "Original": "Origineel", "Output": "Uitvoer", "Format": "Formaat", "Quality": "Kwaliteit", "Text or URL": "Tekst of URL", "Upload file": "Bestand uploaden", "Input": "Invoer", "Mode": "Modus", "Pretty print": "Netjes formatteren", "Minify": "Minimaliseren", "Normalize headers": "Koppen normaliseren", "Remove duplicate rows": "Dubbele rijen verwijderen", "Keep empty columns": "Lege kolommen behouden", "Columns to keep": "Kolommen behouden", "Pixel grid width": "Pixelrasterbreedte", "Use dithering": "Dithering gebruiken", "Enter text or a URL to generate a QR code.": "Voer tekst of een URL in om een QR-code te maken.", "Upload a file or paste content to begin.": "Upload een bestand of plak inhoud om te beginnen."
+  },
+  ru: {
+    "Monthly payment": "Ежемесячный платеж", "Total interest": "Всего процентов", "Copy result": "Скопировать результат", "Download": "Скачать", "Rows": "Строки", "Columns": "Столбцы", "Size": "Размер", "Original": "Исходное", "Output": "Результат", "Format": "Формат", "Quality": "Качество", "Text or URL": "Текст или URL", "Upload file": "Загрузить файл", "Input": "Ввод", "Mode": "Режим", "Pretty print": "Форматировать", "Minify": "Минифицировать", "Normalize headers": "Нормализовать заголовки", "Remove duplicate rows": "Удалить дубликаты строк", "Keep empty columns": "Оставить пустые столбцы", "Columns to keep": "Сохраняемые столбцы", "Pixel grid width": "Ширина пиксельной сетки", "Use dithering": "Использовать дизеринг", "Enter text or a URL to generate a QR code.": "Введите текст или URL, чтобы создать QR-код.", "Upload a file or paste content to begin.": "Загрузите файл или вставьте содержимое, чтобы начать."
+  },
+  ar: {
+    "Monthly payment": "الدفعة الشهرية", "Total interest": "إجمالي الفائدة", "Copy result": "نسخ النتيجة", "Download": "تنزيل", "Rows": "الصفوف", "Columns": "الأعمدة", "Size": "الحجم", "Original": "الأصل", "Output": "الناتج", "Format": "التنسيق", "Quality": "الجودة", "Text or URL": "نص أو رابط", "Upload file": "رفع ملف", "Input": "الإدخال", "Mode": "الوضع", "Pretty print": "تنسيق مقروء", "Minify": "تصغير", "Normalize headers": "توحيد الرؤوس", "Remove duplicate rows": "إزالة الصفوف المكررة", "Keep empty columns": "الاحتفاظ بالأعمدة الفارغة", "Columns to keep": "الأعمدة المراد الاحتفاظ بها", "Pixel grid width": "عرض شبكة البكسل", "Use dithering": "استخدام التنقيط", "Enter text or a URL to generate a QR code.": "أدخل نصاً أو رابطاً لإنشاء رمز QR.", "Upload a file or paste content to begin.": "ارفع ملفاً أو الصق محتوى للبدء."
+  },
+  hi: {
+    "Monthly payment": "मासिक भुगतान", "Total interest": "कुल ब्याज", "Copy result": "परिणाम कॉपी करें", "Download": "डाउनलोड", "Rows": "पंक्तियां", "Columns": "कॉलम", "Size": "आकार", "Original": "मूल", "Output": "आउटपुट", "Format": "फ़ॉर्मैट", "Quality": "गुणवत्ता", "Text or URL": "टेक्स्ट या URL", "Upload file": "फ़ाइल अपलोड करें", "Input": "इनपुट", "Mode": "मोड", "Pretty print": "सुंदर फ़ॉर्मैट", "Minify": "मिनिफ़ाई", "Normalize headers": "हेडर सामान्य करें", "Remove duplicate rows": "डुप्लीकेट पंक्तियां हटाएं", "Keep empty columns": "खाली कॉलम रखें", "Columns to keep": "रखने वाले कॉलम", "Pixel grid width": "पिक्सेल ग्रिड चौड़ाई", "Use dithering": "डिथरिंग उपयोग करें", "Enter text or a URL to generate a QR code.": "QR कोड बनाने के लिए टेक्स्ट या URL डालें।", "Upload a file or paste content to begin.": "शुरू करने के लिए फ़ाइल अपलोड करें या सामग्री पेस्ट करें।"
+  },
+  id: {
+    "Monthly payment": "Pembayaran bulanan", "Total interest": "Total bunga", "Copy result": "Salin hasil", "Download": "Unduh", "Rows": "Baris", "Columns": "Kolom", "Size": "Ukuran", "Original": "Asli", "Output": "Output", "Format": "Format", "Quality": "Kualitas", "Text or URL": "Teks atau URL", "Upload file": "Unggah file", "Input": "Input", "Mode": "Mode", "Pretty print": "Format rapi", "Minify": "Minify", "Normalize headers": "Normalkan header", "Remove duplicate rows": "Hapus baris duplikat", "Keep empty columns": "Simpan kolom kosong", "Columns to keep": "Kolom yang disimpan", "Pixel grid width": "Lebar grid piksel", "Use dithering": "Gunakan dithering", "Enter text or a URL to generate a QR code.": "Masukkan teks atau URL untuk membuat kode QR.", "Upload a file or paste content to begin.": "Unggah file atau tempel konten untuk mulai."
+  },
+  vi: {
+    "Monthly payment": "Khoản trả hằng tháng", "Total interest": "Tổng lãi", "Copy result": "Sao chép kết quả", "Download": "Tải xuống", "Rows": "Hàng", "Columns": "Cột", "Size": "Kích thước", "Original": "Gốc", "Output": "Đầu ra", "Format": "Định dạng", "Quality": "Chất lượng", "Text or URL": "Văn bản hoặc URL", "Upload file": "Tải tệp lên", "Input": "Đầu vào", "Mode": "Chế độ", "Pretty print": "Định dạng đẹp", "Minify": "Thu gọn", "Normalize headers": "Chuẩn hóa tiêu đề", "Remove duplicate rows": "Xóa hàng trùng", "Keep empty columns": "Giữ cột trống", "Columns to keep": "Cột cần giữ", "Pixel grid width": "Chiều rộng lưới pixel", "Use dithering": "Dùng phối điểm", "Enter text or a URL to generate a QR code.": "Nhập văn bản hoặc URL để tạo mã QR.", "Upload a file or paste content to begin.": "Tải tệp lên hoặc dán nội dung để bắt đầu."
+  },
+  th: {
+    "Monthly payment": "ชำระรายเดือน", "Total interest": "ดอกเบี้ยรวม", "Copy result": "คัดลอกผลลัพธ์", "Download": "ดาวน์โหลด", "Rows": "แถว", "Columns": "คอลัมน์", "Size": "ขนาด", "Original": "ต้นฉบับ", "Output": "ผลลัพธ์", "Format": "รูปแบบ", "Quality": "คุณภาพ", "Text or URL": "ข้อความหรือ URL", "Upload file": "อัปโหลดไฟล์", "Input": "ข้อมูลเข้า", "Mode": "โหมด", "Pretty print": "จัดรูปแบบอ่านง่าย", "Minify": "ย่อขนาด", "Normalize headers": "ปรับหัวตาราง", "Remove duplicate rows": "ลบแถวซ้ำ", "Keep empty columns": "เก็บคอลัมน์ว่าง", "Columns to keep": "คอลัมน์ที่เก็บ", "Pixel grid width": "ความกว้างกริดพิกเซล", "Use dithering": "ใช้ dithering", "Enter text or a URL to generate a QR code.": "ใส่ข้อความหรือ URL เพื่อสร้าง QR code", "Upload a file or paste content to begin.": "อัปโหลดไฟล์หรือวางเนื้อหาเพื่อเริ่ม"
+  }
+}).forEach(([code, map]) => {
+  resultPhraseMaps[code] = map;
+});
+
+Object.entries({
+  zh: { "Campaign URL": "活动 URL", "Variants": "变体", "Source": "来源", "Medium": "媒介", "Campaign": "活动", "Final URL": "最终 URL", "Download campaign CSV": "下载活动 CSV", "Open QR generator": "打开二维码生成器" },
+  fr: { "Campaign URL": "URL de campagne", "Variants": "Variantes", "Source": "Source", "Medium": "Support", "Campaign": "Campagne", "Final URL": "URL finale", "Download campaign CSV": "Télécharger le CSV de campagne", "Open QR generator": "Ouvrir le générateur QR" },
+  de: { "Campaign URL": "Kampagnen-URL", "Variants": "Varianten", "Source": "Quelle", "Medium": "Medium", "Campaign": "Kampagne", "Final URL": "Finale URL", "Download campaign CSV": "Kampagnen-CSV herunterladen", "Open QR generator": "QR-Generator öffnen" },
+  pt: { "Campaign URL": "URL da campanha", "Variants": "Variações", "Source": "Origem", "Medium": "Meio", "Campaign": "Campanha", "Final URL": "URL final", "Download campaign CSV": "Baixar CSV da campanha", "Open QR generator": "Abrir gerador de QR" },
+  it: { "Campaign URL": "URL campagna", "Variants": "Varianti", "Source": "Sorgente", "Medium": "Mezzo", "Campaign": "Campagna", "Final URL": "URL finale", "Download campaign CSV": "Scarica CSV campagna", "Open QR generator": "Apri generatore QR" },
+  nl: { "Campaign URL": "Campagne-URL", "Variants": "Varianten", "Source": "Bron", "Medium": "Medium", "Campaign": "Campagne", "Final URL": "Definitieve URL", "Download campaign CSV": "Campagne-CSV downloaden", "Open QR generator": "QR-generator openen" },
+  ru: { "Campaign URL": "URL кампании", "Variants": "Варианты", "Source": "Источник", "Medium": "Канал", "Campaign": "Кампания", "Final URL": "Итоговый URL", "Download campaign CSV": "Скачать CSV кампании", "Open QR generator": "Открыть генератор QR" },
+  ar: { "Campaign URL": "رابط الحملة", "Variants": "النسخ", "Source": "المصدر", "Medium": "الوسيط", "Campaign": "الحملة", "Final URL": "الرابط النهائي", "Download campaign CSV": "تنزيل CSV الحملة", "Open QR generator": "فتح منشئ QR" },
+  hi: { "Campaign URL": "अभियान URL", "Variants": "वेरिएंट", "Source": "स्रोत", "Medium": "माध्यम", "Campaign": "अभियान", "Final URL": "अंतिम URL", "Download campaign CSV": "अभियान CSV डाउनलोड करें", "Open QR generator": "QR जनरेटर खोलें" },
+  id: { "Campaign URL": "URL kampanye", "Variants": "Varian", "Source": "Sumber", "Medium": "Media", "Campaign": "Kampanye", "Final URL": "URL final", "Download campaign CSV": "Unduh CSV kampanye", "Open QR generator": "Buka generator QR" },
+  vi: { "Campaign URL": "URL chiến dịch", "Variants": "Biến thể", "Source": "Nguồn", "Medium": "Kênh", "Campaign": "Chiến dịch", "Final URL": "URL cuối", "Download campaign CSV": "Tải CSV chiến dịch", "Open QR generator": "Mở bộ tạo QR" },
+  th: { "Campaign URL": "URL แคมเปญ", "Variants": "รูปแบบ", "Source": "แหล่งที่มา", "Medium": "สื่อ", "Campaign": "แคมเปญ", "Final URL": "URL สุดท้าย", "Download campaign CSV": "ดาวน์โหลด CSV แคมเปญ", "Open QR generator": "เปิดตัวสร้าง QR" }
+}).forEach(([code, map]) => {
+  Object.assign(resultPhraseMaps[code], map);
+});
+
+Object.entries({
+  ja: { "Schema type": "Schema種類", "Structured items": "構造化項目", "Output size": "出力サイズ", "Schema QA": "Schemaチェック", "Download JSON-LD": "JSON-LDをダウンロード" },
+  zh: { "Schema type": "Schema 类型", "Structured items": "结构化项目", "Output size": "输出大小", "Schema QA": "Schema 检查", "Download JSON-LD": "下载 JSON-LD" },
+  es: { "Schema type": "Tipo de Schema", "Structured items": "Elementos estructurados", "Output size": "Tamaño de salida", "Schema QA": "Revisión de Schema", "Download JSON-LD": "Descargar JSON-LD" },
+  fr: { "Schema type": "Type de Schema", "Structured items": "Éléments structurés", "Output size": "Taille de sortie", "Schema QA": "Contrôle Schema", "Download JSON-LD": "Télécharger JSON-LD" },
+  de: { "Schema type": "Schema-Typ", "Structured items": "Strukturierte Elemente", "Output size": "Ausgabegröße", "Schema QA": "Schema-Prüfung", "Download JSON-LD": "JSON-LD herunterladen" },
+  pt: { "Schema type": "Tipo de Schema", "Structured items": "Itens estruturados", "Output size": "Tamanho da saída", "Schema QA": "Verificação Schema", "Download JSON-LD": "Baixar JSON-LD" },
+  it: { "Schema type": "Tipo di Schema", "Structured items": "Elementi strutturati", "Output size": "Dimensione output", "Schema QA": "Controllo Schema", "Download JSON-LD": "Scarica JSON-LD" },
+  nl: { "Schema type": "Schema-type", "Structured items": "Gestructureerde items", "Output size": "Uitvoergrootte", "Schema QA": "Schema-controle", "Download JSON-LD": "JSON-LD downloaden" },
+  ru: { "Schema type": "Тип Schema", "Structured items": "Структурированные элементы", "Output size": "Размер вывода", "Schema QA": "Проверка Schema", "Download JSON-LD": "Скачать JSON-LD" },
+  ar: { "Schema type": "نوع Schema", "Structured items": "العناصر المنظمة", "Output size": "حجم الناتج", "Schema QA": "فحص Schema", "Download JSON-LD": "تنزيل JSON-LD" },
+  hi: { "Schema type": "Schema प्रकार", "Structured items": "संरचित आइटम", "Output size": "आउटपुट आकार", "Schema QA": "Schema जांच", "Download JSON-LD": "JSON-LD डाउनलोड करें" },
+  id: { "Schema type": "Jenis Schema", "Structured items": "Item terstruktur", "Output size": "Ukuran output", "Schema QA": "Pemeriksaan Schema", "Download JSON-LD": "Unduh JSON-LD" },
+  vi: { "Schema type": "Loại Schema", "Structured items": "Mục có cấu trúc", "Output size": "Kích thước đầu ra", "Schema QA": "Kiểm tra Schema", "Download JSON-LD": "Tải JSON-LD" },
+  th: { "Schema type": "ประเภท Schema", "Structured items": "รายการแบบมีโครงสร้าง", "Output size": "ขนาดผลลัพธ์", "Schema QA": "ตรวจ Schema", "Download JSON-LD": "ดาวน์โหลด JSON-LD" }
+}).forEach(([code, map]) => {
+  Object.assign(resultPhraseMaps[code], map);
+});
+
+Object.entries({
+  ja: { "Readability score": "読みやすさスコア", "Level": "レベル", "Grade level": "学年レベル", "Reading time": "読了時間", "Keyword matches": "キーワード一致", "Keyword density": "キーワード密度", "Long sentence": "長い文", "Rewrite opportunities": "改善ポイント", "Download readability CSV": "読みやすさCSVをダウンロード", "Easy": "やさしい", "Clear": "明快", "Moderate": "普通", "Difficult": "難しい" },
+  zh: { "Readability score": "可读性评分", "Level": "级别", "Grade level": "年级水平", "Reading time": "阅读时间", "Keyword matches": "关键词匹配", "Keyword density": "关键词密度", "Long sentence": "长句", "Rewrite opportunities": "改写建议", "Download readability CSV": "下载可读性 CSV", "Easy": "容易", "Clear": "清晰", "Moderate": "中等", "Difficult": "困难" },
+  es: { "Readability score": "Puntuación de legibilidad", "Level": "Nivel", "Grade level": "Nivel escolar", "Reading time": "Tiempo de lectura", "Keyword matches": "Coincidencias de palabra clave", "Keyword density": "Densidad de palabra clave", "Long sentence": "Frase larga", "Rewrite opportunities": "Oportunidades de reescritura", "Download readability CSV": "Descargar CSV de legibilidad", "Easy": "Fácil", "Clear": "Claro", "Moderate": "Moderado", "Difficult": "Difícil" },
+  fr: { "Readability score": "Score de lisibilité", "Level": "Niveau", "Grade level": "Niveau scolaire", "Reading time": "Temps de lecture", "Keyword matches": "Occurrences du mot-clé", "Keyword density": "Densité du mot-clé", "Long sentence": "Phrase longue", "Rewrite opportunities": "Pistes de réécriture", "Download readability CSV": "Télécharger le CSV de lisibilité", "Easy": "Facile", "Clear": "Clair", "Moderate": "Modéré", "Difficult": "Difficile" },
+  de: { "Readability score": "Lesbarkeitswert", "Level": "Niveau", "Grade level": "Klassenstufe", "Reading time": "Lesezeit", "Keyword matches": "Keyword-Treffer", "Keyword density": "Keyword-Dichte", "Long sentence": "Langer Satz", "Rewrite opportunities": "Überarbeitungschancen", "Download readability CSV": "Lesbarkeits-CSV herunterladen", "Easy": "Einfach", "Clear": "Klar", "Moderate": "Mittel", "Difficult": "Schwierig" },
+  pt: { "Readability score": "Pontuação de legibilidade", "Level": "Nível", "Grade level": "Nível escolar", "Reading time": "Tempo de leitura", "Keyword matches": "Ocorrências da palavra-chave", "Keyword density": "Densidade da palavra-chave", "Long sentence": "Frase longa", "Rewrite opportunities": "Oportunidades de reescrita", "Download readability CSV": "Baixar CSV de legibilidade", "Easy": "Fácil", "Clear": "Claro", "Moderate": "Moderado", "Difficult": "Difícil" },
+  it: { "Readability score": "Punteggio leggibilità", "Level": "Livello", "Grade level": "Livello scolastico", "Reading time": "Tempo di lettura", "Keyword matches": "Occorrenze parola chiave", "Keyword density": "Densità parola chiave", "Long sentence": "Frase lunga", "Rewrite opportunities": "Opportunità di riscrittura", "Download readability CSV": "Scarica CSV leggibilità", "Easy": "Facile", "Clear": "Chiaro", "Moderate": "Moderato", "Difficult": "Difficile" },
+  nl: { "Readability score": "Leesbaarheidsscore", "Level": "Niveau", "Grade level": "Niveau", "Reading time": "Leestijd", "Keyword matches": "Keyword-overeenkomsten", "Keyword density": "Keyword-dichtheid", "Long sentence": "Lange zin", "Rewrite opportunities": "Herschrijfkansen", "Download readability CSV": "Leesbaarheid-CSV downloaden", "Easy": "Makkelijk", "Clear": "Duidelijk", "Moderate": "Gemiddeld", "Difficult": "Moeilijk" },
+  ru: { "Readability score": "Оценка читабельности", "Level": "Уровень", "Grade level": "Уровень класса", "Reading time": "Время чтения", "Keyword matches": "Совпадения ключа", "Keyword density": "Плотность ключа", "Long sentence": "Длинное предложение", "Rewrite opportunities": "Возможности переписать", "Download readability CSV": "Скачать CSV читабельности", "Easy": "Легко", "Clear": "Понятно", "Moderate": "Средне", "Difficult": "Сложно" },
+  ar: { "Readability score": "درجة قابلية القراءة", "Level": "المستوى", "Grade level": "المستوى الدراسي", "Reading time": "وقت القراءة", "Keyword matches": "تطابقات الكلمة المفتاحية", "Keyword density": "كثافة الكلمة المفتاحية", "Long sentence": "جملة طويلة", "Rewrite opportunities": "فرص إعادة الصياغة", "Download readability CSV": "تنزيل CSV قابلية القراءة", "Easy": "سهل", "Clear": "واضح", "Moderate": "متوسط", "Difficult": "صعب" },
+  hi: { "Readability score": "पठनीयता स्कोर", "Level": "स्तर", "Grade level": "ग्रेड स्तर", "Reading time": "पढ़ने का समय", "Keyword matches": "कीवर्ड मिलान", "Keyword density": "कीवर्ड घनत्व", "Long sentence": "लंबा वाक्य", "Rewrite opportunities": "पुनर्लेखन अवसर", "Download readability CSV": "पठनीयता CSV डाउनलोड करें", "Easy": "आसान", "Clear": "स्पष्ट", "Moderate": "मध्यम", "Difficult": "कठिन" },
+  id: { "Readability score": "Skor keterbacaan", "Level": "Level", "Grade level": "Tingkat kelas", "Reading time": "Waktu baca", "Keyword matches": "Kecocokan kata kunci", "Keyword density": "Kepadatan kata kunci", "Long sentence": "Kalimat panjang", "Rewrite opportunities": "Peluang penulisan ulang", "Download readability CSV": "Unduh CSV keterbacaan", "Easy": "Mudah", "Clear": "Jelas", "Moderate": "Sedang", "Difficult": "Sulit" },
+  vi: { "Readability score": "Điểm dễ đọc", "Level": "Mức", "Grade level": "Cấp độ lớp", "Reading time": "Thời gian đọc", "Keyword matches": "Lượt khớp từ khóa", "Keyword density": "Mật độ từ khóa", "Long sentence": "Câu dài", "Rewrite opportunities": "Cơ hội viết lại", "Download readability CSV": "Tải CSV độ dễ đọc", "Easy": "Dễ", "Clear": "Rõ ràng", "Moderate": "Trung bình", "Difficult": "Khó" },
+  th: { "Readability score": "คะแนนความอ่านง่าย", "Level": "ระดับ", "Grade level": "ระดับชั้น", "Reading time": "เวลาอ่าน", "Keyword matches": "จำนวนคำหลักที่พบ", "Keyword density": "ความหนาแน่นคำหลัก", "Long sentence": "ประโยคยาว", "Rewrite opportunities": "โอกาสปรับสำนวน", "Download readability CSV": "ดาวน์โหลด CSV ความอ่านง่าย", "Easy": "ง่าย", "Clear": "ชัดเจน", "Moderate": "ปานกลาง", "Difficult": "ยาก" }
+}).forEach(([code, map]) => {
+  Object.assign(resultPhraseMaps[code], map);
+});
+
+Object.entries({
+  ja: { "Base network": "基準ネットワーク", "Subnet prefix": "サブネットプレフィックス", "Subnet mask": "サブネットマスク", "Subnets shown": "表示サブネット", "Max subnets": "最大サブネット", "Usable hosts each": "各サブネットの利用可能ホスト", "Gateway": "ゲートウェイ", "Usable range": "利用可能範囲", "Broadcast": "ブロードキャスト", "Hosts": "ホスト", "Download subnet CSV": "サブネットCSVをダウンロード" },
+  zh: { "Base network": "基础网络", "Subnet prefix": "子网前缀", "Subnet mask": "子网掩码", "Subnets shown": "显示的子网", "Max subnets": "最大子网数", "Usable hosts each": "每个子网可用主机", "Gateway": "网关", "Usable range": "可用范围", "Broadcast": "广播", "Hosts": "主机", "Download subnet CSV": "下载子网 CSV" },
+  es: { "Base network": "Red base", "Subnet prefix": "Prefijo de subred", "Subnet mask": "Máscara de subred", "Subnets shown": "Subredes mostradas", "Max subnets": "Máximo de subredes", "Usable hosts each": "Hosts utilizables por subred", "Gateway": "Puerta de enlace", "Usable range": "Rango utilizable", "Broadcast": "Broadcast", "Hosts": "Hosts", "Download subnet CSV": "Descargar CSV de subredes" },
+  fr: { "Base network": "Réseau de base", "Subnet prefix": "Préfixe de sous-réseau", "Subnet mask": "Masque de sous-réseau", "Subnets shown": "Sous-réseaux affichés", "Max subnets": "Sous-réseaux max", "Usable hosts each": "Hôtes utilisables chacun", "Gateway": "Passerelle", "Usable range": "Plage utilisable", "Broadcast": "Diffusion", "Hosts": "Hôtes", "Download subnet CSV": "Télécharger le CSV des sous-réseaux" },
+  de: { "Base network": "Basisnetzwerk", "Subnet prefix": "Subnetz-Präfix", "Subnet mask": "Subnetzmaske", "Subnets shown": "Angezeigte Subnetze", "Max subnets": "Max. Subnetze", "Usable hosts each": "Nutzbare Hosts je Subnetz", "Gateway": "Gateway", "Usable range": "Nutzbarer Bereich", "Broadcast": "Broadcast", "Hosts": "Hosts", "Download subnet CSV": "Subnetz-CSV herunterladen" },
+  pt: { "Base network": "Rede base", "Subnet prefix": "Prefixo da sub-rede", "Subnet mask": "Máscara de sub-rede", "Subnets shown": "Sub-redes exibidas", "Max subnets": "Máximo de sub-redes", "Usable hosts each": "Hosts utilizáveis por sub-rede", "Gateway": "Gateway", "Usable range": "Intervalo utilizável", "Broadcast": "Broadcast", "Hosts": "Hosts", "Download subnet CSV": "Baixar CSV de sub-redes" },
+  it: { "Base network": "Rete base", "Subnet prefix": "Prefisso sottorete", "Subnet mask": "Maschera sottorete", "Subnets shown": "Sottoreti mostrate", "Max subnets": "Sottoreti massime", "Usable hosts each": "Host utilizzabili ciascuna", "Gateway": "Gateway", "Usable range": "Intervallo utilizzabile", "Broadcast": "Broadcast", "Hosts": "Host", "Download subnet CSV": "Scarica CSV sottoreti" },
+  nl: { "Base network": "Basisnetwerk", "Subnet prefix": "Subnet-prefix", "Subnet mask": "Subnetmasker", "Subnets shown": "Getoonde subnets", "Max subnets": "Max subnets", "Usable hosts each": "Bruikbare hosts per subnet", "Gateway": "Gateway", "Usable range": "Bruikbaar bereik", "Broadcast": "Broadcast", "Hosts": "Hosts", "Download subnet CSV": "Subnet-CSV downloaden" },
+  ru: { "Base network": "Базовая сеть", "Subnet prefix": "Префикс подсети", "Subnet mask": "Маска подсети", "Subnets shown": "Показанные подсети", "Max subnets": "Макс. подсетей", "Usable hosts each": "Доступных хостов в каждой", "Gateway": "Шлюз", "Usable range": "Доступный диапазон", "Broadcast": "Broadcast", "Hosts": "Хосты", "Download subnet CSV": "Скачать CSV подсетей" },
+  ar: { "Base network": "الشبكة الأساسية", "Subnet prefix": "بادئة الشبكة الفرعية", "Subnet mask": "قناع الشبكة الفرعية", "Subnets shown": "الشبكات المعروضة", "Max subnets": "الحد الأقصى للشبكات", "Usable hosts each": "المضيفون المتاحون لكل شبكة", "Gateway": "البوابة", "Usable range": "النطاق المتاح", "Broadcast": "البث", "Hosts": "المضيفون", "Download subnet CSV": "تنزيل CSV للشبكات الفرعية" },
+  hi: { "Base network": "बेस नेटवर्क", "Subnet prefix": "सबनेट प्रीफिक्स", "Subnet mask": "सबनेट मास्क", "Subnets shown": "दिखाए गए सबनेट", "Max subnets": "अधिकतम सबनेट", "Usable hosts each": "हर सबनेट में उपयोगी होस्ट", "Gateway": "गेटवे", "Usable range": "उपयोगी रेंज", "Broadcast": "ब्रॉडकास्ट", "Hosts": "होस्ट", "Download subnet CSV": "सबनेट CSV डाउनलोड करें" },
+  id: { "Base network": "Jaringan dasar", "Subnet prefix": "Prefiks subnet", "Subnet mask": "Mask subnet", "Subnets shown": "Subnet ditampilkan", "Max subnets": "Subnet maksimum", "Usable hosts each": "Host usable tiap subnet", "Gateway": "Gateway", "Usable range": "Rentang usable", "Broadcast": "Broadcast", "Hosts": "Host", "Download subnet CSV": "Unduh CSV subnet" },
+  vi: { "Base network": "Mạng gốc", "Subnet prefix": "Tiền tố mạng con", "Subnet mask": "Mặt nạ mạng con", "Subnets shown": "Mạng con hiển thị", "Max subnets": "Số mạng con tối đa", "Usable hosts each": "Host dùng được mỗi mạng", "Gateway": "Gateway", "Usable range": "Dải dùng được", "Broadcast": "Broadcast", "Hosts": "Host", "Download subnet CSV": "Tải CSV mạng con" },
+  th: { "Base network": "เครือข่ายตั้งต้น", "Subnet prefix": "พรีฟิกซ์ซับเน็ต", "Subnet mask": "ซับเน็ตมาสก์", "Subnets shown": "ซับเน็ตที่แสดง", "Max subnets": "ซับเน็ตสูงสุด", "Usable hosts each": "โฮสต์ที่ใช้ได้ต่อซับเน็ต", "Gateway": "เกตเวย์", "Usable range": "ช่วงที่ใช้ได้", "Broadcast": "บรอดคาสต์", "Hosts": "โฮสต์", "Download subnet CSV": "ดาวน์โหลด CSV ซับเน็ต" }
+}).forEach(([code, map]) => {
+  Object.assign(resultPhraseMaps[code], map);
+});
+
+Object.entries({
+  ja: { "Image file": "画像ファイル", "Choose file": "ファイルを選択", "No file selected": "ファイルが選択されていません", "Click to browse or drop a file here": "クリックして選択、またはここにファイルをドロップ" },
+  zh: { "Image file": "图片文件", "Choose file": "选择文件", "No file selected": "未选择文件", "Click to browse or drop a file here": "点击浏览或将文件拖放到这里" },
+  es: { "Image file": "Archivo de imagen", "Choose file": "Elegir archivo", "No file selected": "Ningún archivo seleccionado", "Click to browse or drop a file here": "Haz clic para buscar o suelta un archivo aquí" },
+  fr: { "Image file": "Fichier image", "Choose file": "Choisir un fichier", "No file selected": "Aucun fichier sélectionné", "Click to browse or drop a file here": "Cliquez pour parcourir ou déposez un fichier ici" },
+  de: { "Image file": "Bilddatei", "Choose file": "Datei auswählen", "No file selected": "Keine Datei ausgewählt", "Click to browse or drop a file here": "Klicken zum Auswählen oder Datei hier ablegen" },
+  pt: { "Image file": "Arquivo de imagem", "Choose file": "Escolher arquivo", "No file selected": "Nenhum arquivo selecionado", "Click to browse or drop a file here": "Clique para procurar ou solte um arquivo aqui" },
+  it: { "Image file": "File immagine", "Choose file": "Scegli file", "No file selected": "Nessun file selezionato", "Click to browse or drop a file here": "Clicca per scegliere o trascina qui un file" },
+  nl: { "Image file": "Afbeeldingsbestand", "Choose file": "Bestand kiezen", "No file selected": "Geen bestand geselecteerd", "Click to browse or drop a file here": "Klik om te kiezen of sleep hier een bestand" },
+  ru: { "Image file": "Файл изображения", "Choose file": "Выбрать файл", "No file selected": "Файл не выбран", "Click to browse or drop a file here": "Нажмите для выбора или перетащите файл сюда" },
+  ar: { "Image file": "ملف صورة", "Choose file": "اختر ملفاً", "No file selected": "لم يتم اختيار ملف", "Click to browse or drop a file here": "انقر للاختيار أو أسقط ملفاً هنا" },
+  hi: { "Image file": "चित्र फ़ाइल", "Choose file": "फ़ाइल चुनें", "No file selected": "कोई फ़ाइल चयनित नहीं", "Click to browse or drop a file here": "ब्राउज़ करने के लिए क्लिक करें या फ़ाइल यहाँ छोड़ें" },
+  id: { "Image file": "File gambar", "Choose file": "Pilih file", "No file selected": "Belum ada file dipilih", "Click to browse or drop a file here": "Klik untuk memilih atau jatuhkan file di sini" },
+  vi: { "Image file": "Tệp hình ảnh", "Choose file": "Chọn tệp", "No file selected": "Chưa chọn tệp", "Click to browse or drop a file here": "Nhấp để chọn hoặc thả tệp vào đây" },
+  th: { "Image file": "ไฟล์รูปภาพ", "Choose file": "เลือกไฟล์", "No file selected": "ยังไม่ได้เลือกไฟล์", "Click to browse or drop a file here": "คลิกเพื่อเลือกหรือลากไฟล์มาวางที่นี่" }
+}).forEach(([code, map]) => {
+  Object.assign(resultPhraseMaps[code], map);
+});
+
+function localizeResultHtml(html) {
+  const phraseMap = resultPhraseMaps[currentLanguage];
+  if (!phraseMap) return html;
+  return Object.entries(phraseMap)
+    .sort((a, b) => b[0].length - a[0].length)
+    .reduce((localized, [source, target]) => localized.replaceAll(source, target), String(html));
+}
+
+function setResultHtml(result, html) {
+  if (result) {
+    result.innerHTML = localizeResultHtml(html);
+  }
 }
 
 function decisionLocale() {
@@ -6138,7 +7893,7 @@ function decisionStageMarkup(tool, result = {}) {
 }
 
 function renderDecisionTool(tool) {
-  workspace.innerHTML = `
+  workspace.innerHTML = localizeResultHtml(`
     <article class="active-tool decision-tool">
       <div class="active-tool-header">
         <div>
@@ -6160,7 +7915,7 @@ function renderDecisionTool(tool) {
         <p class="decision-empty">${decisionLocale().empty}</p>
       </div>
     </article>
-  `;
+  `);
 }
 
 function readActiveFormValues() {
@@ -6259,12 +8014,12 @@ function updateDecisionTool({ animate = true } = {}) {
   const summary = decisionSummary(activeTool, values);
   const token = ++decisionRunToken;
   if (summary.error) {
-    if (result) result.innerHTML = error(summary.error);
+    setResultHtml(result, error(summary.error));
     return;
   }
   if (!visual || !animate) {
     if (visual) visual.innerHTML = decisionStageMarkup(activeTool, decisionVisualResult(activeTool, summary));
-    if (result) result.innerHTML = renderDecisionResult(activeTool, summary);
+    setResultHtml(result, renderDecisionResult(activeTool, summary));
     return;
   }
   runDecisionAnimation(activeTool, summary, visual, result, token);
@@ -6273,7 +8028,7 @@ function updateDecisionTool({ animate = true } = {}) {
 async function runDecisionAnimation(tool, summary, visual, result, token) {
   const actionButton = document.querySelector("[data-decision-action]");
   if (actionButton) actionButton.disabled = true;
-  if (result) result.innerHTML = `<p class="decision-empty">${decisionRunningLabel()}</p>`;
+  setResultHtml(result, `<p class="decision-empty">${decisionRunningLabel()}</p>`);
   decisionAnimating = true;
   try {
     if (tool.id === "ladder-draw") await animateLadder(tool, summary, visual, token);
@@ -6451,6 +8206,20 @@ function refreshDecisionIdleStage() {
   if (button) button.textContent = decisionActionLabel(activeTool);
 }
 
+function customFileInputMarkup({ id, name, accept, title }) {
+  return `
+    <label class="file-field" data-file-field>
+      <span class="file-field-title">${title}</span>
+      <span class="file-picker-row">
+        <span class="file-picker-button">Choose file</span>
+        <span class="file-name" data-file-name>No file selected</span>
+      </span>
+      <span class="file-field-hint">Click to browse or drop a file here</span>
+      <input id="${id}" name="${name}" type="file" accept="${accept}">
+    </label>
+  `;
+}
+
 function imageToolMarkup(tool) {
   const isResizer = tool.custom === "image-resizer";
   const isCompressor = tool.custom === "image-compressor";
@@ -6469,10 +8238,7 @@ function imageToolMarkup(tool) {
 
   return `
     <form class="tool-form image-tool-form" id="active-tool-form">
-      <label class="file-field">
-        <span>Image file</span>
-        <input id="image-file" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/avif">
-      </label>
+      ${customFileInputMarkup({ id: "image-file", name: "imageFile", accept: "image/png,image/jpeg,image/webp,image/avif", title: "Image file" })}
       ${isResizer ? `
         <label>
           <span>Preset</span>
@@ -6664,7 +8430,7 @@ function imageToolMarkup(tool) {
 }
 
 function renderImageTool(tool) {
-  workspace.innerHTML = `
+  workspace.innerHTML = localizeResultHtml(`
     <article class="active-tool">
       <div class="active-tool-header">
         <div>
@@ -6685,7 +8451,7 @@ function renderImageTool(tool) {
         </ol>
       </div>
     </article>
-  `;
+  `);
 }
 
 function fileToolMarkup(tool) {
@@ -6704,10 +8470,7 @@ function fileToolMarkup(tool) {
 
   return `
     <form class="tool-form file-tool-form" id="active-tool-form">
-      <label class="file-field">
-        <span>Upload file</span>
-        <input id="source-file" name="sourceFile" type="file" accept="${accept}">
-      </label>
+      ${customFileInputMarkup({ id: "source-file", name: "sourceFile", accept, title: "Upload file" })}
       <label class="file-field">
         <span>Input</span>
         <textarea id="source-text" name="sourceText" rows="9">${escapeHtml(placeholder)}</textarea>
@@ -6747,7 +8510,7 @@ function fileToolMarkup(tool) {
 }
 
 function renderFileTool(tool) {
-  workspace.innerHTML = `
+  workspace.innerHTML = localizeResultHtml(`
     <article class="active-tool">
       <div class="active-tool-header">
         <div>
@@ -6768,11 +8531,11 @@ function renderFileTool(tool) {
         </ol>
       </div>
     </article>
-  `;
+  `);
 }
 
 function renderQrTool(tool) {
-  workspace.innerHTML = `
+  workspace.innerHTML = localizeResultHtml(`
     <article class="active-tool">
       <div class="active-tool-header">
         <div>
@@ -6824,7 +8587,7 @@ function renderQrTool(tool) {
         </ol>
       </div>
     </article>
-  `;
+  `);
 }
 
 function openTool(toolId, options = {}) {
@@ -6852,7 +8615,7 @@ function openTool(toolId, options = {}) {
   } else if (tool.category === "Decision") {
     renderDecisionTool(tool);
   } else {
-    workspace.innerHTML = `
+    workspace.innerHTML = localizeResultHtml(`
       <article class="active-tool">
         <div class="active-tool-header">
           <div>
@@ -6863,7 +8626,7 @@ function openTool(toolId, options = {}) {
           ${shareButtonMarkup()}
         </div>
         ${privacyNotice(tool)}
-        <form class="tool-form" id="active-tool-form">${tool.fields.map(fieldMarkup).join("")}<div class="form-actions"><button type="reset" class="reset-button">${textFor("resetDefaults")}</button></div></form>
+        <form class="tool-form" id="active-tool-form">${tool.fields.map((field) => fieldMarkup(field, tool)).join("")}<div class="form-actions"><button type="reset" class="reset-button">${textFor("resetDefaults")}</button></div></form>
         <div class="tool-result" id="tool-result"></div>
         <div class="how-to">
           <h3>${textFor("howToUse")}</h3>
@@ -6874,7 +8637,7 @@ function openTool(toolId, options = {}) {
           </ol>
         </div>
       </article>
-    `;
+    `);
   }
   addRecent(tool.id);
   if (tool.custom?.startsWith("image-")) {
@@ -6934,7 +8697,7 @@ function calculateActive(tool) {
   tool.fields.forEach((field) => {
     values[field.id] = form.elements.namedItem(field.id)?.value || "";
   });
-  result.innerHTML = tool.calculate(values);
+  setResultHtml(result, tool.calculate(values));
 }
 
 async function updateImageTool() {
@@ -6954,14 +8717,12 @@ async function updateImageTool() {
     "image-pixel-art": "Choose an image to convert it into pixel art."
   }[activeTool.custom];
   if (!form || !result || !file) {
-    if (result) {
-      result.innerHTML = `<div class="upload-empty">${emptyText}</div>`;
-    }
+    setResultHtml(result, `<div class="upload-empty">${emptyText}</div>`);
     return;
   }
 
   if (!file.type.startsWith("image/")) {
-    result.innerHTML = error("Choose a valid image file.");
+    setResultHtml(result, error("Choose a valid image file."));
     return;
   }
 
@@ -6985,7 +8746,7 @@ async function updateImageTool() {
     if (activeTool.custom === "image-asset-pack") {
       renderImageAssetPack(image, file, form, result, imageUrl).catch((err) => {
         URL.revokeObjectURL(imageUrl);
-        result.innerHTML = error(err.message || "Could not generate this asset pack.");
+        setResultHtml(result, error(err.message || "Could not generate this asset pack."));
       });
       return;
     }
@@ -7131,7 +8892,7 @@ async function updateImageTool() {
     canvas.toBlob((blob) => {
       URL.revokeObjectURL(imageUrl);
       if (!blob) {
-        result.innerHTML = error("Could not resize this image.");
+        setResultHtml(result, error("Could not resize this image."));
         return;
       }
 
@@ -7148,7 +8909,7 @@ async function updateImageTool() {
       const paletteDownloads = activeTool.custom === "image-pixel-art" ? pixelPaletteDownloads(file.name, pixelPaletteColors) : {};
       const spriteFrame = activeTool.custom === "image-pixel-art" ? JSON.parse(canvas.dataset.spriteFrame || "{}") : {};
       const spriteHref = activeTool.custom === "image-pixel-art" ? `data:text/csv;charset=utf-8,${encodeURIComponent(spriteFrameCsv(spriteFrame))}` : "";
-      result.innerHTML = `
+      setResultHtml(result, `
         <div class="image-result">
           <div class="image-preview-wrap">
             <img src="${resizedUrl}" alt="Processed image preview" ${activeTool.custom === "image-pixel-art" ? 'class="is-pixel-art"' : ""}>
@@ -7185,12 +8946,12 @@ async function updateImageTool() {
             ${activeTool.custom === "image-pixel-art" ? `<a class="download-button secondary" href="${spriteHref}" download="pixel-art-sprite-frames.csv">Download frame CSV</a>` : ""}
           </div>
         </div>
-      `;
+      `);
     }, format, quality);
   };
   image.onerror = () => {
     URL.revokeObjectURL(imageUrl);
-    result.innerHTML = error("Could not read this image.");
+    setResultHtml(result, error("Could not read this image."));
   };
   image.src = imageUrl;
 }
@@ -7327,7 +9088,7 @@ function pixelPaletteDownloads(sourceName, colors) {
 }
 
 async function renderImageAssetPack(image, file, form, result, imageUrl) {
-  result.innerHTML = `<div class="upload-empty">Generating asset pack...</div>`;
+  setResultHtml(result, `<div class="upload-empty">Generating asset pack...</div>`);
   const pack = form.elements.assetPack?.value || "launch";
   const format = form.elements.resizeFormat?.value || "image/png";
   const quality = Math.min(1, Math.max(0.01, num(form.elements.resizeQuality?.value) / 100));
@@ -7348,7 +9109,7 @@ async function renderImageAssetPack(image, file, form, result, imageUrl) {
   const metadataHref = `data:text/html;charset=utf-8,${encodeURIComponent(metadata.html)}`;
   const manifestHref = `data:application/manifest+json;charset=utf-8,${encodeURIComponent(JSON.stringify(metadata.manifest, null, 2))}`;
   const totalBytes = assets.reduce((sum, asset) => sum + asset.blob.size, 0);
-  result.innerHTML = `
+  setResultHtml(result, `
     <div class="image-result">
       <div class="result-grid">
         <div><span>Pack</span><strong>${assetPackLabel(pack)}</strong></div>
@@ -7377,7 +9138,7 @@ async function renderImageAssetPack(image, file, form, result, imageUrl) {
         <a class="download-button secondary" href="${manifestHref}" download="manifest.webmanifest">Download web manifest</a>
       </div>
     </div>
-  `;
+  `);
 }
 
 function assetPackItems(pack) {
@@ -7648,7 +9409,7 @@ async function updateFileTool(options = {}) {
 
   const sourceText = textarea?.value || "";
   if (!sourceText.trim()) {
-    result.innerHTML = `<div class="upload-empty">Upload a file or paste content to begin.</div>`;
+    setResultHtml(result, `<div class="upload-empty">Upload a file or paste content to begin.</div>`);
     return;
   }
 
@@ -7673,7 +9434,7 @@ async function updateFileTool(options = {}) {
       renderTextFileStats(sourceText, result);
     }
   } catch (err) {
-    result.innerHTML = error(err.message);
+    setResultHtml(result, error(err.message));
   }
 }
 
@@ -7683,7 +9444,7 @@ function renderCsvCleanerResult(sourceText, result, options = {}) {
     .map((row) => row.map((cell) => cell.trim()))
     .filter((cells) => cells.some((cell) => cell.length));
   if (!rows.length) {
-    result.innerHTML = error("No CSV rows found.");
+    setResultHtml(result, error("No CSV rows found."));
     return;
   }
 
@@ -7724,7 +9485,7 @@ function renderCsvCleanerResult(sourceText, result, options = {}) {
   const csvHref = `data:text/csv;charset=utf-8,${encodeURIComponent(cleaned)}`;
   const report = JSON.stringify(profile, null, 2);
   const reportHref = `data:application/json;charset=utf-8,${encodeURIComponent(report)}`;
-  result.innerHTML = `
+  setResultHtml(result, `
     ${metrics([
       ["Rows", profile.rows],
       ["Columns", profile.columns],
@@ -7754,7 +9515,7 @@ function renderCsvCleanerResult(sourceText, result, options = {}) {
       <a class="download-button" href="${csvHref}" download="cleaned.csv">Download cleaned CSV</a>
       <a class="download-button secondary" href="${reportHref}" download="csv-quality-report.json">Download quality report</a>
     </div>
-  `;
+  `);
 }
 
 function normalizeCsvHeaders(headers) {
@@ -7799,7 +9560,7 @@ function renderCsvColumnResult(sourceText, columnsText, result) {
     .map((row) => row.map((cell) => cell.trim()))
     .filter((cells) => cells.some((cell) => cell.length));
   if (rows.length < 2) {
-    result.innerHTML = error("Enter a header row and at least one data row.");
+    setResultHtml(result, error("Enter a header row and at least one data row."));
     return;
   }
 
@@ -7807,25 +9568,25 @@ function renderCsvColumnResult(sourceText, columnsText, result) {
   const requested = columnsText.split(",").map((column) => column.trim()).filter(Boolean);
   const indices = requested.map((column) => headers.indexOf(column)).filter((index) => index >= 0);
   if (!indices.length) {
-    result.innerHTML = error("No matching columns found.");
+    setResultHtml(result, error("No matching columns found."));
     return;
   }
 
   const extracted = rows.map((row) => indices.map((index) => csvEscape(row[index] || "")).join(",")).join("\n");
-  result.innerHTML = fileResultMarkup(extracted, "columns.csv", [
+  setResultHtml(result, fileResultMarkup(extracted, "columns.csv", [
     ["Rows", rows.length],
     ["Columns", indices.length],
     ["Kept", indices.map((index) => headers[index]).join(", ")],
     ["Missing", requested.filter((column) => !headers.includes(column)).join(", ") || "None"]
-  ]);
+  ]));
 }
 
 function renderJsonFileResult(sourceText, mode, result) {
   try {
     const parsed = JSON.parse(sourceText);
-    result.innerHTML = renderJsonInspector(parsed, mode === "minify" ? "minify" : "pretty");
+    setResultHtml(result, renderJsonInspector(parsed, mode === "minify" ? "minify" : "pretty"));
   } catch (err) {
-    result.innerHTML = jsonErrorMarkup(sourceText, err);
+    setResultHtml(result, jsonErrorMarkup(sourceText, err));
   }
 }
 
@@ -7894,7 +9655,7 @@ function syntaxHighlightJson(json) {
 function renderTextFileStats(sourceText, result) {
   const words = sourceText.trim() ? sourceText.trim().split(/\s+/).length : 0;
   const lines = sourceText ? sourceText.split(/\r?\n/).length : 0;
-  result.innerHTML = `
+  setResultHtml(result, `
     <div class="result-grid">
       <div><span>Words</span><strong>${words}</strong></div>
       <div><span>Characters</span><strong>${sourceText.length}</strong></div>
@@ -7903,7 +9664,7 @@ function renderTextFileStats(sourceText, result) {
       <div><span>File size</span><strong>${formatBytes(new Blob([sourceText]).size)}</strong></div>
       <div><span>Average line</span><strong>${lines ? Math.round(sourceText.length / lines) : 0} chars</strong></div>
     </div>
-  `;
+  `);
 }
 
 function fileResultMarkup(text, filename, metricsItems) {
@@ -8093,19 +9854,19 @@ function updateQrTool() {
   const foreground = safeHexColor(form.elements.qrForeground?.value, "#111827");
   const background = safeHexColor(form.elements.qrBackground?.value, "#ffffff");
   if (!text.trim()) {
-    result.innerHTML = `<div class="upload-empty">Enter text or a URL to generate a QR code.</div>`;
+    setResultHtml(result, `<div class="upload-empty">Enter text or a URL to generate a QR code.</div>`);
     return;
   }
 
   if (typeof qrcode !== "function") {
-    result.innerHTML = `<div class="upload-empty">Loading QR generator...</div>`;
+    setResultHtml(result, `<div class="upload-empty">Loading QR generator...</div>`);
     loadQrLibrary()
       .then(() => {
         if (activeTool?.custom === "qr-code") updateQrTool();
       })
       .catch(() => {
         if (activeTool?.custom === "qr-code" && result.isConnected) {
-          result.innerHTML = error("QR code library could not be loaded. Reload the page and try again.");
+          setResultHtml(result, error("QR code library could not be loaded. Reload the page and try again."));
         }
       });
     return;
@@ -8122,7 +9883,7 @@ function updateQrTool() {
     const svgWithSize = colorizeQrSvg(svg, size, foreground, background);
     const href = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgWithSize)}`;
     const contentType = qrContentType(text);
-    result.innerHTML = `
+    setResultHtml(result, `
       <div class="qr-result">
         <div class="qr-preview">${svgWithSize}</div>
         <div class="result-grid">
@@ -8138,10 +9899,10 @@ function updateQrTool() {
           <a class="download-button secondary is-disabled" data-qr-png href="#" download="qr-code.png">Download PNG</a>
         </div>
       </div>
-    `;
+    `);
     attachQrPngDownload(svgWithSize, size, result);
   } catch (err) {
-    result.innerHTML = error(err.message);
+    setResultHtml(result, error(err.message));
   }
 }
 
@@ -8430,6 +10191,13 @@ workspace.addEventListener("drop", (event) => {
   input.dispatchEvent(new Event("change", { bubbles: true }));
 });
 
+function updateFileInputLabel(input) {
+  const label = input?.closest("[data-file-field]");
+  const name = label?.querySelector("[data-file-name]");
+  if (!name) return;
+  name.textContent = input.files?.[0]?.name || localizeResultHtml("No file selected");
+}
+
 workspace.addEventListener("input", (event) => {
   if (event.target.closest("#active-tool-form") && activeTool?.custom?.startsWith("image-")) {
     updateImageTool();
@@ -8462,6 +10230,9 @@ const REGEX_PRESETS = {
 };
 
 workspace.addEventListener("change", (event) => {
+  if (event.target?.type === "file") {
+    updateFileInputLabel(event.target);
+  }
   if (activeTool?.id === "regex-tester" && event.target.name === "preset" && REGEX_PRESETS[event.target.value]) {
     const form = document.getElementById("active-tool-form");
     if (form?.elements.pattern) {

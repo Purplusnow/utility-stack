@@ -1470,6 +1470,7 @@ h1 {
 }
 
 .file-field {
+  position: relative;
   grid-column: 1 / -1;
   display: grid;
   gap: 10px;
@@ -1490,27 +1491,42 @@ h1 {
   background: color-mix(in srgb, var(--accent) 7%, var(--surface));
 }
 
-.file-field span::after {
-  content: " — click to browse or drop a file here";
-  color: var(--muted);
-  font-weight: 400;
-}
-
 .file-field input[type="file"] {
-  justify-self: center;
-  max-width: 100%;
-  color: var(--muted);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
-.file-field input[type="file"]::file-selector-button {
-  margin-right: 12px;
+.file-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.file-picker-button {
   padding: 9px 14px;
-  border: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 70%, #ffffff);
   border-radius: 8px;
   background: var(--accent);
   color: #ffffff;
-  cursor: pointer;
   font-weight: 700;
+}
+
+.file-name,
+.file-field-hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.file-name {
+  align-self: center;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .tool-form .check-field {
@@ -1703,6 +1719,123 @@ h1 {
   font-size: 0.84rem;
 }
 
+.social-preview {
+  display: grid;
+  grid-template-columns: minmax(180px, 42%) 1fr;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.social-preview-image {
+  min-height: 220px;
+  background-color: var(--surface-2);
+  background-position: center;
+  background-size: cover;
+}
+
+.social-preview-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 22px;
+}
+
+.social-preview-body span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.social-preview-body strong {
+  color: var(--text);
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.social-preview-body p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.schema-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.schema-summary strong {
+  color: var(--text);
+}
+
+.schema-summary span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.readability-panel {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.readability-score {
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(var(--surface), var(--surface)) padding-box,
+    conic-gradient(var(--accent) var(--score), var(--line) 0) border-box;
+  text-align: center;
+}
+
+.readability-score strong {
+  color: var(--text);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.readability-score span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.readability-advice {
+  display: grid;
+  gap: 10px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.readability-advice strong {
+  color: var(--text);
+}
+
+.readability-advice ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
 .brand-system-result {
   display: grid;
   gap: 14px;
@@ -1862,7 +1995,25 @@ h1 {
   .tool-form,
   .decision-layout,
   .result-grid,
-  .jwt-panels {
+  .jwt-panels,
+  .social-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .social-preview-image {
+    min-height: 180px;
+  }
+
+  .schema-summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .schema-summary span {
+    text-align: left;
+  }
+
+  .readability-panel {
     grid-template-columns: 1fr;
   }
 

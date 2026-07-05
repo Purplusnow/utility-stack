@@ -4,11 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CIDR Calculator - Free Online Tool | UtilityStack</title>
-  <meta name="description" content="Calculate subnet mask and usable host count from CIDR. Use this free network tool directly in your browser.">
+  <meta name="description" content="CIDR Calculator is a free network tool that runs directly in your browser with no account required.">
   <link rel="canonical" href="https://tools.koreanblog.xyz/tools/cidr-calculator/">
-
+  <link rel="alternate" hreflang="en" href="https://tools.koreanblog.xyz/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="ko" href="https://tools.koreanblog.xyz/ko/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="ja" href="https://tools.koreanblog.xyz/ja/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="zh" href="https://tools.koreanblog.xyz/zh/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="es" href="https://tools.koreanblog.xyz/es/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="fr" href="https://tools.koreanblog.xyz/fr/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="de" href="https://tools.koreanblog.xyz/de/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="pt" href="https://tools.koreanblog.xyz/pt/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="it" href="https://tools.koreanblog.xyz/it/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="nl" href="https://tools.koreanblog.xyz/nl/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="ru" href="https://tools.koreanblog.xyz/ru/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="ar" href="https://tools.koreanblog.xyz/ar/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="hi" href="https://tools.koreanblog.xyz/hi/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="id" href="https://tools.koreanblog.xyz/id/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="vi" href="https://tools.koreanblog.xyz/vi/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="th" href="https://tools.koreanblog.xyz/th/tools/cidr-calculator/">
+  <link rel="alternate" hreflang="x-default" href="https://tools.koreanblog.xyz/tools/cidr-calculator/">
   <meta property="og:title" content="CIDR Calculator - Free Online Tool | UtilityStack">
-  <meta property="og:description" content="Calculate subnet mask and usable host count from CIDR. Use this free network tool directly in your browser.">
+  <meta property="og:description" content="CIDR Calculator is a free network tool that runs directly in your browser with no account required.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://tools.koreanblog.xyz/tools/cidr-calculator/">
   <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
@@ -24,8 +40,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css?v=1783218649518">
-  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CIDR Calculator","applicationCategory":"NetworkApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/cidr-calculator/","description":"Calculate subnet mask and usable host count from CIDR.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Network Tools","item":"https://tools.koreanblog.xyz/categories/network/"},{"@type":"ListItem","position":3,"name":"CIDR Calculator","item":"https://tools.koreanblog.xyz/tools/cidr-calculator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/cidr-calculator/","mainEntity":[{"@type":"Question","name":"Why is the usable host count two less than the total?","acceptedAnswer":{"@type":"Answer","text":"In a conventional subnet the lowest address identifies the network and the highest is the broadcast address, leaving 2^(32-prefix) - 2 addresses for hosts. A /24 therefore has 256 addresses but 254 usable hosts."}},{"@type":"Question","name":"How are /31 and /32 handled?","acceptedAnswer":{"@type":"Answer","text":"They are treated as fully usable: a /31 shows 2 usable addresses, matching RFC 3021 point-to-point links, and a /32 shows 1, representing a single host route."}},{"@type":"Question","name":"Does it support IPv6?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator covers IPv4 prefixes from /0 to /32 only. IPv6 prefix math uses 128-bit addresses and different conventions."}},{"@type":"Question","name":"Can I enter an address like 10.0.0.0/24?","acceptedAnswer":{"@type":"Answer","text":"The tool takes just the prefix length (the number after the slash). It computes mask and counts, which are the same for any network with that prefix; it does not derive network or broadcast addresses from a specific IP."}},{"@type":"Question","name":"Is any network data sent while calculating?","acceptedAnswer":{"@type":"Answer","text":"No. The math is pure bit arithmetic in your browser, so no queries about your networks go anywhere."}}]}]</script>
+  <link rel="stylesheet" href="../../styles.css?v=1783258624565">
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"CIDR Calculator","applicationCategory":"NetworkApplication","operatingSystem":"Any","url":"https://tools.koreanblog.xyz/tools/cidr-calculator/","description":"CIDR Calculator is a free network tool that runs directly in your browser with no account required.","inLanguage":"en","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"UtilityStack","item":"https://tools.koreanblog.xyz/"},{"@type":"ListItem","position":2,"name":"Network tools","item":"https://tools.koreanblog.xyz/categories/network/"},{"@type":"ListItem","position":3,"name":"CIDR Calculator","item":"https://tools.koreanblog.xyz/tools/cidr-calculator/"}]},{"@context":"https://schema.org","@type":"FAQPage","url":"https://tools.koreanblog.xyz/tools/cidr-calculator/","mainEntity":[{"@type":"Question","name":"Why is the usable host count two less than the total?","acceptedAnswer":{"@type":"Answer","text":"In a conventional subnet the lowest address identifies the network and the highest is the broadcast address, leaving 2^(32-prefix) - 2 addresses for hosts. A /24 therefore has 256 addresses but 254 usable hosts."}},{"@type":"Question","name":"How are /31 and /32 handled?","acceptedAnswer":{"@type":"Answer","text":"They are treated as fully usable: a /31 shows 2 usable addresses, matching RFC 3021 point-to-point links, and a /32 shows 1, representing a single host route."}},{"@type":"Question","name":"Does it support IPv6?","acceptedAnswer":{"@type":"Answer","text":"No. The calculator covers IPv4 prefixes from /0 to /32 only. IPv6 prefix math uses 128-bit addresses and different conventions."}},{"@type":"Question","name":"Can I enter an address like 10.0.0.0/24?","acceptedAnswer":{"@type":"Answer","text":"The tool takes just the prefix length (the number after the slash). It computes mask and counts, which are the same for any network with that prefix; it does not derive network or broadcast addresses from a specific IP."}},{"@type":"Question","name":"Is any network data sent while calculating?","acceptedAnswer":{"@type":"Answer","text":"No. The math is pure bit arithmetic in your browser, so no queries about your networks go anywhere."}}]}]</script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -46,9 +62,9 @@
     <section class="hero">
       <div class="hero-copy">
         <h1>CIDR Calculator</h1>
-        <p>Calculate subnet mask and usable host count from CIDR.</p>
+        <p>CIDR Calculator is a free network tool that runs directly in your browser with no account required.</p>
         <div class="search-wrap">
-          <input id="tool-search" type="search" placeholder="Search tools: JSON, loan, word, invoice..." autocomplete="off" aria-label="Search tools">
+          <input id="tool-search" type="search" placeholder="Search tools: JSON, loan, word, invoice..." autocomplete="off" aria-label="Search tools: JSON, loan, word, invoice...">
         </div>
       </div>
     </section>
@@ -80,7 +96,7 @@
       <ol><li>Enter a prefix length from 0 to 32 in the CIDR prefix field.</li><li>Read the Subnet mask in dotted-decimal form.</li><li>Check Addresses for block size and Usable hosts for assignable addresses.</li></ol>
       <h2>Frequently asked questions</h2>
       <h3>Why is the usable host count two less than the total?</h3><p>In a conventional subnet the lowest address identifies the network and the highest is the broadcast address, leaving 2^(32-prefix) - 2 addresses for hosts. A /24 therefore has 256 addresses but 254 usable hosts.</p><h3>How are /31 and /32 handled?</h3><p>They are treated as fully usable: a /31 shows 2 usable addresses, matching RFC 3021 point-to-point links, and a /32 shows 1, representing a single host route.</p><h3>Does it support IPv6?</h3><p>No. The calculator covers IPv4 prefixes from /0 to /32 only. IPv6 prefix math uses 128-bit addresses and different conventions.</p><h3>Can I enter an address like 10.0.0.0/24?</h3><p>The tool takes just the prefix length (the number after the slash). It computes mask and counts, which are the same for any network with that prefix; it does not derive network or broadcast addresses from a specific IP.</p><h3>Is any network data sent while calculating?</h3><p>No. The math is pure bit arithmetic in your browser, so no queries about your networks go anywhere.</p>
-      
+      <h2>Related tools</h2><ul class="related-tools"><li><a href="/tools/subnet-planner/">Subnet Planner</a></li></ul>
     </section>
   
   </main>
@@ -90,6 +106,6 @@
     <span class="footer-links"><a href="../../privacy/">Privacy</a><a href="../../terms/">Terms</a></span>
   </footer>
   <script>window.UtilityStackAssets = { qrLibrary: "../../vendor/qrcode-generator/qrcode.js?v=1782134999817" };</script>
-  <script src="../../app.js?v=1783219408204"></script>
+  <script src="../../app.js?v=1783258662338"></script>
 </body>
 </html>

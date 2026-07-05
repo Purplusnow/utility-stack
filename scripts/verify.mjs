@@ -92,6 +92,13 @@ function makeElement() {
 }
 
 const storage = new Map();
+class SandboxURL extends URL {
+  static createObjectURL() {
+    return "blob:verify";
+  }
+
+  static revokeObjectURL() {}
+}
 const sandbox = {
   console,
   setTimeout,
@@ -104,10 +111,7 @@ const sandbox = {
   URLSearchParams,
   Blob: class Blob {},
   Intl,
-  URL: {
-    createObjectURL: () => "blob:verify",
-    revokeObjectURL: () => {}
-  },
+  URL: SandboxURL,
   FileReader: class FileReader {},
   Image: class Image {},
   localStorage: {
@@ -167,11 +171,11 @@ sandbox.requestAnimationFrame = sandbox.window.requestAnimationFrame;
 sandbox.globalThis = sandbox;
 
 vm.createContext(sandbox);
-vm.runInContext(`${appSource}\nthis.__verify = { tools, languages, translations, privacyCopy, titleTerms, localizedCategory, localizedToolTitle, localizedToolTitleFor, localizedToolDescription, localizedSearchText, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary };`, sandbox, {
+vm.runInContext(`${appSource}\nthis.__setLanguage = (code) => { currentLanguage = code; };\nthis.__verify = { tools, languages, translations, privacyCopy, titleTerms, localeProfiles, activeLocaleProfile, localizedFieldDefault, localizedFieldLabel, money, progressiveTax, payrollTaxFromParts, localeTaxModel, takeHomePayCopy, renderTakeHomePay, localizeResultHtml, imageToolMarkup, fileToolMarkup, buildUtmUrl, renderUtmCampaignBuilder, schemaObject, renderSchemaMarkupGenerator, readabilitySummary, renderReadabilityAnalyzer, subnetPlanSummary, renderSubnetPlanner, localizedCategory, localizedToolTitle, localizedToolTitleFor, localizedToolDescription, localizedSearchText, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary };`, sandbox, {
   filename: "app.js"
 });
 
-const { tools, languages, translations, privacyCopy, titleTerms, localizedCategory, localizedToolTitle, localizedToolTitleFor, localizedToolDescription, localizedSearchText, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, imageToolMarkup, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary } = sandbox.__verify;
+const { tools, languages, translations, privacyCopy, titleTerms, localeProfiles, activeLocaleProfile, localizedFieldDefault, localizedFieldLabel, money, progressiveTax, payrollTaxFromParts, localeTaxModel, takeHomePayCopy, renderTakeHomePay, localizeResultHtml, imageToolMarkup, fileToolMarkup, buildUtmUrl, renderUtmCampaignBuilder, schemaObject, renderSchemaMarkupGenerator, readabilitySummary, renderReadabilityAnalyzer, subnetPlanSummary, renderSubnetPlanner, localizedCategory, localizedToolTitle, localizedToolTitleFor, localizedToolDescription, localizedSearchText, toolMetadata, toolOpportunity, toolPrivacyLevel, privacyNotice, parseCsv, csvEscape, normalizeCsvHeaders, csvQualityProfile, jsonSummary, jsonPaths, jsonTypeCounts, jsonErrorLocation, lineDiff, collectRegexMatches, searchTools, searchScore, toolRank, markdownToHtml, markdownStats, safeHexColor, colorizeQrSvg, qrContentType, analyzePassword, passwordWarnings, decodeJwt, jwtTimeStatus, cronExpressionFromValues, parseCronExpression, cronNextRuns, salesTaxSummary, profitMarginSummary, adRevenueSummary, discountSummary, breakEvenSummary, roiSummary, tipSummary, invoiceNumberSummary, compoundInterestSummary, retirementSummary, savingsGoalSummary, creditCardPayoffSummary, debtPayoffSummary, loanAmortizationSummary, mortgageAffordabilitySummary, rentVsBuySummary, takeHomePaySummary } = sandbox.__verify;
 const knownCustomTools = new Set([
   "file-word-counter",
   "file-json-formatter",
@@ -268,6 +272,7 @@ else if (typeof imageToolMarkup !== "function") fail("imageToolMarkup() must be 
 else {
   const markup = imageToolMarkup(imageResizer);
   if (!markup.includes("resize-preset")) fail("Image Resizer is missing preset control.");
+  if (!markup.includes("file-picker-button") || !markup.includes("Choose file") || !markup.includes("No file selected")) fail("Image Resizer should use localized custom file picker UI.");
   if (!markup.includes("lock-ratio")) fail("Image Resizer is missing ratio lock control.");
   if (!markup.includes("Open Graph 1200 x 630")) fail("Image Resizer is missing social image preset.");
   ok("Image Resizer quality controls found");
@@ -923,6 +928,7 @@ else {
   if (raise.netAnnual <= summary.netAnnual) fail("Higher salary should increase net annual pay.");
   if (!summary.csv.includes("Scenario,Gross annual,Gross paycheck")) fail("Take home pay CSV should include a header.");
   if (!summary.scenarios.some((scenario) => scenario.label === "+1% retirement")) fail("Take home pay should include retirement scenario rows.");
+  if (!summary.taxModelNote?.includes("U.S.")) fail("Take home pay should expose the active locale tax model note.");
   ok("Take home pay helpers found");
 }
 
@@ -961,6 +967,25 @@ for (const tool of standardTools) {
     if (!result.includes("Browser local time")) fail("Cron Expression Builder should clarify local timezone behavior.");
   }
 
+  if (tool.id === "subnet-planner") {
+    if (!result.includes("data-table")) fail("Subnet Planner should render a subnet table.");
+    if (!result.includes("192.168.10.0/28")) fail("Subnet Planner should split the default /24 into /28 networks.");
+    if (!result.includes('download="subnet-plan.csv"')) fail("Subnet Planner should offer CSV download.");
+    if (!result.includes('download="subnet-plan.json"')) fail("Subnet Planner should offer JSON download.");
+    const plan = subnetPlanSummary({
+      network: "10.0.0.0/24",
+      newPrefix: 26,
+      count: 4,
+      gateway: "last",
+      names: "A\nB\nC\nD"
+    });
+    if (plan.error || plan.rows.length !== 4) fail("Subnet Planner should produce requested subnets.");
+    if (plan.rows?.[0]?.cidr !== "10.0.0.0/26" || plan.rows?.[1]?.cidr !== "10.0.0.64/26") fail("Subnet Planner should calculate subnet boundaries.");
+    if (plan.rows?.[0]?.gateway !== "10.0.0.62") fail("Subnet Planner should support last usable gateway.");
+    const invalid = subnetPlanSummary({ network: "10.0.0.0/28", newPrefix: 24, count: 1, gateway: "first", names: "" });
+    if (!invalid.error) fail("Subnet Planner should reject a new prefix smaller than the base prefix.");
+  }
+
   if (tool.id === "text-diff-checker") {
     if (!result.includes("diff-view")) fail("Text Diff Checker should render a readable diff view.");
     if (!result.includes('download="text-diff.patch"')) fail("Text Diff Checker should offer a patch download.");
@@ -974,6 +999,24 @@ for (const tool of standardTools) {
   if (tool.id === "markdown-preview") {
     if (!result.includes("markdown-preview")) fail("Markdown Preview should render a visual preview.");
     if (!result.includes('download="preview.html"')) fail("Markdown Preview should offer HTML download.");
+  }
+
+  if (tool.id === "readability-analyzer") {
+    if (!result.includes("readability-panel")) fail("Readability Analyzer should render a readability panel.");
+    if (!result.includes("Readability score")) fail("Readability Analyzer should show readability score.");
+    if (!result.includes("Rewrite opportunities")) fail("Readability Analyzer should show rewrite opportunities.");
+    if (!result.includes('download="readability-report.csv"')) fail("Readability Analyzer should offer CSV download.");
+    if (!result.includes('download="readability-report.json"')) fail("Readability Analyzer should offer JSON download.");
+    const summary = readabilitySummary({
+      text: "This is a short sentence. This sentence is intentionally much longer because it contains many words and should be detected as a rewrite opportunity for better scanning and easier reading.",
+      keyword: "sentence",
+      audience: "young",
+      wpm: 200
+    });
+    if (summary.words < 20 || summary.keywordMatches < 2) fail("Readability Analyzer should count words and keyword matches.");
+    if (!summary.longSentences.length) fail("Readability Analyzer should detect long sentences.");
+    const cjkSummary = readabilitySummary({ text: "가독성을 분석합니다. 문장이 너무 길면 읽기 어려워집니다.", keyword: "가독성", audience: "general", wpm: 500 });
+    if (cjkSummary.words < 10 || cjkSummary.sentences < 2) fail("Readability Analyzer should handle CJK text defensively.");
   }
 
   if (tool.id === "password-generator") {
@@ -1033,6 +1076,71 @@ for (const tool of standardTools) {
     if (!result.includes("data-table")) fail("Sales Tax Calculator should render a scenario table.");
     if (!result.includes('download="sales-tax.csv"')) fail("Sales Tax Calculator should offer CSV download.");
     if (!result.includes("Effective rate")) fail("Sales Tax Calculator should show effective rate.");
+  }
+
+  if (tool.id === "utm-campaign-url-builder") {
+    if (!result.includes("utm_source=newsletter")) fail("UTM Campaign URL Builder should append utm_source.");
+    if (!result.includes("utm_campaign=summer_launch")) fail("UTM Campaign URL Builder should append utm_campaign.");
+    if (!result.includes("data-table")) fail("UTM Campaign URL Builder should render a variant table.");
+    if (!result.includes('download="utm-campaign-urls.csv"')) fail("UTM Campaign URL Builder should offer campaign CSV export.");
+    if (!result.includes('download="utm-campaign.json"')) fail("UTM Campaign URL Builder should offer JSON export.");
+    const built = buildUtmUrl({
+      url: "example.com/path?utm_source=old&keep=1",
+      source: "Email List",
+      medium: "email",
+      campaign: "Spring Sale",
+      term: "",
+      content: "Hero CTA",
+      campaignId: "GA4 Campaign",
+      naming: "dash",
+      existing: "preserve"
+    });
+    if (!built.url.startsWith("https://example.com/path?")) fail("UTM builder should recover URLs without a protocol.");
+    if (!built.url.includes("keep=1")) fail("UTM builder should preserve non-UTM parameters.");
+    if (built.url.includes("utm_source=old")) fail("UTM builder should replace stale UTM parameters.");
+    if (!built.url.includes("utm_source=email-list") || !built.url.includes("utm_content=hero-cta")) fail("UTM builder should normalize campaign names.");
+  }
+
+  if (tool.id === "open-graph-preview-generator") {
+    if (!result.includes("social-preview")) fail("Open Graph Preview Generator should render a social preview.");
+    if (!result.includes("property=&quot;og:title&quot;")) fail("Open Graph Preview Generator should emit og:title.");
+    if (!result.includes("name=&quot;twitter:card&quot;")) fail("Open Graph Preview Generator should emit Twitter Card tags.");
+    if (!result.includes('download="open-graph-meta-tags.html"')) fail("Open Graph Preview Generator should offer HTML snippet download.");
+    if (!result.includes('download="open-graph-preview.json"')) fail("Open Graph Preview Generator should offer JSON download.");
+  }
+
+  if (tool.id === "schema-markup-generator") {
+    if (!result.includes("schema-summary")) fail("Schema Markup Generator should render a schema summary.");
+    if (!result.includes("&quot;@context&quot;: &quot;https://schema.org&quot;")) fail("Schema Markup Generator should emit schema.org JSON-LD.");
+    if (!result.includes("&quot;@type&quot;: &quot;FAQPage&quot;")) fail("Schema Markup Generator should default to FAQPage.");
+    if (!result.includes('download="schema-markup.html"')) fail("Schema Markup Generator should offer HTML snippet download.");
+    if (!result.includes('download="schema-markup.jsonld"')) fail("Schema Markup Generator should offer JSON-LD download.");
+    const productSchema = schemaObject({
+      type: "Product",
+      name: "UtilityStack Pro",
+      description: "A sample product.",
+      url: "https://example.com/product",
+      image: "https://example.com/product.png",
+      publisher: "UtilityStack",
+      author: "",
+      price: 19,
+      currency: "USD",
+      items: ""
+    });
+    if (productSchema?.offers?.price !== 19 || productSchema?.offers?.priceCurrency !== "USD") fail("Schema Markup Generator should build Product offers.");
+    const breadcrumbMarkup = renderSchemaMarkupGenerator({
+      type: "BreadcrumbList",
+      name: "",
+      description: "",
+      url: "https://example.com/",
+      image: "",
+      publisher: "",
+      author: "",
+      price: 0,
+      currency: "USD",
+      items: "Home|https://example.com/\nTools|https://example.com/tools/"
+    });
+    if (!breadcrumbMarkup.includes("&quot;@type&quot;: &quot;BreadcrumbList&quot;")) fail("Schema Markup Generator should support BreadcrumbList output.");
   }
 
   if (tool.id === "profit-margin-calculator") {
@@ -1131,15 +1239,146 @@ else {
   if (!localizedToolTitleFor(loanToolForTitle, "es").includes("Calculadora")) fail("Spanish tool titles should use Spanish terms.");
   if (!localizedToolTitleFor(loanToolForTitle, "fr").includes("Calculateur")) fail("French tool titles should use French terms.");
   if (!localizedToolTitleFor(loanToolForTitle, "ar").includes("حاسبة")) fail("Arabic tool titles should use Arabic terms.");
+  if (localizedToolTitleFor(loanToolForTitle, "es") !== "Calculadora de pago de préstamo") fail("Spanish calculator titles should use natural noun order.");
+  if (localizedToolTitleFor(loanToolForTitle, "fr") !== "Calculateur de paiement de prêt") fail("French calculator titles should use natural noun order.");
+  if (localizedToolTitleFor(tools.find((tool) => tool.id === "password-generator"), "es").includes("password")) fail("Localized tool titles should not leave common English terms untranslated.");
+  const utmToolForTitle = tools.find((tool) => tool.id === "utm-campaign-url-builder");
+  if (!utmToolForTitle) fail("UTM Campaign URL Builder should be registered.");
+  else {
+    if (!localizedToolTitleFor(utmToolForTitle, "ko").includes("UTM 캠페인 URL")) fail("Korean UTM builder title should be localized.");
+    if (!localizedToolTitleFor(utmToolForTitle, "es").includes("URL de campaña UTM")) fail("Spanish UTM builder title should be localized.");
+  }
+  const ogToolForTitle = tools.find((tool) => tool.id === "open-graph-preview-generator");
+  if (!ogToolForTitle) fail("Open Graph Preview Generator should be registered.");
+  else {
+    if (!localizedToolTitleFor(ogToolForTitle, "ko").includes("오픈그래프")) fail("Korean Open Graph title should be localized.");
+    if (!localizedToolTitleFor(ogToolForTitle, "es").includes("vista previa Open Graph")) fail("Spanish Open Graph title should be localized.");
+  }
+  const schemaToolForTitle = tools.find((tool) => tool.id === "schema-markup-generator");
+  if (!schemaToolForTitle) fail("Schema Markup Generator should be registered.");
+  else {
+    if (!localizedToolTitleFor(schemaToolForTitle, "ko").includes("스키마 마크업")) fail("Korean Schema Markup title should be localized.");
+    if (!localizedToolTitleFor(schemaToolForTitle, "es").includes("marcado Schema")) fail("Spanish Schema Markup title should be localized.");
+  }
+  const readabilityToolForTitle = tools.find((tool) => tool.id === "readability-analyzer");
+  if (!readabilityToolForTitle) fail("Readability Analyzer should be registered.");
+  else {
+    if (!localizedToolTitleFor(readabilityToolForTitle, "ko").includes("가독성")) fail("Korean Readability title should be localized.");
+    if (!localizedToolTitleFor(readabilityToolForTitle, "es").includes("Legibilidad")) fail("Spanish Readability title should be localized.");
+  }
+  const subnetToolForTitle = tools.find((tool) => tool.id === "subnet-planner");
+  if (!subnetToolForTitle) fail("Subnet Planner should be registered.");
+  else {
+    if (!localizedToolTitleFor(subnetToolForTitle, "ko").includes("서브넷")) fail("Korean Subnet title should be localized.");
+    if (!localizedToolTitleFor(subnetToolForTitle, "es").includes("subred")) fail("Spanish Subnet title should be localized.");
+  }
   ok("16-language UI packs found");
+}
+
+{
+  const takeHomeToolForLocale = tools.find((tool) => tool.id === "take-home-pay-calculator");
+  const salesTaxToolForLocale = tools.find((tool) => tool.id === "sales-tax-calculator");
+  if (!localeProfiles?.ko || localeProfiles.ko.currency !== "KRW" || localeProfiles.ko.salesTax !== 10) fail("Korean locale profile should use KRW and Korean VAT defaults.");
+  if (!localeProfiles?.ja || localeProfiles.ja.currency !== "JPY" || localeProfiles.ja.salesTax !== 10) fail("Japanese locale profile should use JPY and Japanese consumption tax defaults.");
+  if (!localeProfiles?.de || localeProfiles.de.currency !== "EUR" || localeProfiles.de.salesTax !== 19) fail("German locale profile should use EUR and German VAT defaults.");
+  sandbox.__setLanguage("ko");
+  const salaryField = takeHomeToolForLocale.fields.find((field) => field.id === "salary");
+  const federalField = takeHomeToolForLocale.fields.find((field) => field.id === "federal");
+  const healthField = takeHomeToolForLocale.fields.find((field) => field.id === "health");
+  const salesTaxField = salesTaxToolForLocale.fields.find((field) => field.id === "tax");
+  if (localizedFieldDefault(takeHomeToolForLocale, salaryField) !== 60000000) fail("Korean take-home pay should default to Korean-scale annual salary.");
+  if (localizedFieldDefault(takeHomeToolForLocale, healthField) !== 0) fail("Korean take-home pay should not double-count monthly benefits by default.");
+  if (!localizedFieldLabel(takeHomeToolForLocale, federalField).includes("소득세")) fail("Korean take-home pay tax labels should be localized to local concepts.");
+  if (localizedFieldDefault(salesTaxToolForLocale, salesTaxField) !== 10) fail("Korean sales tax should default to 10% VAT.");
+  if (!money(1234567).includes("₩")) fail("Korean money formatting should use KRW.");
+  const koreanTaxModel = localeTaxModel();
+  const modeledPay = takeHomePaySummary({
+    salary: 60000000,
+    frequency: "monthly",
+    federal: 6,
+    state: 0.6,
+    fica: 9.9,
+    retirement: 0,
+    health: 250000,
+    postTax: 0
+  });
+  const hundredMillionPay = takeHomePaySummary({
+    salary: 100000000,
+    frequency: "monthly",
+    federal: 6,
+    state: 0.6,
+    fica: 9.9,
+    retirement: 0,
+    health: 0,
+    postTax: 0
+  });
+  const koreanRenderedPay = renderTakeHomePay({
+    salary: 100000000,
+    frequency: "monthly",
+    federal: 6,
+    state: 0.6,
+    fica: 9.9,
+    retirement: 0,
+    health: 0,
+    postTax: 0
+  });
+  if (!koreanTaxModel.brackets?.some((bracket) => bracket.rate === 0.24)) fail("Korean tax model should include progressive income-tax brackets.");
+  if (!modeledPay.taxModelNote?.includes("한국")) fail("Korean take-home pay should explain the Korean estimate model.");
+  if (modeledPay.federalTax <= 0 || modeledPay.stateTax <= 0 || modeledPay.payrollTax <= 0) fail("Korean take-home pay should apply income tax, local income tax, and social insurance estimates.");
+  if (hundredMillionPay.monthlyNet < 6200000 || hundredMillionPay.monthlyNet > 6600000) fail("Korean 100M KRW salary should land near realistic monthly take-home pay.");
+  if (!koreanRenderedPay.includes("월 실수령액") || !koreanRenderedPay.includes("4대보험 추정") || !koreanRenderedPay.includes("급여 CSV 다운로드")) fail("Korean take-home pay result UI should be localized.");
+  if (koreanRenderedPay.includes("Net per paycheck") || koreanRenderedPay.includes("Download paycheck CSV") || koreanRenderedPay.includes("Scenario")) fail("Korean take-home pay result UI should not expose English labels.");
+  const localizedCommonResult = localizeResultHtml("<div>Monthly payment</div><button>Copy result</button><th>Total interest</th><span>Download diff</span>");
+  if (!localizedCommonResult.includes("월 납입액") || !localizedCommonResult.includes("결과 복사") || !localizedCommonResult.includes("총 이자") || !localizedCommonResult.includes("차이 다운로드")) {
+    fail("Korean result localization should translate common calculator labels.");
+  }
+  const imageMarkupKo = localizeResultHtml(imageToolMarkup(tools.find((tool) => tool.custom === "image-pixel-art")));
+  if (!imageMarkupKo.includes("픽셀 그리드 너비") || !imageMarkupKo.includes("디더링 사용") || imageMarkupKo.includes("Pixel grid width") || imageMarkupKo.includes("Use dithering")) {
+    fail("Korean image tool UI should localize custom pixel-art controls.");
+  }
+  const fileMarkupKo = localizeResultHtml(fileToolMarkup(tools.find((tool) => tool.custom === "file-csv-cleaner")));
+  if (!fileMarkupKo.includes("헤더 정규화") || !fileMarkupKo.includes("중복 행 제거") || !fileMarkupKo.includes("파일 선택") || !fileMarkupKo.includes("선택된 파일 없음") || fileMarkupKo.includes("Normalize headers") || fileMarkupKo.includes("Remove duplicate rows")) {
+    fail("Korean file tool UI should localize custom CSV controls.");
+  }
+  const customResultKo = localizeResultHtml("<span>Upload a file or paste content to begin.</span><span>Enter text or a URL to generate a QR code.</span><a>Download cleaned CSV</a>");
+  if (!customResultKo.includes("파일을 업로드하거나") || !customResultKo.includes("QR 코드를 만들") || !customResultKo.includes("정리된 CSV 다운로드")) {
+    fail("Korean custom tool result messages should be localized.");
+  }
+  sandbox.__setLanguage("es");
+  const spanishCommonResult = localizeResultHtml("<button>Copy result</button><span>Text or URL</span><span>Pixel grid width</span>");
+  const spanishUtmResult = localizeResultHtml("<span>Campaign URL</span><span>Download campaign CSV</span><span>Title length</span><span>Download HTML snippet</span>");
+  if (!spanishCommonResult.includes("Copiar resultado") || !spanishCommonResult.includes("Texto o URL") || !spanishCommonResult.includes("Ancho de cuadrícula") || !spanishUtmResult.includes("URL de campaña") || !spanishUtmResult.includes("CSV de campaña") || !spanishUtmResult.includes("Longitud del título") || !spanishUtmResult.includes("snippet HTML")) {
+    fail("Spanish common result and custom controls should be localized.");
+  }
+  sandbox.__setLanguage("ja");
+  const japaneseCommonResult = localizeResultHtml("<button>Copy result</button><span>Upload file</span><span>Normalize headers</span>");
+  if (!japaneseCommonResult.includes("結果をコピー") || !japaneseCommonResult.includes("ファイルをアップロード") || !japaneseCommonResult.includes("ヘッダーを正規化")) {
+    fail("Japanese common result and custom controls should be localized.");
+  }
+  const japaneseImageMarkup = localizeResultHtml(imageToolMarkup(tools.find((tool) => tool.custom === "image-resizer")));
+  if (!japaneseImageMarkup.includes("画像ファイル") || !japaneseImageMarkup.includes("ファイルを選択") || !japaneseImageMarkup.includes("ファイルが選択されていません") || japaneseImageMarkup.includes("Choose file") || japaneseImageMarkup.includes("No file selected")) {
+    fail("Japanese image file picker should use localized custom labels instead of native browser text.");
+  }
+  sandbox.__setLanguage("ko");
+  for (const [code] of languages) {
+    const copy = takeHomePayCopy(code);
+    if (code !== "en" && (!copy.netPerPaycheck || copy.netPerPaycheck === "Net per paycheck" || copy.downloadCsv === "Download paycheck CSV")) {
+      fail(`${code} take-home pay result copy should be localized.`);
+    }
+  }
+  sandbox.__setLanguage("en");
+  ok("locale profiles customize currency, tax, and pay defaults");
 }
 
 if (!indexSource.includes('id="language-select"')) fail("index.html should include a language selector.");
 if (!indexSource.includes('id="pinned-tools"')) fail("index.html should include pinned tools sidebar.");
 if (!appSource.includes("LANGUAGE_STORAGE_KEY")) fail("Language preference should be stored locally.");
+if (!appSource.includes("function languageFromBrowser") || !appSource.includes("navigator.languages") || !appSource.includes("languageFromPath() || saved || languageFromBrowser()")) fail("Initial language should prefer path, then saved setting, then browser/system language before English.");
 if (!appSource.includes("PINNED_STORAGE_KEY") || !appSource.includes("data-pin-tool-id") || !appSource.includes("renderPinned")) fail("Pinned tool shortcuts should be persisted and rendered.");
 if (!appSource.includes("★") || !appSource.includes("☆") || !appSource.includes("aria-label=")) fail("Pinned tool actions should use accessible star icon buttons.");
 if (!appSource.includes("toggleTool") || !appSource.includes("closeTool") || !appSource.includes("aria-expanded")) fail("Tool cards should toggle between open and close states.");
+if (stylesSource.includes("::file-selector-button") || stylesSource.includes("click to browse or drop a file here")) fail("File picker UI should avoid native browser-localized file input text and CSS-only English copy.");
+if (!appSource.includes("function customFileInputMarkup") || !appSource.includes("function updateFileInputLabel") || !appSource.includes("data-file-name")) fail("File tools should use localized custom file picker labels.");
 if (!appSource.includes("pinned-section") || !appSource.includes("renderToolCard")) fail("Pinned tools should be surfaced as a top tool-grid section.");
 if (!appSource.includes("renderDecisionTool") || !appSource.includes("data-decision-action") || !stylesSource.includes(".decision-stage")) fail("Decision tools should use dedicated interactive UI instead of generic calculator forms.");
 if (!appSource.includes("decisionCopy") || !appSource.includes("decisionFieldLabel") || !appSource.includes("커피 쏘기") || !appSource.includes("소진 전까지 중복 없음")) fail("Decision tools should localize buttons, examples, and option labels.");
@@ -1268,6 +1507,35 @@ ok("launch files found (404, ads.txt, icons, og image, manifest)");
     if (!enPage.includes(`hreflang="ko"`)) fail(`/tools/${slug}/ should link its Korean alternate.`);
   }
   ok("Korean decision tool pages exist with hreflang alternates");
+}
+
+{
+  const localeCodes = languages.map(([code]) => code);
+  let checkedLocalizedPages = 0;
+  for (const [code] of languages) {
+    if (code === "en") continue;
+    for (const tool of tools) {
+      const { slug } = toolMetadata(tool);
+      const localizedPage = path.join(root, code, "tools", slug, "index.html");
+      if (!fs.existsSync(localizedPage)) fail(`/${code}/tools/${slug}/ is missing.`);
+      else {
+        const html = fs.readFileSync(localizedPage, "utf8");
+        if (!html.includes(`lang="${code}"`)) fail(`/${code}/tools/${slug}/ should declare lang="${code}".`);
+        if (!html.includes(`https://tools.koreanblog.xyz/${code}/tools/${slug}/`)) fail(`/${code}/tools/${slug}/ should include its canonical URL.`);
+        for (const alternateCode of localeCodes) {
+          const alternatePath = alternateCode === "en" ? `/tools/${slug}/` : `/${alternateCode}/tools/${slug}/`;
+          if (!html.includes(`hreflang="${alternateCode}"`) || !html.includes(`https://tools.koreanblog.xyz${alternatePath}`)) {
+            fail(`/${code}/tools/${slug}/ should link hreflang ${alternateCode}.`);
+          }
+        }
+        if (!html.includes('hreflang="x-default"')) fail(`/${code}/tools/${slug}/ should include x-default hreflang.`);
+        if (!html.includes('"FAQPage"')) fail(`/${code}/tools/${slug}/ should include FAQPage structured data.`);
+        checkedLocalizedPages += 1;
+      }
+    }
+  }
+  if (checkedLocalizedPages !== tools.length * (localeCodes.length - 1)) fail("All non-English localized tool pages should be generated.");
+  ok(`${checkedLocalizedPages} non-English localized tool pages found with hreflang and FAQ schema`);
 }
 
 if (!appSource.includes("data-share-tool") || !appSource.includes("applySharedStateFromUrl")) fail("Tools should support shareable state URLs.");
