@@ -1516,10 +1516,11 @@ h1 {
 
 .tool-form .file-picker-button {
   padding: 10px 16px;
-  border: 1px solid #064e49;
+  border: 1px solid #053f3b;
   border-radius: 8px;
-  background: #064e49;
-  color: #ffffff;
+  background: #053f3b;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
   box-shadow: 0 8px 18px rgba(6, 78, 73, 0.28);
   font-size: 1rem;
   font-weight: 900;
@@ -1548,9 +1549,10 @@ h1 {
 }
 
 :root.dark .tool-form .file-picker-button {
-  border-color: #99f6e4;
-  background: #99f6e4;
-  color: #062a25;
+  border-color: #5eead4;
+  background: #0f766e;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
   box-shadow: 0 8px 22px rgba(45, 212, 191, 0.18);
 }
 
