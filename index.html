@@ -5,13 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UtilityStack - Free Online Calculators and Tools</title>
   <meta name="description" content="Free online calculators, converters, text utilities, and developer tools. Fast browser-based tools with no signup required.">
+  <link rel="canonical" href="https://tools.koreanblog.xyz/">
   <meta property="og:title" content="UtilityStack - Free Online Tools">
   <meta property="og:description" content="Use free calculators, formatters, generators, and text tools directly in your browser.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://tools.koreanblog.xyz/">
+  <meta property="og:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://tools.koreanblog.xyz/og-image.png">
+  <link rel="icon" href="favicon.ico" sizes="32x32">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#0f766e">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20260705-growth-pass">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -29,11 +41,17 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="#top" aria-label="UtilityStack home">
+    <a class="brand" href="index.html" aria-label="UtilityStack home">
       <span class="brand-mark">U</span>
       <span>UtilityStack</span>
     </a>
-    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    <div class="header-actions">
+      <label class="language-control" for="language-select">
+        <span>Language</span>
+        <select id="language-select" aria-label="Select language"></select>
+      </label>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme">◐</button>
+    </div>
   </header>
 
   <main id="top">
@@ -46,38 +64,30 @@
       </div>
     </section>
 
-    <div class="ad-frame">
-      <section class="ad-section" aria-label="Advertisement">
-        <div class="ad-slot">
-          <ins class="adsbygoogle"
-               style="display:block"
-               data-ad-client="ca-pub-4640178123605595"
-               data-ad-slot="3481779739"
-               data-ad-format="auto"
-               data-full-width-responsive="true"></ins>
-        </div>
-      </section>
-    </div>
-
     <section class="layout">
       <aside class="sidebar" aria-label="Tool navigation">
         <div class="side-block">
           <h2>Categories</h2>
-          <a href="#finance">Finance calculators</a>
-          <a href="#health">Health calculators</a>
-          <a href="#converters">Converters</a>
-          <a href="#data">Data tools</a>
           <a href="#image">Image tools</a>
-          <a href="#writing">Writing tools</a>
-          <a href="#education">Education tools</a>
-          <a href="#network">Network tools</a>
-          <a href="#generators">Generators</a>
+          <a href="#decision">Decision tools</a>
+          <a href="#data">Data tools</a>
+          <a href="#dev">Developer tools</a>
+          <a href="#text">Text utilities</a>
+          <a href="#finance">Finance calculators</a>
+          <a href="#business">Business tools</a>
           <a href="#seo">SEO tools</a>
           <a href="#security">Security tools</a>
           <a href="#time">Time calculators</a>
-          <a href="#dev">Developer tools</a>
-          <a href="#text">Text utilities</a>
-          <a href="#business">Business tools</a>
+          <a href="#converters">Converters</a>
+          <a href="#writing">Writing tools</a>
+          <a href="#education">Education tools</a>
+          <a href="#network">Network tools</a>
+          <a href="#health">Health calculators</a>
+          <a href="#generators">Generators</a>
+        </div>
+        <div class="side-block">
+          <h2>Pinned tools</h2>
+          <div id="pinned-tools" class="recent-list">Pin tools you use often.</div>
         </div>
         <div class="side-block">
           <h2>Recently used</h2>
@@ -98,12 +108,7 @@
     <span class="footer-links"><a href="privacy/">Privacy</a><a href="terms/">Terms</a></span>
   </footer>
 
-  <script>window.UtilityStackAssets = { qrLibrary: "vendor/qrcode-generator/qrcode.js?v=20260622-vendor-qr" };</script>
-  <script src="app.js?v=20260622-vendor-qr"></script>
-  <script>
-    document.querySelectorAll('.adsbygoogle').forEach(() => {
-      (adsbygoogle = window.adsbygoogle || []).push({});
-    });
-  </script>
+  <script>window.UtilityStackAssets = { qrLibrary: "vendor/qrcode-generator/qrcode.js?v=20260705-growth-pass" };</script>
+  <script src="app.js?v=20260705-growth-pass"></script>
 </body>
 </html>

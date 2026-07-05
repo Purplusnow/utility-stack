@@ -1,5 +1,34 @@
 const STORAGE_KEY = "utilitystack_recent_tools";
+const PINNED_STORAGE_KEY = "utilitystack_pinned_tools";
 let qrLibraryPromise = null;
+
+function storageGet(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function storageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage can be unavailable (private mode, disabled cookies); the app still works without it.
+  }
+}
+
+let trackedObjectUrls = [];
+
+function trackObjectUrl(url) {
+  trackedObjectUrls.push(url);
+  return url;
+}
+
+function releaseObjectUrls() {
+  trackedObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+  trackedObjectUrls = [];
+}
 
 const tools = [
   {
@@ -353,6 +382,15 @@ const tools = [
     title: "Regex Tester",
     description: "Test regex patterns with match highlighting, groups, indexes, and downloadable results.",
     fields: [
+      { id: "preset", label: "Preset", type: "select", value: "", options: [
+        ["", "Custom pattern"],
+        ["email", "Email address"],
+        ["url", "URL"],
+        ["ipv4", "IPv4 address"],
+        ["date", "Date (YYYY-MM-DD)"],
+        ["hexcolor", "Hex color"],
+        ["number", "Number"]
+      ] },
       { id: "pattern", label: "Pattern", type: "text", value: "\\btools?\\b" },
       { id: "flags", label: "Flags", type: "text", value: "gi" },
       { id: "text", label: "Text", type: "textarea", value: "Free tools make repeated tasks faster." }
@@ -490,6 +528,68 @@ const tools = [
     fields: [],
     calculate() {
       return "";
+    }
+  },
+  {
+    id: "ladder-draw",
+    category: "Decision",
+    anchor: "decision",
+    title: "Ladder Draw",
+    description: "Draw fair random pairings for coffee runs, chores, prizes, teams, or order selection.",
+    aliases: ["ladder game", "coffee payer", "coffee run", "사다리", "사다리타기", "커피쏘기", "커피내기", "순서정하기", "벌칙"],
+    fields: [
+      { id: "names", label: "People or teams", type: "textarea", value: "Alex\nSam\nJordan\nTaylor" },
+      { id: "outcomes", label: "Outcomes or prizes", type: "textarea", value: "Buys coffee\nFree pass\nPick lunch\nChoose playlist" },
+      { id: "mode", label: "Mode", type: "select", value: "shuffle", options: [["shuffle", "Shuffle pairings"], ["single", "Pick one winner"]] }
+    ],
+    calculate(values) {
+      return renderLadderDraw(values);
+    }
+  },
+  {
+    id: "coin-flip",
+    category: "Decision",
+    anchor: "decision",
+    title: "Coin Flip",
+    description: "Flip one or many virtual coins for quick yes/no decisions.",
+    aliases: ["heads or tails", "random choice", "동전", "동전던지기", "앞면", "뒷면", "찬반", "둘 중 하나"],
+    fields: [
+      { id: "count", label: "Number of flips", type: "number", value: 1, step: 1 }
+    ],
+    calculate(values) {
+      return renderCoinFlip(values);
+    }
+  },
+  {
+    id: "dice-roller",
+    category: "Decision",
+    anchor: "decision",
+    title: "Dice Roller",
+    description: "Roll dice for turn order, tabletop games, raffles, or random scoring.",
+    aliases: ["dice", "random number", "주사위", "주사위 굴리기", "순서정하기", "랜덤 숫자"],
+    fields: [
+      { id: "dice", label: "Dice count", type: "number", value: 2, step: 1 },
+      { id: "sides", label: "Sides per die", type: "number", value: 6, step: 1 },
+      { id: "modifier", label: "Modifier", type: "number", value: 0, step: 1 }
+    ],
+    calculate(values) {
+      return renderDiceRoller(values);
+    }
+  },
+  {
+    id: "roulette-picker",
+    category: "Decision",
+    anchor: "decision",
+    title: "Roulette Picker",
+    description: "Pick a random item from a list for lunch, coffee, tasks, names, or ideas.",
+    aliases: ["random picker", "wheel picker", "lunch picker", "coffee picker", "룰렛", "룰렛돌리기", "랜덤뽑기", "점심", "커피", "메뉴"],
+    fields: [
+      { id: "items", label: "Items", type: "textarea", value: "Americano\nLatte\nCold brew\nTea\nSomeone buys snacks" },
+      { id: "draws", label: "Draws", type: "number", value: 1, step: 1 },
+      { id: "withoutReplacement", label: "Repeat items", type: "select", value: "no", options: [["no", "No repeats"], ["yes", "Allow repeats"]] }
+    ],
+    calculate(values) {
+      return renderRoulettePicker(values);
     }
   },
   {
@@ -895,22 +995,6 @@ const tools = [
     }
   },
   {
-    id: "sentence-counter",
-    category: "Writing",
-    anchor: "writing",
-    title: "Sentence Counter",
-    description: "Count sentences, words, and average words per sentence.",
-    fields: [
-      { id: "text", label: "Text", type: "textarea", value: "UtilityStack is fast. It helps you finish small tasks quickly." }
-    ],
-    calculate(values) {
-      const text = String(values.text || "").trim();
-      const sentences = text ? (text.match(/[^.!?]+[.!?]+|[^.!?]+$/g) || []).length : 0;
-      const words = text ? text.split(/\s+/).length : 0;
-      return metrics([["Sentences", sentences], ["Words", words], ["Avg words", sentences ? (words / sentences).toFixed(1) : "0"]]);
-    }
-  },
-  {
     id: "reading-time-calculator",
     category: "Writing",
     anchor: "writing",
@@ -945,43 +1029,6 @@ const tools = [
     }
   },
   {
-    id: "grade-percentage-calculator",
-    category: "Education",
-    anchor: "education",
-    title: "Grade Percentage Calculator",
-    description: "Calculate grade percentage from earned and total points.",
-    fields: [
-      { id: "earned", label: "Earned points", type: "number", value: 87, step: 0.01 },
-      { id: "total", label: "Total points", type: "number", value: 100, step: 0.01 }
-    ],
-    calculate(values) {
-      const total = num(values.total);
-      if (total <= 0) return error("Total points must be greater than zero.");
-      const percentage = num(values.earned) / total;
-      const letter = percentage >= 0.9 ? "A" : percentage >= 0.8 ? "B" : percentage >= 0.7 ? "C" : percentage >= 0.6 ? "D" : "F";
-      return metrics([["Percentage", pct(percentage)], ["Letter", letter], ["Points", `${num(values.earned)}/${total}`]]);
-    }
-  },
-  {
-    id: "study-timer-planner",
-    category: "Education",
-    anchor: "education",
-    title: "Study Timer Planner",
-    description: "Plan study blocks with breaks.",
-    fields: [
-      { id: "total", label: "Total minutes", type: "number", value: 120, step: 1 },
-      { id: "block", label: "Study block minutes", type: "number", value: 25, step: 1 },
-      { id: "break", label: "Break minutes", type: "number", value: 5, step: 1 }
-    ],
-    calculate(values) {
-      const total = Math.max(1, num(values.total));
-      const cycle = Math.max(1, num(values.block) + num(values.break));
-      const cycles = Math.floor(total / cycle);
-      const study = cycles * num(values.block) + Math.max(0, total - cycles * cycle);
-      return metrics([["Cycles", cycles], ["Study minutes", Math.round(study)], ["Break minutes", Math.max(0, Math.round(total - study))]]);
-    }
-  },
-  {
     id: "cidr-calculator",
     category: "Network",
     anchor: "network",
@@ -997,22 +1044,6 @@ const tools = [
       const total = 2 ** (32 - cidr);
       const usable = cidr >= 31 ? total : Math.max(0, total - 2);
       return metrics([["Subnet mask", parts.join(".")], ["Addresses", total.toLocaleString("en-US")], ["Usable hosts", usable.toLocaleString("en-US")]]);
-    }
-  },
-  {
-    id: "ip-to-integer-converter",
-    category: "Network",
-    anchor: "network",
-    title: "IP to Integer Converter",
-    description: "Convert an IPv4 address to a numeric value.",
-    fields: [
-      { id: "ip", label: "IPv4 address", type: "text", value: "192.168.1.1" }
-    ],
-    calculate(values) {
-      const parts = String(values.ip || "").split(".").map((part) => Number(part));
-      if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return error("Enter a valid IPv4 address.");
-      const integer = parts.reduce((sum, part) => (sum << 8) + part, 0) >>> 0;
-      return metrics([["Integer", integer.toLocaleString("en-US")], ["Hex", `0x${integer.toString(16).toUpperCase()}`], ["IP", parts.join(".")]]);
     }
   },
   {
@@ -1182,21 +1213,6 @@ const tools = [
     }
   },
   {
-    id: "lorem-ipsum-generator",
-    category: "Text",
-    anchor: "text",
-    title: "Lorem Ipsum Generator",
-    description: "Generate placeholder paragraphs for layouts.",
-    fields: [
-      { id: "paragraphs", label: "Paragraphs", type: "number", value: 3, step: 1 }
-    ],
-    calculate(values) {
-      const count = Math.min(20, Math.max(1, Math.floor(num(values.paragraphs))));
-      const paragraph = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vitae justo non nibh facilisis gravida.";
-      return output(Array.from({ length: count }, () => paragraph).join("\n\n"));
-    }
-  },
-  {
     id: "line-sorter",
     category: "Text",
     anchor: "text",
@@ -1231,24 +1247,6 @@ const tools = [
     }
   },
   {
-    id: "list-randomizer",
-    category: "Data",
-    anchor: "data",
-    title: "List Randomizer",
-    description: "Shuffle a list of lines into a random order.",
-    fields: [
-      { id: "items", label: "Items", type: "textarea", value: "Alpha\nBeta\nGamma\nDelta" }
-    ],
-    calculate(values) {
-      const items = String(values.items || "").split(/\r?\n/).filter(Boolean);
-      for (let index = items.length - 1; index > 0; index -= 1) {
-        const swapIndex = Math.floor(Math.random() * (index + 1));
-        [items[index], items[swapIndex]] = [items[swapIndex], items[index]];
-      }
-      return output(items.join("\n"));
-    }
-  },
-  {
     id: "countdown-calculator",
     category: "Time",
     anchor: "time",
@@ -1271,12 +1269,798 @@ const tools = [
 const toolGrid = document.getElementById("tool-grid");
 const workspace = document.getElementById("tool-workspace");
 const search = document.getElementById("tool-search");
+const pinnedTools = document.getElementById("pinned-tools");
 const recentTools = document.getElementById("recent-tools");
 const themeToggle = document.getElementById("theme-toggle");
+const languageSelect = document.getElementById("language-select");
 let activeTool = null;
 
-const highValueCategories = new Set(["Finance", "Business", "SEO", "Image", "Data"]);
-const categoryOrder = ["Image", "Data", "Developer", "Text", "Finance", "Business", "SEO", "Security", "Time", "Converters", "Writing", "Education", "Network", "Health", "Generators"];
+const LANGUAGE_STORAGE_KEY = "utilitystack_language";
+const languages = [
+  ["en", "English"],
+  ["ko", "한국어"],
+  ["ja", "日本語"],
+  ["zh", "中文"],
+  ["es", "Español"],
+  ["fr", "Français"],
+  ["de", "Deutsch"],
+  ["pt", "Português"],
+  ["it", "Italiano"],
+  ["nl", "Nederlands"],
+  ["ru", "Русский"],
+  ["ar", "العربية"],
+  ["hi", "हिन्दी"],
+  ["id", "Indonesia"],
+  ["vi", "Tiếng Việt"],
+  ["th", "ไทย"]
+];
+const languageCodes = new Set(languages.map(([code]) => code));
+const decisionCopy = {
+  en: {
+    empty: "Set the options, then run the decision.",
+    running: "Running...",
+    coinAria: "Coin result",
+    rouletteIdle: "SPIN",
+    ladderIdle: "READY",
+    actions: {
+      "ladder-draw": "Draw ladder",
+      "coin-flip": "Flip coin",
+      "dice-roller": "Roll dice",
+      "roulette-picker": "Spin roulette"
+    },
+    again: {
+      "ladder-draw": "Draw again",
+      "coin-flip": "Flip again",
+      "dice-roller": "Roll again",
+      "roulette-picker": "Spin again"
+    },
+    fields: {
+      "ladder-draw": {
+        names: "Participants",
+        outcomes: "Outcomes",
+        mode: "Mode"
+      },
+      "coin-flip": {
+        count: "Flip count"
+      },
+      "dice-roller": {
+        dice: "Dice",
+        sides: "Sides",
+        modifier: "Modifier"
+      },
+      "roulette-picker": {
+        items: "Roulette items",
+        picks: "Draw count",
+        withoutReplacement: "Repeat rule"
+      }
+    },
+    values: {
+      "ladder-draw": {
+        names: "Mina\nJules\nKai\nSam",
+        outcomes: "Pays for coffee\nSafe today\nPicks lunch\nBrings snacks"
+      },
+      "roulette-picker": {
+        items: "Americano\nLatte\nCold brew\nTea\nBring snacks"
+      }
+    },
+    options: {
+      "ladder-draw": {
+        mode: {
+          shuffle: "Shuffle all matches",
+          single: "Pick one person"
+        }
+      },
+      "roulette-picker": {
+        withoutReplacement: {
+          no: "No repeats until exhausted",
+          yes: "Allow repeats"
+        }
+      }
+    }
+  },
+  ko: {
+    empty: "옵션을 정한 뒤 실행 버튼을 눌러 결과를 확인하세요.",
+    running: "진행 중...",
+    coinAria: "동전 던지기 결과",
+    rouletteIdle: "시작",
+    ladderIdle: "준비",
+    actions: {
+      "ladder-draw": "사다리 타기",
+      "coin-flip": "동전 던지기",
+      "dice-roller": "주사위 굴리기",
+      "roulette-picker": "룰렛 돌리기"
+    },
+    again: {
+      "ladder-draw": "다시 타기",
+      "coin-flip": "다시 던지기",
+      "dice-roller": "다시 굴리기",
+      "roulette-picker": "다시 돌리기"
+    },
+    fields: {
+      "ladder-draw": {
+        names: "참가자",
+        outcomes: "결과",
+        mode: "진행 방식"
+      },
+      "coin-flip": {
+        count: "던질 횟수"
+      },
+      "dice-roller": {
+        dice: "주사위 개수",
+        sides: "면 수",
+        modifier: "보정값"
+      },
+      "roulette-picker": {
+        items: "룰렛 항목",
+        picks: "뽑을 개수",
+        withoutReplacement: "중복 규칙"
+      }
+    },
+    values: {
+      "ladder-draw": {
+        names: "민수\n지아\n현우\n서연",
+        outcomes: "커피 쏘기\n오늘은 패스\n점심 메뉴 고르기\n간식 사오기"
+      },
+      "roulette-picker": {
+        items: "아메리카노\n라테\n콜드브루\n차\n간식 사오기"
+      }
+    },
+    options: {
+      "ladder-draw": {
+        mode: {
+          shuffle: "전체 매칭 섞기",
+          single: "한 명만 뽑기"
+        }
+      },
+      "roulette-picker": {
+        withoutReplacement: {
+          no: "소진 전까지 중복 없음",
+          yes: "중복 허용"
+        }
+      }
+    }
+  }
+};
+
+function koreanObjectMarker(text) {
+  const normalized = String(text || "").trim();
+  const lastHangul = [...normalized].reverse().find((char) => {
+    const code = char.charCodeAt(0);
+    return code >= 0xac00 && code <= 0xd7a3;
+  });
+  if (!lastHangul) return "를";
+  return (lastHangul.charCodeAt(0) - 0xac00) % 28 === 0 ? "를" : "을";
+}
+
+const translations = {
+  en: {
+    homeHeading: "Free Online Tools",
+    searchPlaceholder: "Search tools: JSON, loan, word, invoice...",
+    categories: "Categories",
+    pinned: "Pinned tools",
+    noPinned: "Pin tools you use often.",
+    recent: "Recently used",
+    noRecent: "No recently used tools yet.",
+    noMatchesTitle: "No matching tools",
+    noMatchesBody: "Try a simpler search like JSON, image, CSV, regex, password, or calculator.",
+    openTool: "Open tool",
+    closeTool: "Close tool",
+    pinTool: "Pin",
+    unpinTool: "Unpin",
+    resetDefaults: "Reset to defaults",
+    shareLink: "Copy share link",
+    shareCopied: "Link copied!",
+    shareHint: "Share this setup as a link — anyone who opens it sees your inputs",
+    howToUse: "How to use",
+    enterValues: "Enter your values in the tool fields.",
+    reviewResult: "Review the result that updates automatically.",
+    copyOutput: "Copy the output when you need to paste it elsewhere.",
+    privacy: "Privacy",
+    terms: "Terms",
+    footer: "Free browser-based tools. No uploads, no accounts.",
+    toolsWord: "Tools",
+    toolSingular: "tool",
+    toolPlural: "tools",
+    categorySuffix: "tools",
+    categoryIntro: (category, title) => `Use this ${category.toLowerCase()} tool directly in your browser: ${title}.`,
+    categoriesMap: {}
+  },
+  ko: {
+    homeHeading: "무료 온라인 도구",
+    searchPlaceholder: "도구 검색: JSON, 대출, 단어, 인보이스...",
+    categories: "카테고리",
+    pinned: "고정 도구",
+    noPinned: "자주 쓰는 도구를 고정하세요.",
+    recent: "최근 사용",
+    noRecent: "최근 사용한 도구가 아직 없습니다.",
+    noMatchesTitle: "일치하는 도구가 없습니다",
+    noMatchesBody: "JSON, 이미지, CSV, 정규식, 비밀번호, 계산기처럼 더 간단한 검색어를 입력해보세요.",
+    openTool: "도구 열기",
+    closeTool: "도구 닫기",
+    pinTool: "고정",
+    unpinTool: "해제",
+    resetDefaults: "기본값으로 재설정",
+    shareLink: "공유 링크 복사",
+    shareCopied: "링크 복사됨!",
+    shareHint: "지금 설정을 링크로 공유 — 받은 사람에게 같은 화면이 열립니다",
+    howToUse: "사용 방법",
+    enterValues: "도구 입력란에 값을 입력하세요.",
+    reviewResult: "자동으로 갱신되는 결과를 확인하세요.",
+    copyOutput: "필요할 때 결과를 복사해 붙여넣으세요.",
+    privacy: "개인정보",
+    terms: "이용약관",
+    footer: "브라우저에서 바로 쓰는 무료 도구. 업로드도 계정도 필요 없습니다.",
+    toolsWord: "도구",
+    toolSingular: "개 도구",
+    toolPlural: "개 도구",
+    categorySuffix: "도구",
+    categoryIntro: (category, title) => `${title}${koreanObjectMarker(title)} 브라우저에서 바로 사용할 수 있는 ${category} 도구입니다.`,
+    categoriesMap: { Finance: "금융", Business: "비즈니스", Developer: "개발자", Text: "텍스트", Health: "건강", Converters: "변환", SEO: "SEO", Generators: "생성", Security: "보안", Time: "시간", Data: "데이터", Image: "이미지", Writing: "글쓰기", Education: "교육", Network: "네트워크" }
+  },
+  ja: {
+    homeHeading: "無料オンラインツール",
+    searchPlaceholder: "ツール検索: JSON、ローン、単語、請求書...",
+    categories: "カテゴリ",
+    recent: "最近使ったツール",
+    noRecent: "最近使ったツールはまだありません。",
+    noMatchesTitle: "一致するツールがありません",
+    noMatchesBody: "JSON、画像、CSV、正規表現、パスワード、計算機などで検索してください。",
+    openTool: "ツールを開く",
+    closeTool: "ツールを閉じる",
+    howToUse: "使い方",
+    enterValues: "入力欄に値を入力します。",
+    reviewResult: "自動更新される結果を確認します。",
+    copyOutput: "必要なときに結果をコピーします。",
+    privacy: "プライバシー",
+    terms: "利用規約",
+    footer: "ブラウザで使える無料ツール。アップロードもアカウントも不要です。",
+    toolsWord: "ツール",
+    toolSingular: "ツール",
+    toolPlural: "ツール",
+    categorySuffix: "ツール",
+    categoryIntro: (category, title) => `${title} はブラウザで直接使える ${category} ツールです。`,
+    categoriesMap: { Finance: "金融", Business: "ビジネス", Developer: "開発者", Text: "テキスト", Health: "健康", Converters: "変換", SEO: "SEO", Generators: "生成", Security: "セキュリティ", Time: "時間", Data: "データ", Image: "画像", Writing: "文章", Education: "教育", Network: "ネットワーク" }
+  },
+  zh: {
+    homeHeading: "免费在线工具",
+    searchPlaceholder: "搜索工具：JSON、贷款、字数、发票...",
+    categories: "分类",
+    recent: "最近使用",
+    noRecent: "还没有最近使用的工具。",
+    noMatchesTitle: "没有匹配的工具",
+    noMatchesBody: "试试 JSON、图片、CSV、正则、密码或计算器等关键词。",
+    openTool: "打开工具",
+    closeTool: "关闭工具",
+    howToUse: "使用方法",
+    enterValues: "在工具字段中输入数值。",
+    reviewResult: "查看自动更新的结果。",
+    copyOutput: "需要时复制输出结果。",
+    privacy: "隐私",
+    terms: "条款",
+    footer: "免费的浏览器工具。无需上传，无需账户。",
+    toolsWord: "工具",
+    toolSingular: "个工具",
+    toolPlural: "个工具",
+    categorySuffix: "工具",
+    categoryIntro: (category, title) => `${title} 是可直接在浏览器中使用的${category}工具。`,
+    categoriesMap: { Finance: "金融", Business: "商业", Developer: "开发者", Text: "文本", Health: "健康", Converters: "转换", SEO: "SEO", Generators: "生成器", Security: "安全", Time: "时间", Data: "数据", Image: "图片", Writing: "写作", Education: "教育", Network: "网络" }
+  },
+  es: {
+    homeHeading: "Herramientas online gratis",
+    searchPlaceholder: "Buscar herramientas: JSON, préstamo, palabras, factura...",
+    categories: "Categorías",
+    recent: "Usadas recientemente",
+    noRecent: "Aún no hay herramientas recientes.",
+    noMatchesTitle: "No hay herramientas coincidentes",
+    noMatchesBody: "Prueba una búsqueda simple como JSON, imagen, CSV, regex, contraseña o calculadora.",
+    openTool: "Abrir herramienta",
+    closeTool: "Cerrar herramienta",
+    howToUse: "Cómo usar",
+    enterValues: "Introduce tus valores en los campos.",
+    reviewResult: "Revisa el resultado que se actualiza automáticamente.",
+    copyOutput: "Copia el resultado cuando lo necesites.",
+    privacy: "Privacidad",
+    terms: "Términos",
+    footer: "Herramientas gratuitas en el navegador. Sin subidas ni cuentas.",
+    toolsWord: "Herramientas",
+    toolSingular: "herramienta",
+    toolPlural: "herramientas",
+    categorySuffix: "herramientas",
+    categoryIntro: (category, title) => `Usa esta herramienta de ${category.toLowerCase()} directamente en tu navegador: ${title}.`,
+    categoriesMap: { Finance: "Finanzas", Business: "Negocios", Developer: "Desarrollo", Text: "Texto", Health: "Salud", Converters: "Convertidores", SEO: "SEO", Generators: "Generadores", Security: "Seguridad", Time: "Tiempo", Data: "Datos", Image: "Imagen", Writing: "Escritura", Education: "Educación", Network: "Red" }
+  },
+  fr: {
+    homeHeading: "Outils en ligne gratuits",
+    searchPlaceholder: "Rechercher: JSON, prêt, mots, facture...",
+    categories: "Catégories",
+    recent: "Récents",
+    noRecent: "Aucun outil récent pour le moment.",
+    noMatchesTitle: "Aucun outil trouvé",
+    noMatchesBody: "Essayez JSON, image, CSV, regex, mot de passe ou calculatrice.",
+    openTool: "Ouvrir l'outil",
+    closeTool: "Fermer l'outil",
+    howToUse: "Mode d'emploi",
+    enterValues: "Saisissez vos valeurs dans les champs.",
+    reviewResult: "Consultez le résultat mis à jour automatiquement.",
+    copyOutput: "Copiez le résultat quand vous en avez besoin.",
+    privacy: "Confidentialité",
+    terms: "Conditions",
+    footer: "Outils gratuits dans le navigateur. Aucun envoi, aucun compte.",
+    toolsWord: "Outils",
+    toolSingular: "outil",
+    toolPlural: "outils",
+    categorySuffix: "outils",
+    categoryIntro: (category, title) => `Utilisez cet outil ${category.toLowerCase()} directement dans votre navigateur: ${title}.`,
+    categoriesMap: { Finance: "Finance", Business: "Business", Developer: "Développeur", Text: "Texte", Health: "Santé", Converters: "Convertisseurs", SEO: "SEO", Generators: "Générateurs", Security: "Sécurité", Time: "Temps", Data: "Données", Image: "Image", Writing: "Rédaction", Education: "Éducation", Network: "Réseau" }
+  },
+  de: {
+    homeHeading: "Kostenlose Online-Tools",
+    searchPlaceholder: "Tools suchen: JSON, Kredit, Wörter, Rechnung...",
+    categories: "Kategorien",
+    recent: "Zuletzt verwendet",
+    noRecent: "Noch keine zuletzt verwendeten Tools.",
+    noMatchesTitle: "Keine passenden Tools",
+    noMatchesBody: "Versuche JSON, Bild, CSV, Regex, Passwort oder Rechner.",
+    openTool: "Tool öffnen",
+    closeTool: "Tool schließen",
+    howToUse: "So funktioniert es",
+    enterValues: "Gib deine Werte in die Felder ein.",
+    reviewResult: "Prüfe das automatisch aktualisierte Ergebnis.",
+    copyOutput: "Kopiere das Ergebnis bei Bedarf.",
+    privacy: "Datenschutz",
+    terms: "Bedingungen",
+    footer: "Kostenlose Browser-Tools. Keine Uploads, keine Konten.",
+    toolsWord: "Tools",
+    toolSingular: "Tool",
+    toolPlural: "Tools",
+    categorySuffix: "Tools",
+    categoryIntro: (category, title) => `Nutze dieses ${category}-Tool direkt im Browser: ${title}.`,
+    categoriesMap: { Finance: "Finanzen", Business: "Business", Developer: "Entwickler", Text: "Text", Health: "Gesundheit", Converters: "Konverter", SEO: "SEO", Generators: "Generatoren", Security: "Sicherheit", Time: "Zeit", Data: "Daten", Image: "Bild", Writing: "Schreiben", Education: "Bildung", Network: "Netzwerk" }
+  },
+  pt: {
+    homeHeading: "Ferramentas online gratuitas",
+    searchPlaceholder: "Buscar ferramentas: JSON, empréstimo, palavras, fatura...",
+    categories: "Categorias",
+    recent: "Recentes",
+    noRecent: "Ainda não há ferramentas recentes.",
+    noMatchesTitle: "Nenhuma ferramenta encontrada",
+    noMatchesBody: "Tente JSON, imagem, CSV, regex, senha ou calculadora.",
+    openTool: "Abrir ferramenta",
+    closeTool: "Fechar ferramenta",
+    howToUse: "Como usar",
+    enterValues: "Digite seus valores nos campos.",
+    reviewResult: "Confira o resultado atualizado automaticamente.",
+    copyOutput: "Copie o resultado quando precisar.",
+    privacy: "Privacidade",
+    terms: "Termos",
+    footer: "Ferramentas gratuitas no navegador. Sem uploads, sem contas.",
+    toolsWord: "Ferramentas",
+    toolSingular: "ferramenta",
+    toolPlural: "ferramentas",
+    categorySuffix: "ferramentas",
+    categoryIntro: (category, title) => `Use esta ferramenta de ${category.toLowerCase()} diretamente no navegador: ${title}.`,
+    categoriesMap: { Finance: "Finanças", Business: "Negócios", Developer: "Desenvolvedor", Text: "Texto", Health: "Saúde", Converters: "Conversores", SEO: "SEO", Generators: "Geradores", Security: "Segurança", Time: "Tempo", Data: "Dados", Image: "Imagem", Writing: "Escrita", Education: "Educação", Network: "Rede" }
+  },
+  it: {
+    homeHeading: "Strumenti online gratuiti",
+    searchPlaceholder: "Cerca strumenti: JSON, prestito, parole, fattura...",
+    categories: "Categorie",
+    recent: "Recenti",
+    noRecent: "Nessuno strumento recente.",
+    noMatchesTitle: "Nessuno strumento trovato",
+    noMatchesBody: "Prova JSON, immagine, CSV, regex, password o calcolatrice.",
+    openTool: "Apri strumento",
+    closeTool: "Chiudi strumento",
+    howToUse: "Come usare",
+    enterValues: "Inserisci i valori nei campi.",
+    reviewResult: "Controlla il risultato aggiornato automaticamente.",
+    copyOutput: "Copia il risultato quando ti serve.",
+    privacy: "Privacy",
+    terms: "Termini",
+    footer: "Strumenti gratuiti nel browser. Nessun upload, nessun account.",
+    toolsWord: "Strumenti",
+    toolSingular: "strumento",
+    toolPlural: "strumenti",
+    categorySuffix: "strumenti",
+    categoryIntro: (category, title) => `Usa questo strumento ${category.toLowerCase()} direttamente nel browser: ${title}.`,
+    categoriesMap: { Finance: "Finanza", Business: "Business", Developer: "Sviluppo", Text: "Testo", Health: "Salute", Converters: "Convertitori", SEO: "SEO", Generators: "Generatori", Security: "Sicurezza", Time: "Tempo", Data: "Dati", Image: "Immagine", Writing: "Scrittura", Education: "Istruzione", Network: "Rete" }
+  },
+  nl: {
+    homeHeading: "Gratis online tools",
+    searchPlaceholder: "Zoek tools: JSON, lening, woorden, factuur...",
+    categories: "Categorieën",
+    recent: "Recent gebruikt",
+    noRecent: "Nog geen recent gebruikte tools.",
+    noMatchesTitle: "Geen passende tools",
+    noMatchesBody: "Probeer JSON, afbeelding, CSV, regex, wachtwoord of calculator.",
+    openTool: "Tool openen",
+    closeTool: "Tool sluiten",
+    howToUse: "Hoe te gebruiken",
+    enterValues: "Vul je waarden in de velden in.",
+    reviewResult: "Bekijk het automatisch bijgewerkte resultaat.",
+    copyOutput: "Kopieer het resultaat wanneer nodig.",
+    privacy: "Privacy",
+    terms: "Voorwaarden",
+    footer: "Gratis browsertools. Geen uploads, geen accounts.",
+    toolsWord: "Tools",
+    toolSingular: "tool",
+    toolPlural: "tools",
+    categorySuffix: "tools",
+    categoryIntro: (category, title) => `Gebruik deze ${category.toLowerCase()}-tool direct in je browser: ${title}.`,
+    categoriesMap: { Finance: "Financiën", Business: "Zakelijk", Developer: "Ontwikkelaar", Text: "Tekst", Health: "Gezondheid", Converters: "Converters", SEO: "SEO", Generators: "Generators", Security: "Beveiliging", Time: "Tijd", Data: "Data", Image: "Afbeelding", Writing: "Schrijven", Education: "Onderwijs", Network: "Netwerk" }
+  },
+  ru: {
+    homeHeading: "Бесплатные онлайн-инструменты",
+    searchPlaceholder: "Поиск: JSON, кредит, слова, счет...",
+    categories: "Категории",
+    recent: "Недавние",
+    noRecent: "Недавних инструментов пока нет.",
+    noMatchesTitle: "Инструменты не найдены",
+    noMatchesBody: "Попробуйте JSON, изображение, CSV, regex, пароль или калькулятор.",
+    openTool: "Открыть",
+    closeTool: "Закрыть",
+    howToUse: "Как использовать",
+    enterValues: "Введите значения в поля.",
+    reviewResult: "Проверьте результат, который обновляется автоматически.",
+    copyOutput: "Скопируйте результат при необходимости.",
+    privacy: "Конфиденциальность",
+    terms: "Условия",
+    footer: "Бесплатные инструменты в браузере. Без загрузок и аккаунтов.",
+    toolsWord: "Инструменты",
+    toolSingular: "инструмент",
+    toolPlural: "инструментов",
+    categorySuffix: "инструменты",
+    categoryIntro: (category, title) => `Используйте инструмент ${category.toLowerCase()} прямо в браузере: ${title}.`,
+    categoriesMap: { Finance: "Финансы", Business: "Бизнес", Developer: "Разработка", Text: "Текст", Health: "Здоровье", Converters: "Конвертеры", SEO: "SEO", Generators: "Генераторы", Security: "Безопасность", Time: "Время", Data: "Данные", Image: "Изображения", Writing: "Письмо", Education: "Образование", Network: "Сеть" }
+  },
+  ar: {
+    homeHeading: "أدوات مجانية على الإنترنت",
+    searchPlaceholder: "ابحث: JSON، قرض، كلمات، فاتورة...",
+    categories: "الفئات",
+    recent: "المستخدمة مؤخرا",
+    noRecent: "لا توجد أدوات مستخدمة مؤخرا بعد.",
+    noMatchesTitle: "لا توجد أدوات مطابقة",
+    noMatchesBody: "جرب JSON أو الصور أو CSV أو regex أو كلمة المرور أو الحاسبة.",
+    openTool: "افتح الأداة",
+    closeTool: "إغلاق الأداة",
+    howToUse: "طريقة الاستخدام",
+    enterValues: "أدخل القيم في حقول الأداة.",
+    reviewResult: "راجع النتيجة التي تتحدث تلقائيا.",
+    copyOutput: "انسخ النتيجة عند الحاجة.",
+    privacy: "الخصوصية",
+    terms: "الشروط",
+    footer: "أدوات مجانية داخل المتصفح. بلا رفع ملفات أو حسابات.",
+    toolsWord: "أدوات",
+    toolSingular: "أداة",
+    toolPlural: "أدوات",
+    categorySuffix: "أدوات",
+    categoryIntro: (category, title) => `استخدم أداة ${category} مباشرة في المتصفح: ${title}.`,
+    categoriesMap: { Finance: "المالية", Business: "الأعمال", Developer: "المطور", Text: "النص", Health: "الصحة", Converters: "التحويل", SEO: "SEO", Generators: "المولدات", Security: "الأمان", Time: "الوقت", Data: "البيانات", Image: "الصور", Writing: "الكتابة", Education: "التعليم", Network: "الشبكة" }
+  },
+  hi: {
+    homeHeading: "मुफ्त ऑनलाइन टूल",
+    searchPlaceholder: "टूल खोजें: JSON, ऋण, शब्द, इनवॉइस...",
+    categories: "श्रेणियां",
+    recent: "हाल ही में उपयोग",
+    noRecent: "अभी कोई हालिया टूल नहीं है।",
+    noMatchesTitle: "कोई मिलता-जुलता टूल नहीं",
+    noMatchesBody: "JSON, image, CSV, regex, password या calculator जैसे सरल शब्द खोजें।",
+    openTool: "टूल खोलें",
+    closeTool: "टूल बंद करें",
+    howToUse: "कैसे उपयोग करें",
+    enterValues: "टूल फ़ील्ड में मान दर्ज करें।",
+    reviewResult: "अपने-आप अपडेट होने वाला परिणाम देखें।",
+    copyOutput: "ज़रूरत होने पर परिणाम कॉपी करें।",
+    privacy: "गोपनीयता",
+    terms: "शर्तें",
+    footer: "मुफ्त ब्राउज़र-आधारित टूल। कोई अपलोड नहीं, कोई खाता नहीं।",
+    toolsWord: "टूल",
+    toolSingular: "टूल",
+    toolPlural: "टूल",
+    categorySuffix: "टूल",
+    categoryIntro: (category, title) => `${title} को सीधे ब्राउज़र में उपयोग करें: ${category} टूल।`,
+    categoriesMap: { Finance: "वित्त", Business: "व्यवसाय", Developer: "डेवलपर", Text: "टेक्स्ट", Health: "स्वास्थ्य", Converters: "कन्वर्टर", SEO: "SEO", Generators: "जनरेटर", Security: "सुरक्षा", Time: "समय", Data: "डेटा", Image: "चित्र", Writing: "लेखन", Education: "शिक्षा", Network: "नेटवर्क" }
+  },
+  id: {
+    homeHeading: "Alat online gratis",
+    searchPlaceholder: "Cari alat: JSON, pinjaman, kata, invoice...",
+    categories: "Kategori",
+    recent: "Baru digunakan",
+    noRecent: "Belum ada alat yang baru digunakan.",
+    noMatchesTitle: "Tidak ada alat yang cocok",
+    noMatchesBody: "Coba JSON, gambar, CSV, regex, kata sandi, atau kalkulator.",
+    openTool: "Buka alat",
+    closeTool: "Tutup alat",
+    howToUse: "Cara menggunakan",
+    enterValues: "Masukkan nilai di kolom alat.",
+    reviewResult: "Tinjau hasil yang diperbarui otomatis.",
+    copyOutput: "Salin hasil saat diperlukan.",
+    privacy: "Privasi",
+    terms: "Ketentuan",
+    footer: "Alat gratis berbasis browser. Tanpa unggahan, tanpa akun.",
+    toolsWord: "Alat",
+    toolSingular: "alat",
+    toolPlural: "alat",
+    categorySuffix: "alat",
+    categoryIntro: (category, title) => `Gunakan alat ${category.toLowerCase()} ini langsung di browser: ${title}.`,
+    categoriesMap: { Finance: "Keuangan", Business: "Bisnis", Developer: "Developer", Text: "Teks", Health: "Kesehatan", Converters: "Konverter", SEO: "SEO", Generators: "Generator", Security: "Keamanan", Time: "Waktu", Data: "Data", Image: "Gambar", Writing: "Penulisan", Education: "Pendidikan", Network: "Jaringan" }
+  },
+  vi: {
+    homeHeading: "Công cụ trực tuyến miễn phí",
+    searchPlaceholder: "Tìm công cụ: JSON, khoản vay, từ, hóa đơn...",
+    categories: "Danh mục",
+    recent: "Dùng gần đây",
+    noRecent: "Chưa có công cụ dùng gần đây.",
+    noMatchesTitle: "Không tìm thấy công cụ",
+    noMatchesBody: "Thử JSON, hình ảnh, CSV, regex, mật khẩu hoặc máy tính.",
+    openTool: "Mở công cụ",
+    closeTool: "Đóng công cụ",
+    howToUse: "Cách dùng",
+    enterValues: "Nhập giá trị vào các trường.",
+    reviewResult: "Xem kết quả được cập nhật tự động.",
+    copyOutput: "Sao chép kết quả khi cần.",
+    privacy: "Quyền riêng tư",
+    terms: "Điều khoản",
+    footer: "Công cụ miễn phí chạy trong trình duyệt. Không tải lên, không cần tài khoản.",
+    toolsWord: "Công cụ",
+    toolSingular: "công cụ",
+    toolPlural: "công cụ",
+    categorySuffix: "công cụ",
+    categoryIntro: (category, title) => `Dùng công cụ ${category.toLowerCase()} này ngay trong trình duyệt: ${title}.`,
+    categoriesMap: { Finance: "Tài chính", Business: "Kinh doanh", Developer: "Lập trình", Text: "Văn bản", Health: "Sức khỏe", Converters: "Chuyển đổi", SEO: "SEO", Generators: "Tạo nội dung", Security: "Bảo mật", Time: "Thời gian", Data: "Dữ liệu", Image: "Hình ảnh", Writing: "Viết", Education: "Giáo dục", Network: "Mạng" }
+  },
+  th: {
+    homeHeading: "เครื่องมือออนไลน์ฟรี",
+    searchPlaceholder: "ค้นหาเครื่องมือ: JSON, เงินกู้, คำ, ใบแจ้งหนี้...",
+    categories: "หมวดหมู่",
+    recent: "ใช้ล่าสุด",
+    noRecent: "ยังไม่มีเครื่องมือที่ใช้ล่าสุด",
+    noMatchesTitle: "ไม่พบเครื่องมือที่ตรงกัน",
+    noMatchesBody: "ลองค้นหา JSON, รูปภาพ, CSV, regex, รหัสผ่าน หรือเครื่องคิดเลข",
+    openTool: "เปิดเครื่องมือ",
+    closeTool: "ปิดเครื่องมือ",
+    howToUse: "วิธีใช้",
+    enterValues: "ป้อนค่าลงในช่องของเครื่องมือ",
+    reviewResult: "ตรวจผลลัพธ์ที่อัปเดตอัตโนมัติ",
+    copyOutput: "คัดลอกผลลัพธ์เมื่อต้องการ",
+    privacy: "ความเป็นส่วนตัว",
+    terms: "เงื่อนไข",
+    footer: "เครื่องมือฟรีในเบราว์เซอร์ ไม่ต้องอัปโหลด ไม่ต้องมีบัญชี",
+    toolsWord: "เครื่องมือ",
+    toolSingular: "เครื่องมือ",
+    toolPlural: "เครื่องมือ",
+    categorySuffix: "เครื่องมือ",
+    categoryIntro: (category, title) => `ใช้เครื่องมือ ${category} นี้ได้โดยตรงในเบราว์เซอร์: ${title}`,
+    categoriesMap: { Finance: "การเงิน", Business: "ธุรกิจ", Developer: "นักพัฒนา", Text: "ข้อความ", Health: "สุขภาพ", Converters: "ตัวแปลง", SEO: "SEO", Generators: "ตัวสร้าง", Security: "ความปลอดภัย", Time: "เวลา", Data: "ข้อมูล", Image: "รูปภาพ", Writing: "การเขียน", Education: "การศึกษา", Network: "เครือข่าย" }
+  }
+};
+Object.entries({
+  ja: ["固定ツール", "よく使うツールを固定します。", "固定", "解除"],
+  zh: ["固定工具", "固定常用工具。", "固定", "取消固定"],
+  es: ["Herramientas fijadas", "Fija las herramientas que usas a menudo.", "Fijar", "Quitar"],
+  fr: ["Outils épinglés", "Épinglez les outils utilisés souvent.", "Épingler", "Retirer"],
+  de: ["Angeheftete Tools", "Hefte häufig genutzte Tools an.", "Anheften", "Lösen"],
+  pt: ["Ferramentas fixadas", "Fixe as ferramentas que você usa muito.", "Fixar", "Desafixar"],
+  it: ["Strumenti fissati", "Fissa gli strumenti che usi spesso.", "Fissa", "Rimuovi"],
+  nl: ["Vastgezette tools", "Zet vaak gebruikte tools vast.", "Vastzetten", "Losmaken"],
+  ru: ["Закрепленные инструменты", "Закрепите часто используемые инструменты.", "Закрепить", "Открепить"],
+  ar: ["أدوات مثبتة", "ثبت الأدوات التي تستخدمها كثيرا.", "تثبيت", "إلغاء التثبيت"],
+  hi: ["पिन किए गए टूल", "अक्सर उपयोग किए जाने वाले टूल पिन करें।", "पिन करें", "हटाएं"],
+  id: ["Alat disematkan", "Sematkan alat yang sering digunakan.", "Sematkan", "Lepas"],
+  vi: ["Công cụ ghim", "Ghim các công cụ bạn dùng thường xuyên.", "Ghim", "Bỏ ghim"],
+  th: ["เครื่องมือที่ปักหมุด", "ปักหมุดเครื่องมือที่ใช้บ่อย", "ปักหมุด", "เลิกปักหมุด"]
+}).forEach(([code, [pinned, noPinned, pinTool, unpinTool]]) => {
+  Object.assign(translations[code], { pinned, noPinned, pinTool, unpinTool });
+});
+
+Object.entries({
+  en: "Decision",
+  ko: "결정",
+  ja: "決定",
+  zh: "决策",
+  es: "Decisiones",
+  fr: "Décision",
+  de: "Entscheidung",
+  pt: "Decisão",
+  it: "Decisione",
+  nl: "Beslissing",
+  ru: "Выбор",
+  ar: "القرار",
+  hi: "निर्णय",
+  id: "Keputusan",
+  vi: "Quyết định",
+  th: "การตัดสินใจ"
+}).forEach(([code, label]) => {
+  translations[code].categoriesMap.Decision = label;
+});
+
+const privacyCopy = {
+  en: {
+    title: "Private by design",
+    messages: {
+      "local-file": "Files are processed in your browser. They do not need to be uploaded to our servers.",
+      "private-input": "Input is processed in your browser. No account is required, and pasted content does not need server upload.",
+      browser: "Runs in your browser with no account required."
+    }
+  },
+  ko: {
+    title: "처음부터 개인정보 보호",
+    messages: {
+      "local-file": "파일은 브라우저 안에서 처리됩니다. 서버로 업로드할 필요가 없습니다.",
+      "private-input": "입력값은 브라우저 안에서 처리됩니다. 계정이 필요 없고, 붙여넣은 내용도 서버 업로드가 필요 없습니다.",
+      browser: "계정 없이 브라우저에서 바로 실행됩니다."
+    }
+  },
+  ja: {
+    title: "プライバシー重視設計",
+    messages: {
+      "local-file": "ファイルはブラウザ内で処理されます。サーバーへアップロードする必要はありません。",
+      "private-input": "入力内容はブラウザ内で処理されます。アカウントは不要で、貼り付けた内容をサーバーへアップロードする必要もありません。",
+      browser: "アカウント不要でブラウザ内で実行されます。"
+    }
+  },
+  zh: {
+    title: "隐私优先设计",
+    messages: {
+      "local-file": "文件会在你的浏览器中处理，不需要上传到服务器。",
+      "private-input": "输入内容会在你的浏览器中处理。无需账户，粘贴内容也无需上传服务器。",
+      browser: "无需账户，直接在浏览器中运行。"
+    }
+  },
+  es: {
+    title: "Privacidad desde el diseño",
+    messages: {
+      "local-file": "Los archivos se procesan en tu navegador. No hace falta subirlos a nuestros servidores.",
+      "private-input": "La entrada se procesa en tu navegador. No necesitas cuenta y el contenido pegado no requiere subida al servidor.",
+      browser: "Funciona en tu navegador sin necesidad de cuenta."
+    }
+  },
+  fr: {
+    title: "Confidentialité intégrée",
+    messages: {
+      "local-file": "Les fichiers sont traités dans votre navigateur. Ils n'ont pas besoin d'être envoyés à nos serveurs.",
+      "private-input": "Les saisies sont traitées dans votre navigateur. Aucun compte n'est requis et le contenu collé n'a pas besoin d'être envoyé au serveur.",
+      browser: "Fonctionne dans votre navigateur sans compte."
+    }
+  },
+  de: {
+    title: "Datenschutz von Anfang an",
+    messages: {
+      "local-file": "Dateien werden in deinem Browser verarbeitet. Sie müssen nicht auf unsere Server hochgeladen werden.",
+      "private-input": "Eingaben werden in deinem Browser verarbeitet. Kein Konto erforderlich, und eingefügte Inhalte müssen nicht auf den Server hochgeladen werden.",
+      browser: "Läuft ohne Konto direkt in deinem Browser."
+    }
+  },
+  pt: {
+    title: "Privacidade desde o início",
+    messages: {
+      "local-file": "Os arquivos são processados no seu navegador. Não precisam ser enviados aos nossos servidores.",
+      "private-input": "A entrada é processada no seu navegador. Não é preciso criar conta, e o conteúdo colado não precisa ser enviado ao servidor.",
+      browser: "Funciona no navegador sem precisar de conta."
+    }
+  },
+  it: {
+    title: "Privacy fin dalla progettazione",
+    messages: {
+      "local-file": "I file vengono elaborati nel tuo browser. Non devono essere caricati sui nostri server.",
+      "private-input": "I dati inseriti vengono elaborati nel tuo browser. Non serve un account e il contenuto incollato non deve essere caricato sul server.",
+      browser: "Funziona nel browser senza bisogno di account."
+    }
+  },
+  nl: {
+    title: "Privacy vanaf het ontwerp",
+    messages: {
+      "local-file": "Bestanden worden in je browser verwerkt. Ze hoeven niet naar onze servers te worden geupload.",
+      "private-input": "Invoer wordt in je browser verwerkt. Er is geen account nodig en geplakte inhoud hoeft niet naar de server te worden geupload.",
+      browser: "Werkt in je browser zonder account."
+    }
+  },
+  ru: {
+    title: "Конфиденциальность по умолчанию",
+    messages: {
+      "local-file": "Файлы обрабатываются в вашем браузере. Их не нужно загружать на наши серверы.",
+      "private-input": "Ввод обрабатывается в вашем браузере. Учетная запись не требуется, а вставленный контент не нужно загружать на сервер.",
+      browser: "Работает в браузере без учетной записи."
+    }
+  },
+  ar: {
+    title: "الخصوصية من الأساس",
+    messages: {
+      "local-file": "تتم معالجة الملفات داخل متصفحك. لا حاجة إلى رفعها إلى خوادمنا.",
+      "private-input": "تتم معالجة الإدخال داخل متصفحك. لا تحتاج إلى حساب، ولا يلزم رفع المحتوى الملصق إلى الخادم.",
+      browser: "يعمل داخل متصفحك من دون الحاجة إلى حساب."
+    }
+  },
+  hi: {
+    title: "डिज़ाइन से ही निजी",
+    messages: {
+      "local-file": "फ़ाइलें आपके ब्राउज़र में ही प्रोसेस होती हैं। उन्हें हमारे सर्वर पर अपलोड करने की जरूरत नहीं है।",
+      "private-input": "इनपुट आपके ब्राउज़र में ही प्रोसेस होता है। खाता जरूरी नहीं है, और पेस्ट की गई सामग्री को सर्वर पर अपलोड करने की जरूरत नहीं है।",
+      browser: "बिना खाते के सीधे आपके ब्राउज़र में चलता है।"
+    }
+  },
+  id: {
+    title: "Privasi sejak awal",
+    messages: {
+      "local-file": "File diproses di browser Anda. File tidak perlu diunggah ke server kami.",
+      "private-input": "Input diproses di browser Anda. Tidak perlu akun, dan konten yang ditempel tidak perlu diunggah ke server.",
+      browser: "Berjalan di browser tanpa perlu akun."
+    }
+  },
+  vi: {
+    title: "Riêng tư ngay từ thiết kế",
+    messages: {
+      "local-file": "Tệp được xử lý trong trình duyệt của bạn. Không cần tải lên máy chủ của chúng tôi.",
+      "private-input": "Dữ liệu nhập được xử lý trong trình duyệt của bạn. Không cần tài khoản và nội dung dán vào không cần tải lên máy chủ.",
+      browser: "Chạy trong trình duyệt mà không cần tài khoản."
+    }
+  },
+  th: {
+    title: "ออกแบบมาเพื่อความเป็นส่วนตัว",
+    messages: {
+      "local-file": "ไฟล์จะถูกประมวลผลในเบราว์เซอร์ของคุณ ไม่จำเป็นต้องอัปโหลดไปยังเซิร์ฟเวอร์ของเรา",
+      "private-input": "ข้อมูลที่ป้อนจะถูกประมวลผลในเบราว์เซอร์ของคุณ ไม่ต้องมีบัญชี และไม่จำเป็นต้องอัปโหลดเนื้อหาที่วางไปยังเซิร์ฟเวอร์",
+      browser: "ทำงานในเบราว์เซอร์โดยไม่ต้องมีบัญชี"
+    }
+  }
+};
+
+const titleTerms = {
+  ko: {
+    "Loan Payment": "대출 상환", "Credit Card Payoff": "신용카드 상환", "Debt Payoff": "부채 상환", "Compound Interest": "복리", "Sales Tax": "판매세", "Profit Margin": "이익률", "Invoice Number": "인보이스 번호", "JSON Formatter Inspector": "JSON 포매터 검사기", "Base64 Encoder Decoder": "Base64 인코더/디코더", "Word Counter": "단어 카운터", "Text File Word Counter": "텍스트 파일 단어 카운터", "Case Converter": "대소문자 변환기", "Percentage": "백분율", "Length": "길이", "Temperature": "온도", "URL Encoder Decoder": "URL 인코더/디코더", "Regex": "정규식", "Hex RGB": "HEX RGB", "Remove Duplicate Lines": "중복 줄 제거", "Whitespace": "공백", "Text Diff": "텍스트 비교", "Meta Title": "메타 제목", "Meta Description": "메타 설명", "Robots.txt": "Robots.txt", "QR Code": "QR 코드", "Password Strength": "비밀번호 강도", "Password": "비밀번호", "Unix Timestamp": "Unix 타임스탬프", "Date Difference": "날짜 차이", "Age": "나이", "Weight": "무게", "Markdown": "Markdown", "JSON File": "JSON 파일", "CSV to JSON": "CSV to JSON", "JSON to CSV": "JSON to CSV", "CSV Column": "CSV 열", "CSV": "CSV", "Data Size": "데이터 크기", "Aspect Ratio": "종횡비", "Image Format": "이미지 포맷", "Image Asset Pack": "이미지 에셋 팩", "Pixel Art": "픽셀아트", "Brand Color System": "브랜드 색상 시스템", "Square Image": "정사각형 이미지", "Break Even": "손익분기점", "Reading Time": "읽기 시간", "Grade Percentage": "성적 백분율", "Study Timer": "학습 타이머", "IP to Integer": "IP 정수 변환", "Mortgage Affordability": "주택담보대출 구매력", "Rent vs Buy": "임대 vs 구매", "Hourly to Salary": "시급 연봉 변환", "Take Home Pay": "실수령액", "Savings Goal": "저축 목표", "CPM RPM": "CPM RPM", "HTML Entity": "HTML 엔티티", "JWT": "JWT", "Cron Expression": "Cron 표현식", "Lorem Ipsum": "Lorem Ipsum", "Line Sorter": "줄 정렬기", "Find and Replace": "찾기 및 바꾸기", "List Randomizer": "목록 랜덤화", "Countdown": "카운트다운", "Retirement": "은퇴", "Discount": "할인", "Sentence": "문장", "Calculator": "계산기", "Converter": "변환기", "Generator": "생성기", "Checker": "검사기", "Planner": "플래너", "Formatter": "포매터", "Decoder": "디코더", "Encoder": "인코더", "Tester": "테스터", "Preview": "미리보기", "Cleaner": "클리너", "Extractor": "추출기", "Resizer": "리사이저", "Compressor": "압축기", "Maker": "메이커", "Counter": "카운터", "Remover": "제거기", "Tip": "팁", "ROI": "ROI", "BMI": "BMI", "GPA": "GPA", "CIDR": "CIDR"
+  },
+  ja: {
+    "Loan Payment": "ローン返済", "Credit Card Payoff": "クレジットカード返済", "Debt Payoff": "債務返済", "Compound Interest": "複利", "Sales Tax": "消費税", "Profit Margin": "利益率", "Invoice Number": "請求書番号", "JSON Formatter Inspector": "JSONフォーマット検査", "Base64 Encoder Decoder": "Base64エンコード/デコード", "Word Counter": "単語カウンター", "Text File Word Counter": "テキストファイル単語カウンター", "Case Converter": "文字種変換", "Percentage": "パーセンテージ", "Length": "長さ", "Temperature": "温度", "URL Encoder Decoder": "URLエンコード/デコード", "Regex": "正規表現", "Remove Duplicate Lines": "重複行削除", "Whitespace": "空白", "Text Diff": "テキスト差分", "Meta Title": "メタタイトル", "Meta Description": "メタ説明", "QR Code": "QRコード", "Password Strength": "パスワード強度", "Password": "パスワード", "Unix Timestamp": "Unixタイムスタンプ", "Date Difference": "日付差分", "Age": "年齢", "Weight": "重さ", "JSON File": "JSONファイル", "CSV Column": "CSV列", "Data Size": "データサイズ", "Aspect Ratio": "アスペクト比", "Image Format": "画像形式", "Image Asset Pack": "画像アセットパック", "Pixel Art": "ピクセルアート", "Brand Color System": "ブランドカラーシステム", "Square Image": "正方形画像", "Break Even": "損益分岐点", "Reading Time": "読了時間", "Grade Percentage": "成績パーセント", "Study Timer": "学習タイマー", "IP to Integer": "IP整数変換", "Mortgage Affordability": "住宅ローン購入可能額", "Rent vs Buy": "賃貸 vs 購入", "Hourly to Salary": "時給から年収", "Take Home Pay": "手取り給与", "Savings Goal": "貯蓄目標", "HTML Entity": "HTMLエンティティ", "Cron Expression": "Cron式", "Line Sorter": "行ソーター", "Find and Replace": "検索と置換", "List Randomizer": "リストランダム化", "Countdown": "カウントダウン", "Retirement": "退職", "Discount": "割引", "Sentence": "文", "Calculator": "計算機", "Converter": "変換", "Generator": "生成", "Checker": "チェック", "Planner": "プランナー", "Formatter": "フォーマッター", "Tester": "テスター", "Preview": "プレビュー", "Cleaner": "クリーナー", "Extractor": "抽出", "Resizer": "リサイズ", "Compressor": "圧縮", "Maker": "メーカー", "Counter": "カウンター", "Remover": "削除", "Tip": "チップ"
+  },
+  zh: {
+    "Loan Payment": "贷款还款", "Credit Card Payoff": "信用卡还款", "Debt Payoff": "债务还款", "Compound Interest": "复利", "Sales Tax": "销售税", "Profit Margin": "利润率", "Invoice Number": "发票编号", "JSON Formatter Inspector": "JSON 格式化检查器", "Base64 Encoder Decoder": "Base64 编码/解码", "Word Counter": "字数统计", "Text File Word Counter": "文本文件字数统计", "Case Converter": "大小写转换", "Percentage": "百分比", "Length": "长度", "Temperature": "温度", "URL Encoder Decoder": "URL 编码/解码", "Regex": "正则表达式", "Remove Duplicate Lines": "删除重复行", "Whitespace": "空白", "Text Diff": "文本差异", "Meta Title": "Meta 标题", "Meta Description": "Meta 描述", "QR Code": "二维码", "Password Strength": "密码强度", "Password": "密码", "Unix Timestamp": "Unix 时间戳", "Date Difference": "日期差", "Age": "年龄", "Weight": "重量", "JSON File": "JSON 文件", "CSV Column": "CSV 列", "Data Size": "数据大小", "Aspect Ratio": "宽高比", "Image Format": "图片格式", "Image Asset Pack": "图片素材包", "Pixel Art": "像素艺术", "Brand Color System": "品牌色彩系统", "Square Image": "方形图片", "Break Even": "盈亏平衡", "Reading Time": "阅读时间", "Grade Percentage": "成绩百分比", "Study Timer": "学习计时", "IP to Integer": "IP 转整数", "Mortgage Affordability": "房贷承受力", "Rent vs Buy": "租房 vs 买房", "Hourly to Salary": "时薪转年薪", "Take Home Pay": "税后收入", "Savings Goal": "储蓄目标", "HTML Entity": "HTML 实体", "Cron Expression": "Cron 表达式", "Line Sorter": "行排序", "Find and Replace": "查找和替换", "List Randomizer": "列表随机排序", "Countdown": "倒计时", "Retirement": "退休", "Discount": "折扣", "Sentence": "句子", "Calculator": "计算器", "Converter": "转换器", "Generator": "生成器", "Checker": "检查器", "Planner": "规划器", "Formatter": "格式化器", "Tester": "测试器", "Preview": "预览", "Cleaner": "清理器", "Extractor": "提取器", "Resizer": "调整大小", "Compressor": "压缩器", "Maker": "制作器", "Counter": "计数器", "Remover": "删除器", "Tip": "小费"
+  }
+};
+const fallbackRomanceTitleTerms = {
+  "Loan Payment": "Loan Payment", "Credit Card Payoff": "Credit Card Payoff", "Debt Payoff": "Debt Payoff", "Compound Interest": "Compound Interest", "Sales Tax": "Sales Tax", "Profit Margin": "Profit Margin", "Invoice Number": "Invoice Number", "JSON Formatter Inspector": "JSON Formatter Inspector", "Word Counter": "Word Counter", "Case Converter": "Case Converter", "URL Encoder Decoder": "URL Encoder Decoder", "Remove Duplicate Lines": "Remove Duplicate Lines", "Text Diff": "Text Diff", "Meta Title": "Meta Title", "Meta Description": "Meta Description", "QR Code": "QR Code", "Password Strength": "Password Strength", "Unix Timestamp": "Unix Timestamp", "Date Difference": "Date Difference", "JSON File": "JSON File", "CSV Column": "CSV Column", "Data Size": "Data Size", "Aspect Ratio": "Aspect Ratio", "Image Format": "Image Format", "Image Asset Pack": "Image Asset Pack", "Pixel Art": "Pixel Art", "Brand Color System": "Brand Color System", "Square Image": "Square Image", "Break Even": "Break Even", "Reading Time": "Reading Time", "Grade Percentage": "Grade Percentage", "Study Timer": "Study Timer", "IP to Integer": "IP to Integer", "Mortgage Affordability": "Mortgage Affordability", "Rent vs Buy": "Rent vs Buy", "Hourly to Salary": "Hourly to Salary", "Take Home Pay": "Take Home Pay", "Savings Goal": "Savings Goal", "HTML Entity": "HTML Entity", "Cron Expression": "Cron Expression", "Line Sorter": "Line Sorter", "Find and Replace": "Find and Replace", "List Randomizer": "List Randomizer", "Countdown": "Countdown", "Retirement": "Retirement", "Discount": "Discount", "Sentence": "Sentence", "Calculator": "Calculator", "Converter": "Converter", "Generator": "Generator", "Checker": "Checker", "Planner": "Planner", "Formatter": "Formatter", "Tester": "Tester", "Preview": "Preview", "Cleaner": "Cleaner", "Extractor": "Extractor", "Resizer": "Resizer", "Compressor": "Compressor", "Maker": "Maker", "Counter": "Counter", "Remover": "Remover", "Tip": "Tip"
+};
+["es", "fr", "de", "pt", "it", "nl", "ru", "ar", "hi", "id", "vi", "th"].forEach((code) => {
+  titleTerms[code] = { ...fallbackRomanceTitleTerms };
+});
+Object.assign(titleTerms.es, { "Loan Payment": "Pago de préstamo", "Credit Card Payoff": "Pago de tarjeta de crédito", "Debt Payoff": "Pago de deudas", "Compound Interest": "Interés compuesto", "Sales Tax": "Impuesto sobre ventas", "Profit Margin": "Margen de beneficio", "Invoice Number": "Número de factura", "Word Counter": "Contador de palabras", "Case Converter": "Convertidor de mayúsculas", "Password Strength": "Fortaleza de contraseña", "Date Difference": "Diferencia de fechas", "Data Size": "Tamaño de datos", "Aspect Ratio": "Relación de aspecto", "Image Format": "Formato de imagen", "Image Asset Pack": "Paquete de recursos de imagen", "Pixel Art": "Pixel art", "Brand Color System": "Sistema de color de marca", "Break Even": "Punto de equilibrio", "Reading Time": "Tiempo de lectura", "Study Timer": "Temporizador de estudio", "Mortgage Affordability": "Capacidad hipotecaria", "Rent vs Buy": "Alquilar vs comprar", "Hourly to Salary": "Hora a salario", "Take Home Pay": "Salario neto", "Savings Goal": "Meta de ahorro", "Cron Expression": "Expresión Cron", "Line Sorter": "Ordenador de líneas", "Find and Replace": "Buscar y reemplazar", "List Randomizer": "Aleatorizador de listas", "Calculator": "Calculadora", "Converter": "Convertidor", "Generator": "Generador", "Checker": "Verificador", "Planner": "Planificador", "Formatter": "Formateador", "Tester": "Probador", "Preview": "Vista previa", "Cleaner": "Limpiador", "Extractor": "Extractor", "Resizer": "Redimensionador", "Compressor": "Compresor", "Maker": "Creador", "Counter": "Contador", "Remover": "Eliminador", "Countdown": "Cuenta regresiva", "Discount": "Descuento", "Retirement": "Jubilación", "Sentence": "Oraciones", "Tip": "Propina" });
+Object.assign(titleTerms.fr, { "Loan Payment": "Paiement de prêt", "Credit Card Payoff": "Remboursement de carte", "Debt Payoff": "Remboursement de dette", "Compound Interest": "Intérêt composé", "Sales Tax": "Taxe de vente", "Profit Margin": "Marge bénéficiaire", "Invoice Number": "Numéro de facture", "Word Counter": "Compteur de mots", "Case Converter": "Convertisseur de casse", "Password Strength": "Force du mot de passe", "Date Difference": "Différence de dates", "Data Size": "Taille des données", "Aspect Ratio": "Format d'image", "Image Format": "Format d'image", "Image Asset Pack": "Pack d'images", "Pixel Art": "Pixel art", "Brand Color System": "Système couleur de marque", "Break Even": "Seuil de rentabilité", "Reading Time": "Temps de lecture", "Study Timer": "Minuteur d'étude", "Mortgage Affordability": "Capacité hypothécaire", "Rent vs Buy": "Louer vs acheter", "Hourly to Salary": "Horaire en salaire", "Take Home Pay": "Salaire net", "Savings Goal": "Objectif d'épargne", "Cron Expression": "Expression Cron", "Line Sorter": "Trieur de lignes", "Find and Replace": "Rechercher et remplacer", "List Randomizer": "Mélangeur de liste", "Calculator": "Calculateur", "Converter": "Convertisseur", "Generator": "Générateur", "Checker": "Vérificateur", "Planner": "Planificateur", "Formatter": "Formateur", "Tester": "Testeur", "Preview": "Aperçu", "Cleaner": "Nettoyeur", "Extractor": "Extracteur", "Resizer": "Redimensionneur", "Compressor": "Compresseur", "Maker": "Créateur", "Counter": "Compteur", "Remover": "Suppresseur", "Countdown": "Compte à rebours", "Discount": "Remise", "Retirement": "Retraite", "Sentence": "Phrases", "Tip": "Pourboire" });
+Object.assign(titleTerms.de, { "Loan Payment": "Kreditzahlung", "Credit Card Payoff": "Kreditkarten-Tilgung", "Debt Payoff": "Schuldentilgung", "Compound Interest": "Zinseszins", "Sales Tax": "Umsatzsteuer", "Profit Margin": "Gewinnmarge", "Invoice Number": "Rechnungsnummer", "Word Counter": "Wortzähler", "Case Converter": "Groß-/Kleinschreibung", "Password Strength": "Passwortstärke", "Date Difference": "Datumsdifferenz", "Data Size": "Datengröße", "Aspect Ratio": "Seitenverhältnis", "Image Format": "Bildformat", "Image Asset Pack": "Bild-Asset-Paket", "Pixel Art": "Pixelkunst", "Brand Color System": "Markenfarbsystem", "Break Even": "Break-even", "Reading Time": "Lesezeit", "Study Timer": "Lern-Timer", "Mortgage Affordability": "Hypotheken-Leistbarkeit", "Rent vs Buy": "Mieten vs Kaufen", "Hourly to Salary": "Stundenlohn zu Gehalt", "Take Home Pay": "Nettoeinkommen", "Savings Goal": "Sparziel", "Cron Expression": "Cron-Ausdruck", "Line Sorter": "Zeilensortierer", "Find and Replace": "Suchen und Ersetzen", "List Randomizer": "Listen-Zufallsgenerator", "Calculator": "Rechner", "Converter": "Konverter", "Generator": "Generator", "Checker": "Prüfer", "Planner": "Planer", "Formatter": "Formatierer", "Tester": "Tester", "Preview": "Vorschau", "Cleaner": "Bereiniger", "Extractor": "Extraktor", "Resizer": "Größenänderer", "Compressor": "Kompressor", "Maker": "Ersteller", "Counter": "Zähler", "Remover": "Entferner", "Countdown": "Countdown", "Discount": "Rabatt", "Retirement": "Rente", "Sentence": "Satz", "Tip": "Trinkgeld" });
+Object.assign(titleTerms.pt, { "Loan Payment": "Pagamento de empréstimo", "Credit Card Payoff": "Pagamento de cartão", "Debt Payoff": "Pagamento de dívidas", "Compound Interest": "Juros compostos", "Sales Tax": "Imposto sobre vendas", "Profit Margin": "Margem de lucro", "Invoice Number": "Número da fatura", "Word Counter": "Contador de palavras", "Case Converter": "Conversor de maiúsculas", "Password Strength": "Força da senha", "Date Difference": "Diferença de datas", "Data Size": "Tamanho de dados", "Aspect Ratio": "Proporção", "Image Format": "Formato de imagem", "Image Asset Pack": "Pacote de imagens", "Pixel Art": "Pixel art", "Brand Color System": "Sistema de cores da marca", "Break Even": "Ponto de equilíbrio", "Reading Time": "Tempo de leitura", "Study Timer": "Temporizador de estudo", "Mortgage Affordability": "Capacidade hipotecária", "Rent vs Buy": "Alugar vs comprar", "Hourly to Salary": "Hora para salário", "Take Home Pay": "Salário líquido", "Savings Goal": "Meta de poupança", "Cron Expression": "Expressão Cron", "Line Sorter": "Ordenador de linhas", "Find and Replace": "Localizar e substituir", "List Randomizer": "Aleatorizador de lista", "Calculator": "Calculadora", "Converter": "Conversor", "Generator": "Gerador", "Checker": "Verificador", "Planner": "Planejador", "Formatter": "Formatador", "Tester": "Testador", "Preview": "Prévia", "Cleaner": "Limpador", "Extractor": "Extrator", "Resizer": "Redimensionador", "Compressor": "Compressor", "Maker": "Criador", "Counter": "Contador", "Remover": "Removedor", "Countdown": "Contagem regressiva", "Discount": "Desconto", "Retirement": "Aposentadoria", "Sentence": "Frases", "Tip": "Gorjeta" });
+Object.assign(titleTerms.it, { "Loan Payment": "Pagamento prestito", "Credit Card Payoff": "Estinzione carta", "Debt Payoff": "Estinzione debiti", "Compound Interest": "Interesse composto", "Sales Tax": "Imposta sulle vendite", "Profit Margin": "Margine di profitto", "Invoice Number": "Numero fattura", "Word Counter": "Contatore parole", "Case Converter": "Convertitore maiuscole", "Password Strength": "Forza password", "Date Difference": "Differenza date", "Data Size": "Dimensione dati", "Aspect Ratio": "Proporzioni", "Image Format": "Formato immagine", "Image Asset Pack": "Pacchetto immagini", "Pixel Art": "Pixel art", "Brand Color System": "Sistema colori brand", "Break Even": "Punto di pareggio", "Reading Time": "Tempo di lettura", "Study Timer": "Timer studio", "Mortgage Affordability": "Accessibilità mutuo", "Rent vs Buy": "Affitto vs acquisto", "Hourly to Salary": "Ora a stipendio", "Take Home Pay": "Stipendio netto", "Savings Goal": "Obiettivo risparmio", "Cron Expression": "Espressione Cron", "Line Sorter": "Ordinatore righe", "Find and Replace": "Trova e sostituisci", "List Randomizer": "Randomizzatore lista", "Calculator": "Calcolatore", "Converter": "Convertitore", "Generator": "Generatore", "Checker": "Verificatore", "Planner": "Pianificatore", "Formatter": "Formatore", "Tester": "Tester", "Preview": "Anteprima", "Cleaner": "Pulitore", "Extractor": "Estrattore", "Resizer": "Ridimensionatore", "Compressor": "Compressore", "Maker": "Creatore", "Counter": "Contatore", "Remover": "Rimozione", "Countdown": "Conto alla rovescia", "Discount": "Sconto", "Retirement": "Pensione", "Sentence": "Frasi", "Tip": "Mancia" });
+Object.assign(titleTerms.nl, { "Loan Payment": "Leningbetaling", "Credit Card Payoff": "Creditcard aflossen", "Debt Payoff": "Schuldaflossing", "Compound Interest": "Samengestelde rente", "Sales Tax": "Omzetbelasting", "Profit Margin": "Winstmarge", "Invoice Number": "Factuurnummer", "Word Counter": "Woordenteller", "Case Converter": "Hoofdletterconverter", "Password Strength": "Wachtwoordsterkte", "Date Difference": "Datumverschil", "Data Size": "Datagrootte", "Aspect Ratio": "Beeldverhouding", "Image Format": "Afbeeldingsformaat", "Image Asset Pack": "Afbeeldingspakket", "Pixel Art": "Pixelkunst", "Brand Color System": "Merkkleursysteem", "Break Even": "Break-even", "Reading Time": "Leestijd", "Study Timer": "Studietimer", "Mortgage Affordability": "Hypotheek haalbaarheid", "Rent vs Buy": "Huren vs kopen", "Hourly to Salary": "Uurloon naar salaris", "Take Home Pay": "Nettoloon", "Savings Goal": "Spaardoel", "Cron Expression": "Cron-expressie", "Line Sorter": "Regelsorteerder", "Find and Replace": "Zoeken en vervangen", "List Randomizer": "Lijst-randomizer", "Calculator": "Calculator", "Converter": "Converter", "Generator": "Generator", "Checker": "Checker", "Planner": "Planner", "Formatter": "Formatter", "Tester": "Tester", "Preview": "Voorbeeld", "Cleaner": "Opschoner", "Extractor": "Extractor", "Resizer": "Formaatwijziger", "Compressor": "Compressor", "Maker": "Maker", "Counter": "Teller", "Remover": "Verwijderaar", "Countdown": "Aftellen", "Discount": "Korting", "Retirement": "Pensioen", "Sentence": "Zinnen", "Tip": "Fooi" });
+Object.assign(titleTerms.ru, { "Loan Payment": "Платеж по кредиту", "Credit Card Payoff": "Погашение карты", "Debt Payoff": "Погашение долга", "Compound Interest": "Сложный процент", "Sales Tax": "Налог с продаж", "Profit Margin": "Маржа прибыли", "Invoice Number": "Номер счета", "Word Counter": "Счетчик слов", "Case Converter": "Конвертер регистра", "Password Strength": "Надежность пароля", "Date Difference": "Разница дат", "Data Size": "Размер данных", "Aspect Ratio": "Соотношение сторон", "Image Format": "Формат изображения", "Image Asset Pack": "Пакет изображений", "Pixel Art": "Пиксель-арт", "Brand Color System": "Система цветов бренда", "Break Even": "Точка безубыточности", "Reading Time": "Время чтения", "Study Timer": "Учебный таймер", "Mortgage Affordability": "Доступность ипотеки", "Rent vs Buy": "Аренда vs покупка", "Hourly to Salary": "Почасовая в зарплату", "Take Home Pay": "Чистая зарплата", "Savings Goal": "Цель накоплений", "Cron Expression": "Cron-выражение", "Line Sorter": "Сортировка строк", "Find and Replace": "Найти и заменить", "List Randomizer": "Перемешивание списка", "Calculator": "Калькулятор", "Converter": "Конвертер", "Generator": "Генератор", "Checker": "Проверка", "Planner": "Планировщик", "Formatter": "Форматтер", "Tester": "Тестер", "Preview": "Предпросмотр", "Cleaner": "Очистка", "Extractor": "Извлечение", "Resizer": "Изменение размера", "Compressor": "Сжатие", "Maker": "Создатель", "Counter": "Счетчик", "Remover": "Удаление", "Countdown": "Обратный отсчет", "Discount": "Скидка", "Retirement": "Пенсия", "Sentence": "Предложения", "Tip": "Чаевые" });
+Object.assign(titleTerms.ar, { "Loan Payment": "سداد القرض", "Credit Card Payoff": "سداد بطاقة الائتمان", "Debt Payoff": "سداد الديون", "Compound Interest": "الفائدة المركبة", "Sales Tax": "ضريبة المبيعات", "Profit Margin": "هامش الربح", "Invoice Number": "رقم الفاتورة", "Word Counter": "عداد الكلمات", "Case Converter": "محول حالة الأحرف", "Password Strength": "قوة كلمة المرور", "Date Difference": "فرق التاريخ", "Data Size": "حجم البيانات", "Aspect Ratio": "نسبة العرض", "Image Format": "تنسيق الصورة", "Image Asset Pack": "حزمة أصول الصور", "Pixel Art": "فن البكسل", "Brand Color System": "نظام ألوان العلامة", "Break Even": "نقطة التعادل", "Reading Time": "وقت القراءة", "Study Timer": "مؤقت الدراسة", "Mortgage Affordability": "قدرة الرهن", "Rent vs Buy": "الإيجار مقابل الشراء", "Hourly to Salary": "من الساعة إلى الراتب", "Take Home Pay": "صافي الراتب", "Savings Goal": "هدف الادخار", "Cron Expression": "تعبير Cron", "Line Sorter": "مرتب الأسطر", "Find and Replace": "بحث واستبدال", "List Randomizer": "عشوائية القائمة", "Calculator": "حاسبة", "Converter": "محول", "Generator": "مولد", "Checker": "فاحص", "Planner": "مخطط", "Formatter": "منسق", "Tester": "مختبر", "Preview": "معاينة", "Cleaner": "منظف", "Extractor": "مستخرج", "Resizer": "مغير الحجم", "Compressor": "ضاغط", "Maker": "منشئ", "Counter": "عداد", "Remover": "مزيل", "Countdown": "عد تنازلي", "Discount": "خصم", "Retirement": "تقاعد", "Sentence": "جمل", "Tip": "إكرامية" });
+Object.assign(titleTerms.hi, { "Loan Payment": "ऋण भुगतान", "Credit Card Payoff": "क्रेडिट कार्ड भुगतान", "Debt Payoff": "ऋण चुकौती", "Compound Interest": "चक्रवृद्धि ब्याज", "Sales Tax": "बिक्री कर", "Profit Margin": "लाभ मार्जिन", "Invoice Number": "इनवॉइस नंबर", "Word Counter": "शब्द काउंटर", "Case Converter": "केस कन्वर्टर", "Password Strength": "पासवर्ड मजबूती", "Date Difference": "तारीख अंतर", "Data Size": "डेटा आकार", "Aspect Ratio": "आस्पेक्ट रेशियो", "Image Format": "चित्र फ़ॉर्मेट", "Image Asset Pack": "चित्र एसेट पैक", "Pixel Art": "पिक्सेल आर्ट", "Brand Color System": "ब्रांड रंग सिस्टम", "Break Even": "ब्रेक ईवन", "Reading Time": "पढ़ने का समय", "Study Timer": "अध्ययन टाइमर", "Mortgage Affordability": "मॉर्गेज क्षमता", "Rent vs Buy": "किराया vs खरीद", "Hourly to Salary": "घंटे से वेतन", "Take Home Pay": "घर ले जाने वाला वेतन", "Savings Goal": "बचत लक्ष्य", "Cron Expression": "Cron अभिव्यक्ति", "Line Sorter": "लाइन सॉर्टर", "Find and Replace": "खोजें और बदलें", "List Randomizer": "सूची रैंडमाइज़र", "Calculator": "कैलकुलेटर", "Converter": "कन्वर्टर", "Generator": "जनरेटर", "Checker": "चेकर", "Planner": "प्लानर", "Formatter": "फ़ॉर्मैटर", "Tester": "टेस्टर", "Preview": "पूर्वावलोकन", "Cleaner": "क्लीनर", "Extractor": "एक्सट्रैक्टर", "Resizer": "रीसाइज़र", "Compressor": "कंप्रेसर", "Maker": "मेकर", "Counter": "काउंटर", "Remover": "रिमूवर", "Countdown": "काउंटडाउन", "Discount": "छूट", "Retirement": "सेवानिवृत्ति", "Sentence": "वाक्य", "Tip": "टिप" });
+Object.assign(titleTerms.id, { "Loan Payment": "Pembayaran pinjaman", "Credit Card Payoff": "Pelunasan kartu kredit", "Debt Payoff": "Pelunasan utang", "Compound Interest": "Bunga majemuk", "Sales Tax": "Pajak penjualan", "Profit Margin": "Margin laba", "Invoice Number": "Nomor invoice", "Word Counter": "Penghitung kata", "Case Converter": "Konverter huruf", "Password Strength": "Kekuatan kata sandi", "Date Difference": "Selisih tanggal", "Data Size": "Ukuran data", "Aspect Ratio": "Rasio aspek", "Image Format": "Format gambar", "Image Asset Pack": "Paket aset gambar", "Pixel Art": "Seni piksel", "Brand Color System": "Sistem warna merek", "Break Even": "Titik impas", "Reading Time": "Waktu baca", "Study Timer": "Timer belajar", "Mortgage Affordability": "Keterjangkauan hipotek", "Rent vs Buy": "Sewa vs beli", "Hourly to Salary": "Jam ke gaji", "Take Home Pay": "Gaji bersih", "Savings Goal": "Target tabungan", "Cron Expression": "Ekspresi Cron", "Line Sorter": "Pengurut baris", "Find and Replace": "Cari dan ganti", "List Randomizer": "Pengacak daftar", "Calculator": "Kalkulator", "Converter": "Konverter", "Generator": "Generator", "Checker": "Pemeriksa", "Planner": "Perencana", "Formatter": "Pemformat", "Tester": "Penguji", "Preview": "Pratinjau", "Cleaner": "Pembersih", "Extractor": "Ekstraktor", "Resizer": "Pengubah ukuran", "Compressor": "Kompresor", "Maker": "Pembuat", "Counter": "Penghitung", "Remover": "Penghapus", "Countdown": "Hitung mundur", "Discount": "Diskon", "Retirement": "Pensiun", "Sentence": "Kalimat", "Tip": "Tip" });
+Object.assign(titleTerms.vi, { "Loan Payment": "Thanh toán khoản vay", "Credit Card Payoff": "Trả nợ thẻ tín dụng", "Debt Payoff": "Trả nợ", "Compound Interest": "Lãi kép", "Sales Tax": "Thuế bán hàng", "Profit Margin": "Biên lợi nhuận", "Invoice Number": "Số hóa đơn", "Word Counter": "Đếm từ", "Case Converter": "Đổi chữ hoa thường", "Password Strength": "Độ mạnh mật khẩu", "Date Difference": "Chênh lệch ngày", "Data Size": "Kích thước dữ liệu", "Aspect Ratio": "Tỷ lệ khung hình", "Image Format": "Định dạng ảnh", "Image Asset Pack": "Gói tài nguyên ảnh", "Pixel Art": "Pixel art", "Brand Color System": "Hệ màu thương hiệu", "Break Even": "Điểm hòa vốn", "Reading Time": "Thời gian đọc", "Study Timer": "Hẹn giờ học", "Mortgage Affordability": "Khả năng mua nhà", "Rent vs Buy": "Thuê vs mua", "Hourly to Salary": "Giờ sang lương", "Take Home Pay": "Lương thực nhận", "Savings Goal": "Mục tiêu tiết kiệm", "Cron Expression": "Biểu thức Cron", "Line Sorter": "Sắp xếp dòng", "Find and Replace": "Tìm và thay thế", "List Randomizer": "Trộn danh sách", "Calculator": "Máy tính", "Converter": "Bộ chuyển đổi", "Generator": "Bộ tạo", "Checker": "Bộ kiểm tra", "Planner": "Bộ lập kế hoạch", "Formatter": "Bộ định dạng", "Tester": "Bộ thử", "Preview": "Xem trước", "Cleaner": "Bộ làm sạch", "Extractor": "Bộ trích xuất", "Resizer": "Đổi kích thước", "Compressor": "Nén", "Maker": "Bộ tạo", "Counter": "Bộ đếm", "Remover": "Bộ xóa", "Countdown": "Đếm ngược", "Discount": "Giảm giá", "Retirement": "Nghỉ hưu", "Sentence": "Câu", "Tip": "Tiền tip" });
+Object.assign(titleTerms.th, { "Loan Payment": "การชำระเงินกู้", "Credit Card Payoff": "ชำระบัตรเครดิต", "Debt Payoff": "ชำระหนี้", "Compound Interest": "ดอกเบี้ยทบต้น", "Sales Tax": "ภาษีขาย", "Profit Margin": "อัตรากำไร", "Invoice Number": "เลขใบแจ้งหนี้", "Word Counter": "ตัวนับคำ", "Case Converter": "ตัวแปลงตัวพิมพ์", "Password Strength": "ความแข็งแรงรหัสผ่าน", "Date Difference": "ส่วนต่างวันที่", "Data Size": "ขนาดข้อมูล", "Aspect Ratio": "อัตราส่วนภาพ", "Image Format": "รูปแบบภาพ", "Image Asset Pack": "ชุดไฟล์ภาพ", "Pixel Art": "พิกเซลอาร์ต", "Brand Color System": "ระบบสีแบรนด์", "Break Even": "จุดคุ้มทุน", "Reading Time": "เวลาอ่าน", "Study Timer": "ตัวจับเวลาเรียน", "Mortgage Affordability": "ความสามารถจำนอง", "Rent vs Buy": "เช่า vs ซื้อ", "Hourly to Salary": "รายชั่วโมงเป็นเงินเดือน", "Take Home Pay": "รายได้สุทธิ", "Savings Goal": "เป้าหมายออม", "Cron Expression": "นิพจน์ Cron", "Line Sorter": "เรียงบรรทัด", "Find and Replace": "ค้นหาและแทนที่", "List Randomizer": "สุ่มรายการ", "Calculator": "เครื่องคิดเลข", "Converter": "ตัวแปลง", "Generator": "ตัวสร้าง", "Checker": "ตัวตรวจสอบ", "Planner": "ตัววางแผน", "Formatter": "ตัวจัดรูปแบบ", "Tester": "ตัวทดสอบ", "Preview": "ดูตัวอย่าง", "Cleaner": "ตัวล้าง", "Extractor": "ตัวดึงข้อมูล", "Resizer": "ปรับขนาด", "Compressor": "บีบอัด", "Maker": "ตัวสร้าง", "Counter": "ตัวนับ", "Remover": "ตัวลบ", "Countdown": "นับถอยหลัง", "Discount": "ส่วนลด", "Retirement": "เกษียณ", "Sentence": "ประโยค", "Tip": "ทิป" });
+
+Object.entries({
+  ko: { "Ladder Draw": "사다리 타기", "Coin Flip": "동전 던지기", "Dice Roller": "주사위 굴리기", "Roulette Picker": "룰렛 선택기" },
+  ja: { "Ladder Draw": "あみだくじ", "Coin Flip": "コイン投げ", "Dice Roller": "サイコロ", "Roulette Picker": "ルーレット選択" },
+  zh: { "Ladder Draw": "梯子抽签", "Coin Flip": "抛硬币", "Dice Roller": "掷骰子", "Roulette Picker": "轮盘选择器" },
+  es: { "Ladder Draw": "Sorteo de escalera", "Coin Flip": "Lanzar moneda", "Dice Roller": "Lanzador de dados", "Roulette Picker": "Ruleta de selección" },
+  fr: { "Ladder Draw": "Tirage en échelle", "Coin Flip": "Pile ou face", "Dice Roller": "Lanceur de dés", "Roulette Picker": "Roulette de choix" },
+  de: { "Ladder Draw": "Leiter-Auslosung", "Coin Flip": "Münzwurf", "Dice Roller": "Würfelroller", "Roulette Picker": "Roulette-Auswahl" },
+  pt: { "Ladder Draw": "Sorteio de escada", "Coin Flip": "Cara ou coroa", "Dice Roller": "Rolador de dados", "Roulette Picker": "Roleta de escolha" },
+  it: { "Ladder Draw": "Sorteggio a scala", "Coin Flip": "Lancio moneta", "Dice Roller": "Lancia dadi", "Roulette Picker": "Roulette scelta" },
+  nl: { "Ladder Draw": "Ladderloting", "Coin Flip": "Munt opgooien", "Dice Roller": "Dobbelsteenroller", "Roulette Picker": "Roulettekiezer" },
+  ru: { "Ladder Draw": "Жеребьевка лестницей", "Coin Flip": "Подброс монеты", "Dice Roller": "Бросок кубиков", "Roulette Picker": "Рулетка выбора" },
+  ar: { "Ladder Draw": "سحب السلم", "Coin Flip": "رمي العملة", "Dice Roller": "رمي النرد", "Roulette Picker": "اختيار بالروليت" },
+  hi: { "Ladder Draw": "लैडर ड्रॉ", "Coin Flip": "सिक्का उछाल", "Dice Roller": "पासा रोलर", "Roulette Picker": "रूलेट चयन" },
+  id: { "Ladder Draw": "Undian tangga", "Coin Flip": "Lempar koin", "Dice Roller": "Pelempar dadu", "Roulette Picker": "Pemilih roulette" },
+  vi: { "Ladder Draw": "Bốc thăm bậc thang", "Coin Flip": "Tung xu", "Dice Roller": "Gieo xúc xắc", "Roulette Picker": "Vòng quay chọn" },
+  th: { "Ladder Draw": "จับฉลากบันได", "Coin Flip": "โยนเหรียญ", "Dice Roller": "ทอยลูกเต๋า", "Roulette Picker": "วงล้อสุ่มเลือก" }
+}).forEach(([code, terms]) => {
+  Object.assign(titleTerms[code], terms);
+});
+
+const highValueCategories = new Set(["Finance", "Business", "SEO", "Image", "Data", "Decision"]);
+const categoryOrder = ["Image", "Decision", "Data", "Developer", "Text", "Finance", "Business", "SEO", "Security", "Time", "Converters", "Writing", "Education", "Network", "Health", "Generators"];
+let currentLanguage = languageCodes.has(storageGet(LANGUAGE_STORAGE_KEY)) ? storageGet(LANGUAGE_STORAGE_KEY) : "en";
+if (!languageCodes.has(storageGet(LANGUAGE_STORAGE_KEY)) && location.pathname.startsWith("/ko/")) {
+  currentLanguage = "ko";
+}
 const provenDemandTools = new Set([
   "mortgage-affordability-calculator",
   "rent-vs-buy-calculator",
@@ -1337,7 +2121,7 @@ function toolIntent(tool) {
 
 function toolTier(tool) {
   if (tool.custom?.startsWith("image-") || ["Finance", "Business", "SEO"].includes(tool.category)) return "high";
-  if (["Developer", "Data", "Security", "Writing"].includes(tool.category)) return "medium";
+  if (["Developer", "Data", "Security", "Writing", "Decision"].includes(tool.category)) return "medium";
   return "base";
 }
 
@@ -1518,14 +2302,13 @@ function dataHref(type, value) {
 
 function privacyNotice(tool) {
   const level = toolPrivacyLevel(tool);
-  const message = {
-    "local-file": "Files are processed in your browser. They do not need to be uploaded to our servers.",
-    "private-input": "Input is processed in your browser. No account is required, and pasted content does not need server upload.",
-    browser: "Runs in your browser with no account required."
-  }[level];
+  const copy = privacyCopy[currentLanguage] || privacyCopy.en;
+  const fallbackCopy = privacyCopy.en;
+  const title = copy.title || fallbackCopy.title;
+  const message = copy.messages?.[level] || fallbackCopy.messages[level];
   return `
     <div class="privacy-note" data-privacy-level="${level}">
-      <strong>Private by design</strong>
+      <strong>${title}</strong>
       <span>${message}</span>
     </div>
   `;
@@ -1536,6 +2319,7 @@ function toolMetadata(tool) {
   const categorySlug = slugify(tool.category);
   const intent = toolIntent(tool);
   const opportunity = toolOpportunity(tool);
+  const aliases = Array.isArray(tool.aliases) ? tool.aliases.join(" ") : "";
   return {
     slug,
     categorySlug,
@@ -1543,7 +2327,7 @@ function toolMetadata(tool) {
     tier: toolTier(tool),
     priority: opportunity.score >= 80 ? "flagship" : highValueCategories.has(tool.category) || tool.custom ? "primary" : "standard",
     opportunity,
-    searchText: `${tool.title} ${tool.category} ${tool.description} ${slug} ${categorySlug} ${intent} ${opportunity.demand} ${opportunity.moat}`.toLowerCase()
+    searchText: `${tool.title} ${tool.category} ${tool.description} ${aliases} ${slug} ${categorySlug} ${intent} ${opportunity.demand} ${opportunity.moat}`.toLowerCase()
   };
 }
 
@@ -1567,18 +2351,27 @@ function searchScore(tool, query) {
   const slug = meta.slug;
   const category = tool.category.toLowerCase();
   const description = tool.description.toLowerCase();
+  const localizedTitle = localizedToolTitle(tool).toLowerCase();
+  const localizedCategoryName = localizedCategory(tool.category).toLowerCase();
+  const localizedDescription = localizedToolDescription(tool).toLowerCase();
+  const localizedCorpus = localizedSearchText(tool, meta);
   const tokens = normalized.split(/\s+/).filter(Boolean);
   let score = toolRank(tool);
-  if (title === normalized || slug === normalized) score += 120;
-  if (title.startsWith(normalized) || slug.startsWith(normalized)) score += 90;
-  if (title.includes(normalized) || slug.includes(normalized)) score += 70;
-  if (category.includes(normalized)) score += 35;
-  if (description.includes(normalized)) score += 25;
+  if (title === normalized || localizedTitle === normalized || slug === normalized) score += 120;
+  if (title.startsWith(normalized) || localizedTitle.startsWith(normalized) || slug.startsWith(normalized)) score += 90;
+  if (title.includes(normalized) || localizedTitle.includes(normalized) || slug.includes(normalized)) score += 70;
+  if (category.includes(normalized) || localizedCategoryName.includes(normalized)) score += 35;
+  if (description.includes(normalized) || localizedDescription.includes(normalized)) score += 25;
+  if (localizedCorpus.includes(normalized)) score += 30;
   for (const token of tokens) {
     if (title.includes(token)) score += 24;
+    if (localizedTitle.includes(token)) score += 28;
     if (slug.includes(token)) score += 20;
     if (category.includes(token)) score += 10;
+    if (localizedCategoryName.includes(token)) score += 12;
     if (description.includes(token)) score += 8;
+    if (localizedDescription.includes(token)) score += 10;
+    if (localizedCorpus.includes(token)) score += 8;
     if (meta.intent.includes(token)) score += 8;
   }
   return score;
@@ -1591,7 +2384,10 @@ function searchTools(query) {
   }
   return tools
     .map((tool) => ({ tool, score: searchScore(tool, normalized) }))
-    .filter(({ tool, score }) => score > toolRank(tool) || toolMetadata(tool).searchText.includes(normalized))
+    .filter(({ tool, score }) => {
+      const meta = toolMetadata(tool);
+      return score > toolRank(tool) || meta.searchText.includes(normalized) || localizedSearchText(tool, meta).includes(normalized);
+    })
     .sort((a, b) => b.score - a.score || a.tool.title.localeCompare(b.tool.title))
     .map(({ tool }) => tool);
 }
@@ -1601,11 +2397,199 @@ function findToolBySlug(slug) {
   return tools.find((tool) => tool.id === normalized || toolMetadata(tool).slug === normalized);
 }
 
+function locale() {
+  return translations[currentLanguage] || translations.en;
+}
+
+function textFor(key) {
+  return locale()[key] ?? translations.en[key] ?? key;
+}
+
+function localizedCategory(category) {
+  return localizedCategoryFor(category, currentLanguage);
+}
+
+function localizedCategoryFor(category, language = currentLanguage) {
+  return translations[language]?.categoriesMap?.[category] || category;
+}
+
+function categoryForAnchor(anchor) {
+  return tools.find((tool) => tool.anchor === anchor)?.category || "";
+}
+
+function localizedToolTitle(tool) {
+  return localizedToolTitleFor(tool, currentLanguage);
+}
+
+function localizedToolTitleFor(tool, language = currentLanguage) {
+  if (!tool) return "";
+  if (language === "en") return tool.title;
+  const terms = titleTerms[language] || {};
+  const orderedTerms = Object.keys(terms).sort((a, b) => b.length - a.length);
+  return orderedTerms.reduce((title, term) => title.replaceAll(term, terms[term]), tool.title);
+}
+
+function localizedToolDescription(tool) {
+  if (!tool) return "";
+  if (currentLanguage === "en") return tool.description;
+  return locale().categoryIntro(localizedCategory(tool.category), localizedToolTitle(tool));
+}
+
+function localizedToolDescriptionFor(tool, language = currentLanguage) {
+  if (!tool) return "";
+  if (language === "en") return tool.description;
+  const localizedTitle = localizedToolTitleFor(tool, language);
+  const localizedCategoryName = localizedCategoryFor(tool.category, language);
+  const intro = translations[language]?.categoryIntro || translations.en.categoryIntro;
+  return intro(localizedCategoryName, localizedTitle);
+}
+
+function localizedSearchText(tool, meta = toolMetadata(tool)) {
+  const parts = [
+    meta.searchText,
+    tool.title,
+    tool.category,
+    tool.description
+  ];
+  for (const [code] of languages) {
+    parts.push(
+      localizedToolTitleFor(tool, code),
+      localizedCategoryFor(tool.category, code),
+      localizedToolDescriptionFor(tool, code)
+    );
+  }
+  return parts.join(" ").toLowerCase();
+}
+
+function localizedToolCount(count) {
+  const noun = count === 1 ? textFor("toolSingular") : textFor("toolPlural");
+  if (["ko", "zh", "ja", "th", "hi"].includes(currentLanguage)) {
+    return `${count} ${noun}`;
+  }
+  return `${count} ${noun}`;
+}
+
+function localizedCategoryLink(anchor, fallbackText) {
+  const category = categoryForAnchor(anchor);
+  if (!category) return fallbackText;
+  return `${localizedCategory(category)} ${textFor("categorySuffix")}`;
+}
+
+function populateLanguageSelect() {
+  if (!languageSelect) return;
+  languageSelect.innerHTML = languages
+    .map(([code, label]) => `<option value="${code}" ${code === currentLanguage ? "selected" : ""}>${label}</option>`)
+    .join("");
+}
+
+function applyLocale() {
+  document.documentElement.lang = currentLanguage;
+  document.documentElement.dir = currentLanguage === "ar" ? "rtl" : "ltr";
+  if (languageSelect) {
+    languageSelect.value = currentLanguage;
+    languageSelect.setAttribute("aria-label", textFor("categories"));
+  }
+  if (search) {
+    search.placeholder = textFor("searchPlaceholder");
+  }
+
+  const sideBlocks = document.querySelectorAll(".side-block");
+  const categoryHeading = sideBlocks[0]?.querySelector("h2");
+  const pinnedHeading = sideBlocks[1]?.querySelector("h2");
+  const recentHeading = sideBlocks[2]?.querySelector("h2");
+  if (categoryHeading) categoryHeading.textContent = textFor("categories");
+  if (pinnedHeading) pinnedHeading.textContent = textFor("pinned");
+  if (recentHeading) recentHeading.textContent = textFor("recent");
+  document.querySelectorAll('.sidebar a[href^="#"]').forEach((link) => {
+    const anchor = link.getAttribute("href").slice(1);
+    link.textContent = localizedCategoryLink(anchor, link.textContent);
+  });
+
+  const footerSpans = document.querySelectorAll(".site-footer > span");
+  if (footerSpans[1]) footerSpans[1].textContent = textFor("footer");
+  const footerLinks = document.querySelectorAll(".footer-links a");
+  if (footerLinks[0]) footerLinks[0].textContent = textFor("privacy");
+  if (footerLinks[1]) footerLinks[1].textContent = textFor("terms");
+
+  const pathCategory = location.pathname.match(/\/categories\/([^/]+)\/?$/)?.[1];
+  const pathTool = findToolBySlug(initialToolSlugFromLocation());
+  const heroTitle = document.querySelector(".hero-copy h1");
+  const heroCopy = document.querySelector(".hero-copy p");
+  if (heroTitle && pathTool) {
+    heroTitle.textContent = localizedToolTitle(pathTool);
+    if (heroCopy) heroCopy.textContent = localizedToolDescription(pathTool);
+  } else if (heroTitle && pathCategory) {
+    const category = tools.find((tool) => toolMetadata(tool).categorySlug === pathCategory)?.category;
+    if (category) heroTitle.textContent = `${localizedCategory(category)} ${textFor("toolsWord")}`;
+  } else if (heroTitle) {
+    heroTitle.textContent = textFor("homeHeading");
+  }
+}
+
 function initialToolSlugFromLocation() {
   const pathMatch = location.pathname.match(/\/tools\/([^/]+)\/?$/);
   if (pathMatch) return pathMatch[1];
   const params = new URLSearchParams(location.search);
   return params.get("tool") || "";
+}
+
+function shareableFormElements(form) {
+  return [...form.elements].filter((el) => el.name && !["file", "reset", "submit", "button"].includes(el.type));
+}
+
+function buildShareUrl(tool) {
+  const form = document.getElementById("active-tool-form");
+  const params = new URLSearchParams();
+  if (form) {
+    shareableFormElements(form).forEach((el) => {
+      if (el.type === "checkbox") {
+        if (el.checked !== el.defaultChecked) params.set(el.name, el.checked ? "1" : "0");
+        return;
+      }
+      if (el.tagName === "SELECT") {
+        const defaultOption = [...el.options].find((option) => option.defaultSelected) || el.options[0];
+        if (el.value !== (defaultOption?.value ?? "")) params.set(el.name, el.value);
+        return;
+      }
+      if (el.value !== el.defaultValue) params.set(el.name, el.value);
+    });
+  }
+  const query = params.toString();
+  return `${location.origin}/tools/${toolMetadata(tool).slug}/${query ? `?${query}` : ""}`;
+}
+
+function applySharedStateFromUrl(tool) {
+  const params = new URLSearchParams(location.search);
+  params.delete("tool");
+  const form = document.getElementById("active-tool-form");
+  if (!form || ![...params.keys()].length) return;
+  let applied = false;
+  shareableFormElements(form).forEach((el) => {
+    if (!params.has(el.name)) return;
+    const value = params.get(el.name);
+    if (el.type === "checkbox") {
+      el.checked = value === "1";
+    } else {
+      el.value = value;
+    }
+    applied = true;
+  });
+  if (!applied) return;
+  if (tool.category === "Decision") {
+    refreshDecisionIdleStage();
+  } else if (tool.custom?.startsWith("file-")) {
+    updateFileTool();
+  } else if (tool.custom === "qr-code") {
+    updateQrTool();
+  } else if (tool.custom?.startsWith("image-")) {
+    updateImageTool();
+  } else {
+    calculateActive(tool);
+  }
+}
+
+function shareButtonMarkup() {
+  return `<button class="share-button" type="button" data-share-tool title="${escapeAttr(textFor("shareHint"))}">${textFor("shareLink")}</button>`;
 }
 
 if ("scrollRestoration" in history) {
@@ -1628,8 +2612,272 @@ function slugPart(value) {
   return String(value || "X").trim().toUpperCase().replace(/[^A-Z0-9]+/g, "").slice(0, 12) || "X";
 }
 
+function randomInt(max) {
+  const limit = Math.max(1, Math.floor(max));
+  const array = new Uint32Array(1);
+  if (globalThis.crypto?.getRandomValues) {
+    globalThis.crypto.getRandomValues(array);
+    return array[0] % limit;
+  }
+  return Math.floor(Math.random() * limit);
+}
+
+function shuffleItems(items) {
+  const shuffled = items.slice();
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = randomInt(index + 1);
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function listLines(value) {
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
 function metrics(items) {
   return `<div class="result-grid">${items.map(([label, value]) => `<div><span>${label}</span><strong>${value}</strong></div>`).join("")}</div>`;
+}
+
+function growthChartMarkup(rows, options) {
+  if (!rows?.length) return "";
+  const max = Math.max(...rows.map((row) => Math.max(0, options.total(row))));
+  if (!(max > 0)) return "";
+  const labelStep = Math.ceil(rows.length / 12);
+  const bars = rows.map((row, index) => {
+    const total = Math.max(0, options.total(row));
+    const base = Math.max(0, Math.min(total, options.base ? options.base(row) : 0));
+    const totalPct = (total / max) * 100;
+    const basePct = total > 0 ? (base / total) * 100 : 0;
+    const label = index % labelStep === 0 || index === rows.length - 1 ? String(options.label(row)) : "";
+    return `
+      <div class="chart-bar" title="${escapeAttr(options.title(row))}">
+        <div class="chart-bar-fill" style="height:${totalPct.toFixed(2)}%">
+          ${options.base ? `<div class="chart-bar-base" style="height:${basePct.toFixed(2)}%"></div>` : ""}
+        </div>
+        <span class="chart-bar-label">${escapeHtml(label)}</span>
+      </div>
+    `;
+  }).join("");
+  const legend = options.legend
+    ? `<div class="chart-legend">${options.legend.map(([kind, text]) => `<span class="chart-legend-item"><i class="legend-${kind}"></i>${escapeHtml(text)}</span>`).join("")}</div>`
+    : "";
+  return `
+    <div class="growth-chart" role="img" aria-label="${escapeAttr(options.aria || "Chart")}">
+      ${legend}
+      <div class="chart-bars">${bars}</div>
+    </div>
+  `;
+}
+
+function renderLadderDraw(values) {
+  const summary = ladderDrawSummary(values);
+  if (summary.error) return error(summary.error);
+  if (summary.mode === "single") {
+    return `
+      ${metrics([["Winner", escapeHtml(summary.winner)], ["Outcome", escapeHtml(summary.outcome)], ["Pool size", summary.poolSize]])}
+      ${output(summary.text)}
+    `;
+  }
+  const rows = summary.pairings.map(([name, outcome], index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHtml(name)}</td>
+      <td>${escapeHtml(outcome)}</td>
+    </tr>
+  `).join("");
+  return `
+    ${metrics([["Participants", summary.participants], ["Outcomes", summary.outcomes], ["First result", escapeHtml(summary.pick)]])}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>Name</th><th>Outcome</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${output(summary.text)}
+  `;
+}
+
+function generateLadder(columns) {
+  const levels = Math.max(6, Math.min(16, columns * 3));
+  const rungs = [];
+  const gapCovered = Array.from({ length: Math.max(0, columns - 1) }, () => false);
+  for (let level = 0; level < levels; level += 1) {
+    let previous = false;
+    for (let gap = 0; gap < columns - 1; gap += 1) {
+      if (!previous && randomInt(100) < 40) {
+        rungs.push({ level, gap });
+        gapCovered[gap] = true;
+        previous = true;
+      } else {
+        previous = false;
+      }
+    }
+  }
+  gapCovered.forEach((covered, gap) => {
+    if (covered) return;
+    for (let attempt = 0; attempt < 50; attempt += 1) {
+      const level = randomInt(levels);
+      const clash = rungs.some((rung) => rung.level === level && Math.abs(rung.gap - gap) <= 1);
+      if (!clash) {
+        rungs.push({ level, gap });
+        return;
+      }
+    }
+  });
+  return { columns, levels, rungs };
+}
+
+function traceLadder(ladder, startColumn) {
+  const points = [{ level: -1, column: startColumn }];
+  let column = startColumn;
+  for (let level = 0; level < ladder.levels; level += 1) {
+    const goRight = ladder.rungs.some((rung) => rung.level === level && rung.gap === column);
+    const goLeft = !goRight && ladder.rungs.some((rung) => rung.level === level && rung.gap === column - 1);
+    if (goRight || goLeft) {
+      points.push({ level, column });
+      column += goRight ? 1 : -1;
+      points.push({ level, column });
+    }
+  }
+  points.push({ level: ladder.levels, column });
+  return { start: startColumn, end: column, points };
+}
+
+function ladderDrawSummary(values) {
+  const names = listLines(values.names);
+  const outcomes = listLines(values.outcomes);
+  if (!names.length) return { error: "Enter at least one person or team." };
+  if (!outcomes.length) return { error: "Enter at least one outcome." };
+  if (names.length > 16) return { error: "Ladder draw supports up to 16 participants." };
+
+  const columns = names.length;
+  const ladder = generateLadder(columns);
+  const bottomLabels = Array.from({ length: columns }, (_, index) => outcomes[index % outcomes.length]);
+  const paths = Array.from({ length: columns }, (_, index) => traceLadder(ladder, index));
+  const pairings = paths.map((path) => [names[path.start], bottomLabels[path.end]]);
+
+  if (values.mode === "single") {
+    const winnerColumn = randomInt(columns);
+    const winner = names[winnerColumn];
+    const outcome = bottomLabels[paths[winnerColumn].end];
+    return {
+      mode: "single",
+      names,
+      outcomeLabels: outcomes,
+      winner,
+      outcome,
+      pick: `${winner} -> ${outcome}`,
+      poolSize: names.length,
+      text: `${winner} -> ${outcome}`,
+      ladder: { ...ladder, paths: [paths[winnerColumn]], topLabels: names, bottomLabels, winnerColumn }
+    };
+  }
+
+  return {
+    mode: "shuffle",
+    pairings,
+    names,
+    outcomeLabels: outcomes,
+    participants: names.length,
+    outcomes: outcomes.length,
+    pick: pairings[0]?.join(" -> ") || "",
+    text: pairings.map(([name, outcome]) => `${name} -> ${outcome}`).join("\n"),
+    ladder: { ...ladder, paths, topLabels: names, bottomLabels }
+  };
+}
+
+function renderCoinFlip(values) {
+  const summary = coinFlipSummary(values);
+  return `
+    ${metrics([["Result", escapeHtml(summary.result)], [escapeHtml(summary.labels[0]), summary.heads], [escapeHtml(summary.labels[1]), summary.tails], ["Flips", summary.count]])}
+    ${output(summary.text)}
+  `;
+}
+
+function coinFaceLabels() {
+  return currentLanguage === "ko" ? ["앞면", "뒷면"] : ["Heads", "Tails"];
+}
+
+function coinFlipSummary(values) {
+  const count = Math.min(100, Math.max(1, Math.floor(num(values.count))));
+  const labels = coinFaceLabels();
+  const flips = Array.from({ length: count }, () => labels[randomInt(2)]);
+  const heads = flips.filter((item) => item === labels[0]).length;
+  return {
+    labels,
+    flips,
+    result: flips[0],
+    heads,
+    tails: count - heads,
+    count,
+    text: flips.map((item, index) => `${index + 1}. ${item}`).join("\n")
+  };
+}
+
+function renderDiceRoller(values) {
+  const summary = diceRollerSummary(values);
+  return `
+    ${metrics([["Total", summary.total], ["Rolls", summary.rolls.join(", ")], ["Dice", `${summary.dice}d${summary.sides}`], ["Modifier", summary.modifierLabel]])}
+    ${output(summary.text)}
+  `;
+}
+
+function diceRollerSummary(values) {
+  const dice = Math.min(100, Math.max(1, Math.floor(num(values.dice))));
+  const sides = Math.min(1000, Math.max(2, Math.floor(num(values.sides))));
+  const modifier = Math.floor(num(values.modifier));
+  const rolls = Array.from({ length: dice }, () => randomInt(sides) + 1);
+  const subtotal = rolls.reduce((sum, value) => sum + value, 0);
+  const total = subtotal + modifier;
+  const modifierLabel = modifier ? `${modifier > 0 ? "+" : ""}${modifier}` : "0";
+  return {
+    dice,
+    sides,
+    modifier,
+    modifierLabel,
+    rolls,
+    subtotal,
+    total,
+    text: `${dice}d${sides}${modifier ? ` ${modifierLabel}` : ""}\nRolls: ${rolls.join(", ")}\nTotal: ${total}`
+  };
+}
+
+function renderRoulettePicker(values) {
+  const summary = roulettePickerSummary(values);
+  if (summary.error) return error(summary.error);
+  return `
+    ${metrics([["Pick", escapeHtml(summary.pick)], ["Draws", summary.picks.length], ["Pool size", summary.poolSize], ["Repeats", summary.allowRepeats ? "Allowed" : "No repeats until exhausted"]])}
+    ${output(summary.text)}
+  `;
+}
+
+function roulettePickerSummary(values) {
+  const items = listLines(values.items);
+  if (!items.length) return { error: "Enter at least one item." };
+  const draws = Math.min(100, Math.max(1, Math.floor(num(values.draws))));
+  const allowRepeats = values.withoutReplacement === "yes";
+  const pool = shuffleItems(items);
+  const picks = [];
+  for (let index = 0; index < draws; index += 1) {
+    if (allowRepeats) {
+      picks.push(items[randomInt(items.length)]);
+    } else {
+      picks.push(pool[index % pool.length]);
+    }
+  }
+  return {
+    items,
+    picks,
+    pick: picks[0],
+    winnerIndex: items.indexOf(picks[0]),
+    poolSize: items.length,
+    allowRepeats,
+    text: picks.map((item, index) => `${index + 1}. ${item}`).join("\n")
+  };
 }
 
 function renderSalesTax(values) {
@@ -1683,6 +2931,7 @@ function salesTaxSummary(values) {
   const discountRate = Math.min(0.99, Math.max(0, num(values.discount) / 100));
   if (price < 0) return { error: "Price cannot be negative." };
   if (rate < 0) return { error: "Tax rate cannot be negative." };
+  if (rate > 1) return { error: "Tax rate should be 100% or less." };
 
   const gross = price * quantity;
   let subtotal = gross;
@@ -1929,7 +3178,7 @@ function adRevenueScenario(label, visitors, pages, rpm, fillRate) {
     pageviews,
     filledPageviews,
     revenue,
-    effectiveRpm: pageviews ? revenue / pageviews * 1000 : 0,
+    effectiveRpm: pageviews > 0 ? revenue / pageviews * 1000 : 0,
     sessionValue: roundedVisitors ? revenue / roundedVisitors : 0
   };
 }
@@ -2541,6 +3790,14 @@ function renderCompoundInterest(values) {
       ["Final monthly contribution", money(summary.finalMonthlyContribution)],
       ["Average monthly growth", money(summary.averageMonthlyGrowth)]
     ])}
+    ${growthChartMarkup(summary.yearlyRows, {
+      total: (row) => row.balance,
+      base: (row) => row.contributed,
+      label: (row) => row.year,
+      title: (row) => `Year ${row.year}: balance ${money(row.balance)} (contributed ${money(row.contributed)}, gain ${money(row.gain)})`,
+      legend: [["base", "Contributed"], ["gain", "Growth"]],
+      aria: "Balance growth by year"
+    })}
     <div class="data-table-wrap">
       <table class="data-table">
         <thead>
@@ -2644,6 +3901,14 @@ function renderRetirement(values) {
       <div><span>Final contribution</span><strong>${money(summary.monthly)}</strong></div>
       <div><span>Withdrawal rate</span><strong>${pct(summary.withdrawalRate)}</strong></div>
     </div>
+    ${growthChartMarkup(summary.fullTimeline, {
+      total: (row) => row.balance,
+      base: (row) => row.contributed,
+      label: (row) => row.age,
+      title: (row) => `Age ${row.age}: balance ${money(row.balance)} (contributed ${money(row.contributed)}, growth ${money(row.growth)})`,
+      legend: [["base", "Contributed"], ["gain", "Growth"]],
+      aria: "Retirement savings by age"
+    })}
     <div class="data-table-wrap">
       <table class="data-table">
         <thead><tr><th>Scenario</th><th>Projected savings</th><th>Target</th><th>Gap</th><th>Status</th></tr></thead>
@@ -3203,6 +4468,13 @@ function renderLoanPayment(values) {
         ["Interest share", pct(summary.totalInterest / summary.totalPaid)],
         ["Interest saved", summary.interestSaved > 0 ? money(summary.interestSaved) : "-"]
       ])}
+      ${growthChartMarkup(summary.yearlyRows, {
+        total: (row) => row.remainingBalance,
+        label: (row) => row.year,
+        title: (row) => `Year ${row.year}: remaining balance ${money(row.remainingBalance)}, interest paid ${money(row.interestPaid)}`,
+        legend: [["gain", "Remaining balance"]],
+        aria: "Remaining loan balance by year"
+      })}
       <div class="data-table-wrap">
         <table class="data-table">
           <thead>
@@ -3584,7 +4856,7 @@ function rentVsBuyProjection(inputs) {
     for (let month = 1; month <= 12; month += 1) {
       const interest = balance * monthlyRate;
       const mortgagePayment = balance > 0.005 ? Math.min(monthlyMortgage, balance + interest) : 0;
-      const principal = Math.min(balance, mortgagePayment - interest);
+      const principal = Math.min(balance, Math.max(0, mortgagePayment - interest));
       balance = Math.max(0, balance - Math.max(0, principal));
       const ownerCost = mortgagePayment + (homeValue * propertyTax / 12) + (homeValue * maintenance / 12) + insuranceMonthly + hoaMonthly;
       yearlyOwnerCost += ownerCost;
@@ -3789,7 +5061,7 @@ function mortgageScenario({ label, monthlyIncome, monthlyDebt, downPayment, annu
   if (maxHousingPayment <= insurance) {
     return { error: "Existing debt leaves no room for a mortgage payment at this DTI." };
   }
-  const months = Math.round(years * 12);
+  const months = Math.max(1, Math.round(years * 12));
   const monthlyRate = annualRate / 100 / 12;
   const paymentFactor = monthlyRate === 0
     ? 1 / months
@@ -3936,9 +5208,25 @@ function passwordResultMarkup(password, poolSize) {
   `;
 }
 
+function passwordStrengthColor(score) {
+  if (score < 40) return "var(--danger)";
+  if (score < 70) return "var(--warning)";
+  return "var(--accent)";
+}
+
+function passwordStrengthMeter(analysis) {
+  return `
+    <div class="strength-meter" role="img" aria-label="Password strength ${escapeAttr(analysis.label)}">
+      <div class="strength-meter-head"><span>Strength</span><strong>${analysis.label}</strong></div>
+      <div class="strength-meter-track"><div class="strength-meter-fill" style="width:${analysis.score}%; background:${passwordStrengthColor(analysis.score)}"></div></div>
+    </div>
+  `;
+}
+
 function passwordStrengthMarkup(password) {
   const analysis = analyzePassword(password);
   return `
+    ${passwordStrengthMeter(analysis)}
     ${metrics([
       ["Score", analysis.score],
       ["Strength", analysis.label],
@@ -3998,7 +5286,6 @@ function renderJwtDecode(token) {
     const payload = decoded.payload;
     const combined = JSON.stringify({ header: decoded.header, payload }, null, 2);
     const href = `data:application/json;charset=utf-8,${encodeURIComponent(combined)}`;
-    const expStatus = jwtTimeStatus(payload.exp, "Expires");
     return `
       ${metrics([
         ["Algorithm", decoded.header.alg || "-"],
@@ -4006,7 +5293,7 @@ function renderJwtDecode(token) {
         ["Subject", payload.sub || "-"],
         ["Issuer", payload.iss || "-"],
         ["Audience", Array.isArray(payload.aud) ? payload.aud.join(", ") : payload.aud || "-"],
-        ["Expiry", expStatus]
+        ["Expiry", jwtExpiryBadge(payload)]
       ])}
       <div class="security-note security-warning">
         This decoder does not verify the signature. Use it for inspection only.
@@ -4045,6 +5332,21 @@ function decodeJwtPart(part) {
   const normalized = part.replace(/-/g, "+").replace(/_/g, "/");
   const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
   return JSON.parse(decodeURIComponent(escape(atob(padded))));
+}
+
+function jwtExpiryBadge(payload) {
+  if (!payload.exp) return "-";
+  const date = new Date(Number(payload.exp) * 1000);
+  if (Number.isNaN(date.getTime())) return "Invalid";
+  const diffMs = date.getTime() - Date.now();
+  const expired = diffMs < 0;
+  const abs = Math.abs(diffMs);
+  const span = abs >= 86400000
+    ? `${Math.round(abs / 86400000)}d`
+    : abs >= 3600000
+      ? `${Math.round(abs / 3600000)}h`
+      : `${Math.max(1, Math.round(abs / 60000))}m`;
+  return `<span class="status-badge ${expired ? "is-bad" : "is-good"}">${expired ? "EXPIRED" : "VALID"}</span> ${expired ? `${span} ago` : `${span} left`}`;
 }
 
 function jwtTimeStatus(value, label) {
@@ -4384,16 +5686,55 @@ function renderTextDiff(leftText, rightText) {
       ["New lines", right.length],
       ["Total rows", operations.length]
     ])}
-    <div class="diff-view" aria-label="Text diff result">
-      ${operations.map((item) => `
-        <div class="diff-row diff-${item.type}">
-          <span>${item.type === "added" ? "+" : item.type === "removed" ? "-" : " "}</span>
-          <code>${escapeHtml(item.text || " ")}</code>
+    <div class="diff-columns">
+      <div class="diff-column">
+        <h3>Original</h3>
+        <div class="diff-view" aria-label="Original text">
+          ${diffPairs(operations).map(([leftItem]) => leftItem
+            ? `<div class="diff-row diff-${leftItem.type === "removed" ? "removed" : "same"}"><span>${leftItem.type === "removed" ? "-" : " "}</span><code>${escapeHtml(leftItem.text || " ")}</code></div>`
+            : `<div class="diff-row diff-filler"><span> </span><code> </code></div>`).join("")}
         </div>
-      `).join("")}
+      </div>
+      <div class="diff-column">
+        <h3>Changed</h3>
+        <div class="diff-view" aria-label="Changed text">
+          ${diffPairs(operations).map(([, rightItem]) => rightItem
+            ? `<div class="diff-row diff-${rightItem.type === "added" ? "added" : "same"}"><span>${rightItem.type === "added" ? "+" : " "}</span><code>${escapeHtml(rightItem.text || " ")}</code></div>`
+            : `<div class="diff-row diff-filler"><span> </span><code> </code></div>`).join("")}
+        </div>
+      </div>
     </div>
     <a class="download-button" href="${href}" download="text-diff.patch">Download diff</a>
   `;
+}
+
+function diffPairs(operations) {
+  const pairs = [];
+  let index = 0;
+  while (index < operations.length) {
+    const item = operations[index];
+    if (item.type === "same") {
+      pairs.push([item, item]);
+      index += 1;
+      continue;
+    }
+    // Pair consecutive removed/added runs so changed lines sit side by side
+    const removedRun = [];
+    const addedRun = [];
+    while (index < operations.length && operations[index].type === "removed") {
+      removedRun.push(operations[index]);
+      index += 1;
+    }
+    while (index < operations.length && operations[index].type === "added") {
+      addedRun.push(operations[index]);
+      index += 1;
+    }
+    const length = Math.max(removedRun.length, addedRun.length);
+    for (let offset = 0; offset < length; offset += 1) {
+      pairs.push([removedRun[offset] || null, addedRun[offset] || null]);
+    }
+  }
+  return pairs;
 }
 
 function lineDiff(left, right) {
@@ -4444,19 +5785,35 @@ function renderCards(items = tools, options = {}) {
   if (!items.length) {
     toolGrid.innerHTML = `
       <section class="empty-state">
-        <h2>No matching tools</h2>
-        <p>Try a simpler search like JSON, image, CSV, regex, password, or calculator.</p>
+        <h2>${textFor("noMatchesTitle")}</h2>
+        <p>${textFor("noMatchesBody")}</p>
       </section>
     `;
     return;
   }
+  const pinnedIds = getPinned();
+  const pinnedItems = !options.preserveOrder && items.length === tools.length
+    ? pinnedIds.map((id) => tools.find((tool) => tool.id === id)).filter(Boolean)
+    : [];
   const groups = items.reduce((acc, tool) => {
     acc[tool.category] = acc[tool.category] || [];
     acc[tool.category].push(tool);
     return acc;
   }, {});
 
-  toolGrid.innerHTML = Object.entries(groups).sort(([a], [b]) => {
+  const pinnedSection = pinnedItems.length ? `
+    <section class="category-section pinned-section" id="favorites">
+      <div class="category-heading">
+        <h2>${textFor("pinned")}</h2>
+        <span>${localizedToolCount(pinnedItems.length)}</span>
+      </div>
+      <div class="tool-card-list">
+        ${pinnedItems.map(renderToolCard).join("")}
+      </div>
+    </section>
+  ` : "";
+
+  const categorySections = Object.entries(groups).sort(([a], [b]) => {
     const aIndex = categoryOrder.indexOf(a);
     const bIndex = categoryOrder.indexOf(b);
     return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
@@ -4466,40 +5823,632 @@ function renderCards(items = tools, options = {}) {
     return `
       <section class="category-section" id="${anchor}">
         <div class="category-heading">
-          <h2>${category}</h2>
-          <span>${categoryTools.length} ${categoryTools.length === 1 ? "tool" : "tools"}</span>
+          <h2>${localizedCategory(category)}</h2>
+          <span>${localizedToolCount(categoryTools.length)}</span>
         </div>
         <div class="tool-card-list">
-          ${sortedTools.map((tool) => {
-            const meta = toolMetadata(tool);
-            return `
-            <article class="tool-card" data-tool-card="${tool.id}" data-tool-slug="${meta.slug}" data-tool-intent="${meta.intent}" data-tool-tier="${meta.tier}" data-tool-priority="${meta.priority}" data-opportunity-score="${meta.opportunity.score}">
-              <span>${tool.category}</span>
-              <h3>${tool.title}</h3>
-              <p>${tool.description}</p>
-              <div class="tool-signals">
-                <span>${meta.opportunity.score}</span>
-                <span>${meta.opportunity.demand}</span>
-                <span>${meta.opportunity.moat}</span>
-              </div>
-              <button type="button" data-tool-id="${tool.id}">Open tool</button>
-            </article>
-          `;
-          }).join("")}
+          ${sortedTools.map(renderToolCard).join("")}
         </div>
       </section>
     `;
   }).join("");
+
+  toolGrid.innerHTML = pinnedSection + categorySections;
+}
+
+function renderToolCard(tool) {
+  const meta = toolMetadata(tool);
+  const pinned = isPinned(tool.id);
+  const isActive = activeTool?.id === tool.id;
+  return `
+    <article class="tool-card ${pinned ? "is-pinned" : ""} ${isActive ? "is-active" : ""}" data-tool-card="${tool.id}" data-tool-slug="${meta.slug}" data-tool-intent="${meta.intent}" data-tool-tier="${meta.tier}" data-tool-priority="${meta.priority}" data-opportunity-score="${meta.opportunity.score}">
+      <span>${localizedCategory(tool.category)}</span>
+      <h3>${localizedToolTitle(tool)}</h3>
+      <p>${localizedToolDescription(tool)}</p>
+      <div class="tool-card-actions">
+        <button type="button" data-tool-id="${tool.id}" aria-expanded="${isActive}">${textFor(isActive ? "closeTool" : "openTool")}</button>
+        <button class="pin-button" type="button" data-pin-tool-id="${tool.id}" aria-pressed="${pinned}" aria-label="${pinned ? textFor("unpinTool") : textFor("pinTool")} ${escapeAttr(localizedToolTitle(tool))}" title="${pinned ? textFor("unpinTool") : textFor("pinTool")}">
+          <span aria-hidden="true">${pinned ? "★" : "☆"}</span>
+        </button>
+      </div>
+    </article>
+  `;
 }
 
 function fieldMarkup(field) {
   if (field.type === "textarea") {
-    return `<label><span>${field.label}</span><textarea id="${field.id}" name="${field.id}" rows="7">${escapeHtml(field.value || "")}</textarea></label>`;
+    return `<label><span class="field-head">${field.label}<button type="button" class="clear-field-button" data-clear-field="${field.id}">Clear</button></span><textarea id="${field.id}" name="${field.id}" rows="7">${escapeHtml(field.value || "")}</textarea></label>`;
   }
   if (field.type === "select") {
     return `<label><span>${field.label}</span><select id="${field.id}" name="${field.id}">${field.options.map(([value, label]) => `<option value="${value}" ${value === field.value ? "selected" : ""}>${label}</option>`).join("")}</select></label>`;
   }
   return `<label><span>${field.label}</span><input id="${field.id}" name="${field.id}" type="${field.type}" value="${escapeAttr(field.value ?? "")}" step="${field.step || "any"}"></label>`;
+}
+
+function decisionLocale() {
+  return decisionCopy[currentLanguage] || decisionCopy.en;
+}
+
+function decisionFieldLabel(tool, field) {
+  return decisionLocale().fields?.[tool.id]?.[field.id] || field.label;
+}
+
+function decisionFieldValue(tool, field) {
+  return decisionLocale().values?.[tool.id]?.[field.id] ?? field.value;
+}
+
+function decisionOptionLabel(tool, field, value, label) {
+  return decisionLocale().options?.[tool.id]?.[field.id]?.[value] || label;
+}
+
+function decisionMetricLabel(key) {
+  const labels = {
+    en: {
+      result: "Result",
+      flips: "Flips",
+      total: "Total",
+      rolls: "Rolls",
+      dice: "Dice",
+      modifier: "Modifier",
+      pick: "Pick",
+      draws: "Draws",
+      poolSize: "Pool size",
+      repeats: "Repeats",
+      repeatsAllowed: "Allowed",
+      repeatsBlocked: "No repeats until exhausted",
+      winner: "Winner",
+      outcome: "Outcome",
+      participants: "Participants",
+      outcomes: "Outcomes",
+      firstResult: "First result",
+      name: "Name"
+    },
+    ko: {
+      result: "결과",
+      flips: "던진 횟수",
+      total: "합계",
+      rolls: "굴린 값",
+      dice: "주사위",
+      modifier: "보정값",
+      pick: "선택",
+      draws: "뽑은 개수",
+      poolSize: "후보 수",
+      repeats: "중복",
+      repeatsAllowed: "허용",
+      repeatsBlocked: "소진 전까지 중복 없음",
+      winner: "당첨자",
+      outcome: "결과",
+      participants: "참가자",
+      outcomes: "결과 항목",
+      firstResult: "첫 결과",
+      name: "이름"
+    }
+  };
+  return labels[currentLanguage]?.[key] || labels.en[key] || key;
+}
+
+function decisionFieldMarkup(tool, field) {
+  const label = decisionFieldLabel(tool, field);
+  const value = decisionFieldValue(tool, field);
+  if (field.type === "textarea") {
+    return `<label><span>${label}</span><textarea name="${field.id}" rows="5">${escapeHtml(value || "")}</textarea></label>`;
+  }
+  if (field.type === "select") {
+    return `<label><span>${label}</span><select name="${field.id}">${field.options.map(([optionValue, optionLabel]) => `<option value="${optionValue}" ${optionValue === value ? "selected" : ""}>${decisionOptionLabel(tool, field, optionValue, optionLabel)}</option>`).join("")}</select></label>`;
+  }
+  return `<label><span>${label}</span><input name="${field.id}" type="${field.type}" value="${escapeAttr(value ?? "")}" step="${field.step || "any"}"></label>`;
+}
+
+function decisionActionLabel(tool) {
+  return decisionLocale().actions?.[tool.id] || decisionCopy.en.actions[tool.id] || "Pick";
+}
+
+function decisionAgainLabel(tool) {
+  return decisionLocale().again?.[tool.id] || decisionCopy.en.again?.[tool.id] || decisionActionLabel(tool);
+}
+
+function decisionRunningLabel() {
+  return decisionLocale().running || decisionCopy.en.running || "...";
+}
+
+function ladderPreviewLines(tool, fieldId, fallback = []) {
+  const form = document.getElementById("active-tool-form");
+  const liveValue = form?.elements?.[fieldId]?.value;
+  const field = tool.fields.find((item) => item.id === fieldId);
+  const lines = listLines(liveValue ?? (decisionFieldValue(tool, field || {}) || "")).slice(0, 16);
+  return lines.length ? lines : fallback;
+}
+
+const LADDER_PATH_COLORS = ["#f97316", "#2563eb", "#10b981", "#e11d48", "#8b5cf6", "#eab308", "#06b6d4", "#f43f5e", "#84cc16", "#a855f7", "#0ea5e9", "#d946ef", "#f59e0b", "#14b8a6", "#6366f1", "#ef4444"];
+
+const LADDER_GEOMETRY = { columnWidth: 76, rowHeight: 26, padding: 14 };
+
+function ladderPointX(column) {
+  return LADDER_GEOMETRY.padding + LADDER_GEOMETRY.columnWidth * (column + 0.5);
+}
+
+function ladderPointY(level, levels) {
+  const usable = LADDER_GEOMETRY.rowHeight * (levels + 1);
+  const offset = ((level + 1) / (levels + 1)) * usable;
+  return LADDER_GEOMETRY.padding + offset;
+}
+
+function ladderBoardSvg(ladder, { revealed = false } = {}) {
+  const { columns, levels, rungs, paths = [] } = ladder;
+  const width = LADDER_GEOMETRY.padding * 2 + LADDER_GEOMETRY.columnWidth * columns;
+  const height = LADDER_GEOMETRY.padding * 2 + LADDER_GEOMETRY.rowHeight * (levels + 1);
+  const rails = Array.from({ length: columns }, (_, index) => {
+    const x = ladderPointX(index);
+    return `<line class="ladder-rail-line" x1="${x}" y1="${LADDER_GEOMETRY.padding}" x2="${x}" y2="${height - LADDER_GEOMETRY.padding}"></line>`;
+  }).join("");
+  const rungLines = rungs.map((rung) => {
+    const y = ladderPointY(rung.level, levels);
+    return `<line class="ladder-rung-line" x1="${ladderPointX(rung.gap)}" y1="${y}" x2="${ladderPointX(rung.gap + 1)}" y2="${y}"></line>`;
+  }).join("");
+  const pathLines = paths.map((path, index) => {
+    const color = LADDER_PATH_COLORS[path.start % LADDER_PATH_COLORS.length];
+    const points = path.points.map((point) => `${ladderPointX(point.column)},${ladderPointY(point.level, levels)}`).join(" ");
+    return `<polyline class="ladder-path" data-path-index="${index}" data-start="${path.start}" data-end="${path.end}" points="${points}" style="stroke:${color}"></polyline>`;
+  }).join("");
+  return `
+    <svg class="ladder-svg" viewBox="0 0 ${width} ${height}" role="img" aria-hidden="true" style="--ladder-width:${width}px">
+      ${rails}
+      <g class="ladder-rung-group ${revealed ? "is-revealed" : ""}">${rungLines}</g>
+      <g class="ladder-path-group">${pathLines}</g>
+    </svg>
+  `;
+}
+
+function ladderStageMarkup(tool, result = {}) {
+  const ladder = result.ladder;
+  const previewNames = ladderPreviewLines(tool, "names", ["A", "B", "C", "D"]);
+  const previewOutcomes = ladderPreviewLines(tool, "outcomes", ["1", "2", "3", "4"]);
+  const topLabels = (ladder?.topLabels || previewNames).slice(0, 16);
+  const columnCount = Math.max(2, topLabels.length);
+  const bottomLabels = ladder
+    ? ladder.bottomLabels
+    : Array.from({ length: columnCount }, (_, index) => previewOutcomes[index % previewOutcomes.length] || "-");
+  const paddedTop = Array.from({ length: columnCount }, (_, index) => topLabels[index] || `#${index + 1}`);
+  const board = ladder
+    ? ladderBoardSvg(ladder)
+    : ladderBoardSvg({ ...generateLadder(columnCount), paths: [] });
+  const headline = result.pick || decisionLocale().ladderIdle;
+
+  return `
+    <div class="decision-stage ladder-stage ${ladder ? "has-board" : "is-idle"}" data-decision-stage="${tool.id}" style="--ladder-cols:${columnCount}">
+      <div class="ladder-scroll">
+        <div class="ladder-frame">
+          <div class="ladder-label-row ladder-label-top">
+            ${paddedTop.map((label, index) => `<span data-ladder-top="${index}" style="--path-color:${LADDER_PATH_COLORS[index % LADDER_PATH_COLORS.length]}">${escapeHtml(label)}</span>`).join("")}
+          </div>
+          <div class="ladder-board">${board}</div>
+          <div class="ladder-label-row ladder-label-bottom">
+            ${bottomLabels.map((label, index) => `<span data-ladder-bottom="${index}">${escapeHtml(label)}</span>`).join("")}
+          </div>
+        </div>
+      </div>
+      <strong class="decision-headline" data-decision-headline>${escapeHtml(headline)}</strong>
+    </div>
+  `;
+}
+
+const ROULETTE_COLORS = ["#0f766e", "#f97316", "#2563eb", "#eab308", "#e11d48", "#8b5cf6", "#0ea5e9", "#84cc16"];
+
+function rouletteSegmentPath(index, count, radius, center) {
+  const segment = (Math.PI * 2) / count;
+  const startAngle = index * segment - Math.PI / 2;
+  const endAngle = startAngle + segment;
+  const startX = center + radius * Math.cos(startAngle);
+  const startY = center + radius * Math.sin(startAngle);
+  const endX = center + radius * Math.cos(endAngle);
+  const endY = center + radius * Math.sin(endAngle);
+  const largeArc = segment > Math.PI ? 1 : 0;
+  return `M ${center} ${center} L ${startX.toFixed(2)} ${startY.toFixed(2)} A ${radius} ${radius} 0 ${largeArc} 1 ${endX.toFixed(2)} ${endY.toFixed(2)} Z`;
+}
+
+function rouletteWheelSvg(items) {
+  const size = 280;
+  const center = size / 2;
+  const radius = center - 8;
+  const count = Math.max(1, items.length);
+  const segments = items.map((item, index) => {
+    const color = ROULETTE_COLORS[index % ROULETTE_COLORS.length];
+    // Avoid identical adjacent colors when the count wraps the palette
+    const adjustedColor = count > 1 && index === count - 1 && color === ROULETTE_COLORS[0]
+      ? ROULETTE_COLORS[1]
+      : color;
+    if (count === 1) {
+      return `<circle cx="${center}" cy="${center}" r="${radius}" fill="${adjustedColor}"></circle>`;
+    }
+    return `<path d="${rouletteSegmentPath(index, count, radius, center)}" fill="${adjustedColor}"></path>`;
+  }).join("");
+  const labels = items.map((item, index) => {
+    const segment = 360 / count;
+    const angle = index * segment + segment / 2 - 90;
+    const text = item.length > 10 ? `${item.slice(0, 9)}…` : item;
+    const fontSize = count > 10 ? 10 : count > 6 ? 12 : 14;
+    return `
+      <text class="roulette-label" x="${center + radius * 0.58}" y="${center}" font-size="${fontSize}"
+        transform="rotate(${angle} ${center} ${center})"
+        text-anchor="middle" dominant-baseline="middle">${escapeHtml(text)}</text>
+    `;
+  }).join("");
+  return `
+    <svg class="roulette-svg" viewBox="0 0 ${size} ${size}" role="img" aria-hidden="true">
+      <g class="roulette-rotor" data-roulette-rotor style="transform-origin:${center}px ${center}px">
+        ${segments}
+        ${labels}
+      </g>
+      <circle class="roulette-hub" cx="${center}" cy="${center}" r="26"></circle>
+      <circle class="roulette-rim" cx="${center}" cy="${center}" r="${radius}"></circle>
+    </svg>
+  `;
+}
+
+function rouletteItemsForStage(tool, result = {}) {
+  if (result.items?.length) return result.items;
+  const field = tool.fields.find((item) => item.id === "items");
+  const form = document.getElementById("active-tool-form");
+  const liveValue = form?.elements?.items?.value;
+  const items = listLines(liveValue ?? (decisionFieldValue(tool, field || {}) || ""));
+  return items.length ? items : ["A", "B", "C", "D"];
+}
+
+function decisionStageMarkup(tool, result = {}) {
+  if (tool.id === "coin-flip") {
+    const labels = coinFaceLabels();
+    return `
+      <div class="decision-stage coin-stage" data-decision-stage="${tool.id}">
+        <div class="coin-scene">
+          <div class="coin" data-coin aria-label="${decisionLocale().coinAria}">
+            <div class="coin-face coin-face-front">${escapeHtml(labels[0])}</div>
+            <div class="coin-face coin-face-back">${escapeHtml(labels[1])}</div>
+          </div>
+          <div class="coin-shadow" aria-hidden="true"></div>
+        </div>
+        <strong class="decision-headline" data-decision-headline>${escapeHtml(result.result || "?")}</strong>
+      </div>
+    `;
+  }
+  if (tool.id === "dice-roller") {
+    const rolls = result.rolls?.length ? result.rolls : ["?", "?"];
+    return `
+      <div class="decision-stage dice-stage" data-decision-stage="${tool.id}">
+        <div class="dice-tray">
+          ${rolls.slice(0, 12).map((roll) => `<div class="die" data-die>${escapeHtml(roll)}</div>`).join("")}
+          ${rolls.length > 12 ? `<div class="dice-more">+${rolls.length - 12}</div>` : ""}
+        </div>
+        <strong class="decision-headline" data-decision-headline>${result.total ?? "?"}</strong>
+      </div>
+    `;
+  }
+  if (tool.id === "roulette-picker") {
+    const items = rouletteItemsForStage(tool, result);
+    return `
+      <div class="decision-stage roulette-stage" data-decision-stage="${tool.id}">
+        <div class="roulette-wrap">
+          <div class="roulette-pointer" aria-hidden="true"></div>
+          ${rouletteWheelSvg(items)}
+        </div>
+        <strong class="decision-headline" data-decision-headline>${escapeHtml(result.pick || decisionLocale().rouletteIdle)}</strong>
+      </div>
+    `;
+  }
+  return ladderStageMarkup(tool, result);
+}
+
+function renderDecisionTool(tool) {
+  workspace.innerHTML = `
+    <article class="active-tool decision-tool">
+      <div class="active-tool-header">
+        <div>
+          <span>${localizedCategory(tool.category)}</span>
+          <h2>${localizedToolTitle(tool)}</h2>
+          <p>${localizedToolDescription(tool)}</p>
+        </div>
+        ${shareButtonMarkup()}
+      </div>
+      ${privacyNotice(tool)}
+      <div class="decision-layout">
+        <div class="decision-visual" id="decision-visual">${decisionStageMarkup(tool)}</div>
+        <form class="tool-form decision-form" id="active-tool-form">
+          ${tool.fields.map((field) => decisionFieldMarkup(tool, field)).join("")}
+          <button class="decision-action" type="button" data-decision-action="${tool.id}">${decisionActionLabel(tool)}</button>
+        </form>
+      </div>
+      <div class="tool-result decision-result" id="tool-result">
+        <p class="decision-empty">${decisionLocale().empty}</p>
+      </div>
+    </article>
+  `;
+}
+
+function readActiveFormValues() {
+  const form = document.getElementById("active-tool-form");
+  if (!form) return {};
+  return [...new FormData(form).entries()].reduce((values, [key, value]) => {
+    values[key] = value;
+    return values;
+  }, {});
+}
+
+function decisionSummary(tool, values) {
+  return {
+    "ladder-draw": ladderDrawSummary,
+    "coin-flip": coinFlipSummary,
+    "dice-roller": diceRollerSummary,
+    "roulette-picker": roulettePickerSummary
+  }[tool.id]?.(values) || {};
+}
+
+function decisionVisualResult(tool, summary) {
+  if (summary.error) return {};
+  if (tool.id === "coin-flip") return { result: summary.result };
+  if (tool.id === "dice-roller") return { rolls: summary.rolls, total: summary.total };
+  if (tool.id === "roulette-picker") return { pick: summary.pick, items: summary.items };
+  return {
+    pick: summary.pick,
+    pairings: summary.pairings,
+    winner: summary.winner,
+    outcome: summary.outcome,
+    ladder: summary.ladder
+  };
+}
+
+function renderDecisionResult(tool, summary) {
+  if (summary.error) return error(summary.error);
+  if (tool.id === "coin-flip") {
+    return `
+      ${metrics([[decisionMetricLabel("result"), escapeHtml(summary.result)], [escapeHtml(summary.labels[0]), summary.heads], [escapeHtml(summary.labels[1]), summary.tails], [decisionMetricLabel("flips"), summary.count]])}
+      ${output(summary.text)}
+    `;
+  }
+  if (tool.id === "dice-roller") {
+    return `
+      ${metrics([[decisionMetricLabel("total"), summary.total], [decisionMetricLabel("rolls"), summary.rolls.join(", ")], [decisionMetricLabel("dice"), `${summary.dice}d${summary.sides}`], [decisionMetricLabel("modifier"), summary.modifierLabel]])}
+      ${output(summary.text)}
+    `;
+  }
+  if (tool.id === "roulette-picker") {
+    return `
+      ${metrics([[decisionMetricLabel("pick"), escapeHtml(summary.pick)], [decisionMetricLabel("draws"), summary.picks.length], [decisionMetricLabel("poolSize"), summary.poolSize], [decisionMetricLabel("repeats"), summary.allowRepeats ? decisionMetricLabel("repeatsAllowed") : decisionMetricLabel("repeatsBlocked")]])}
+      ${output(summary.text)}
+    `;
+  }
+  if (summary.mode === "single") {
+    return `
+      ${metrics([[decisionMetricLabel("winner"), escapeHtml(summary.winner)], [decisionMetricLabel("outcome"), escapeHtml(summary.outcome)], [decisionMetricLabel("poolSize"), summary.poolSize]])}
+      ${output(summary.text)}
+    `;
+  }
+  const rows = summary.pairings.map(([name, outcome], index) => `
+    <tr>
+      <td>${index + 1}</td>
+      <td>${escapeHtml(name)}</td>
+      <td>${escapeHtml(outcome)}</td>
+    </tr>
+  `).join("");
+  return `
+    ${metrics([[decisionMetricLabel("participants"), summary.participants], [decisionMetricLabel("outcomes"), summary.outcomes], [decisionMetricLabel("firstResult"), escapeHtml(summary.pick)]])}
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>${decisionMetricLabel("name")}</th><th>${decisionMetricLabel("outcome")}</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    ${output(summary.text)}
+  `;
+}
+
+let decisionRunToken = 0;
+let decisionAnimating = false;
+
+function wait(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function decisionRunStale(token, toolId) {
+  return token !== decisionRunToken || activeTool?.id !== toolId;
+}
+
+function updateDecisionTool({ animate = true } = {}) {
+  if (activeTool?.category !== "Decision") return;
+  const visual = document.getElementById("decision-visual");
+  const result = document.getElementById("tool-result");
+  const values = readActiveFormValues();
+  const summary = decisionSummary(activeTool, values);
+  const token = ++decisionRunToken;
+  if (summary.error) {
+    if (result) result.innerHTML = error(summary.error);
+    return;
+  }
+  if (!visual || !animate) {
+    if (visual) visual.innerHTML = decisionStageMarkup(activeTool, decisionVisualResult(activeTool, summary));
+    if (result) result.innerHTML = renderDecisionResult(activeTool, summary);
+    return;
+  }
+  runDecisionAnimation(activeTool, summary, visual, result, token);
+}
+
+async function runDecisionAnimation(tool, summary, visual, result, token) {
+  const actionButton = document.querySelector("[data-decision-action]");
+  if (actionButton) actionButton.disabled = true;
+  if (result) result.innerHTML = `<p class="decision-empty">${decisionRunningLabel()}</p>`;
+  decisionAnimating = true;
+  try {
+    if (tool.id === "ladder-draw") await animateLadder(tool, summary, visual, token);
+    else if (tool.id === "coin-flip") await animateCoin(tool, summary, visual, token);
+    else if (tool.id === "dice-roller") await animateDice(tool, summary, visual, token);
+    else if (tool.id === "roulette-picker") await animateRoulette(tool, summary, visual, token);
+  } finally {
+    decisionAnimating = false;
+    const button = document.querySelector("[data-decision-action]");
+    if (button && activeTool?.id === tool.id) {
+      button.disabled = false;
+      button.textContent = decisionAgainLabel(tool);
+    }
+  }
+  if (decisionRunStale(token, tool.id)) return;
+  const resultNode = document.getElementById("tool-result");
+  if (resultNode) resultNode.innerHTML = renderDecisionResult(tool, summary);
+}
+
+async function animateLadder(tool, summary, visual, token) {
+  visual.innerHTML = ladderStageMarkup(tool, decisionVisualResult(tool, summary));
+  const stage = visual.querySelector(".decision-stage");
+  const rungGroup = stage.querySelector(".ladder-rung-group");
+  const headline = stage.querySelector("[data-decision-headline]");
+  if (headline) {
+    headline.textContent = "…";
+    headline.classList.remove("is-final");
+  }
+  await wait(60);
+  if (decisionRunStale(token, tool.id)) return;
+  rungGroup?.classList.add("is-revealed");
+  await wait(460);
+  const paths = [...stage.querySelectorAll(".ladder-path")];
+  const perPath = paths.length > 8 ? 340 : paths.length > 4 ? 500 : 720;
+  for (const path of paths) {
+    if (decisionRunStale(token, tool.id) || !path.isConnected) return;
+    const length = path.getTotalLength();
+    path.style.strokeDasharray = `${length}`;
+    path.style.strokeDashoffset = `${length}`;
+    path.style.transitionDuration = `${perPath}ms`;
+    path.classList.add("is-tracing");
+    const start = Number(path.dataset.start);
+    const end = Number(path.dataset.end);
+    const topLabel = stage.querySelector(`[data-ladder-top="${start}"]`);
+    topLabel?.classList.add("is-traced");
+    await wait(30);
+    path.style.strokeDashoffset = "0";
+    await wait(perPath + 90);
+    const bottomLabel = stage.querySelector(`[data-ladder-bottom="${end}"]`);
+    if (bottomLabel) {
+      bottomLabel.style.setProperty("--path-color", LADDER_PATH_COLORS[start % LADDER_PATH_COLORS.length]);
+      bottomLabel.classList.add("is-traced");
+    }
+  }
+  if (decisionRunStale(token, tool.id)) return;
+  if (headline) {
+    headline.textContent = summary.pick;
+    headline.classList.add("is-final");
+  }
+}
+
+async function animateCoin(tool, summary, visual, token) {
+  let coin = visual.querySelector("[data-coin]");
+  if (!coin) {
+    visual.innerHTML = decisionStageMarkup(tool, {});
+    coin = visual.querySelector("[data-coin]");
+  }
+  const stage = visual.querySelector(".decision-stage");
+  const headline = stage.querySelector("[data-decision-headline]");
+  if (headline) {
+    headline.textContent = "?";
+    headline.classList.remove("is-final");
+  }
+  stage.classList.add("is-flipping");
+  const isFront = summary.result === summary.labels[0];
+  const current = Number(coin.dataset.rotation || 0);
+  const base = current - (current % 360) + 5 * 360;
+  const target = base + (isFront ? 0 : 180);
+  coin.style.transition = "transform 1.6s cubic-bezier(0.32, 0.94, 0.6, 1)";
+  coin.style.transform = `rotateX(${target}deg)`;
+  coin.dataset.rotation = String(target);
+  await wait(1700);
+  stage.classList.remove("is-flipping");
+  if (decisionRunStale(token, tool.id) || !stage.isConnected) return;
+  if (headline) {
+    headline.textContent = summary.count > 1 ? `${summary.result} · ${summary.labels[0]} ${summary.heads} : ${summary.tails} ${summary.labels[1]}` : summary.result;
+    headline.classList.add("is-final");
+  }
+}
+
+async function animateDice(tool, summary, visual, token) {
+  visual.innerHTML = decisionStageMarkup(tool, { rolls: summary.rolls });
+  const stage = visual.querySelector(".decision-stage");
+  const headline = stage.querySelector("[data-decision-headline]");
+  const dice = [...stage.querySelectorAll("[data-die]")];
+  if (headline) {
+    headline.textContent = "?";
+    headline.classList.remove("is-final");
+  }
+  dice.forEach((die) => {
+    die.textContent = "?";
+    die.classList.add("is-rolling");
+  });
+  const cycler = window.setInterval(() => {
+    dice.forEach((die) => {
+      if (die.classList.contains("is-rolling")) {
+        die.textContent = String(randomInt(summary.sides) + 1);
+      }
+    });
+  }, 70);
+  try {
+    const visibleRolls = summary.rolls.slice(0, dice.length);
+    for (let index = 0; index < visibleRolls.length; index += 1) {
+      await wait(index === 0 ? 620 : 170);
+      if (decisionRunStale(token, tool.id) || !stage.isConnected) return;
+      const die = dice[index];
+      die.textContent = String(visibleRolls[index]);
+      die.classList.remove("is-rolling");
+      die.classList.add("is-set");
+    }
+  } finally {
+    window.clearInterval(cycler);
+  }
+  if (decisionRunStale(token, tool.id)) return;
+  if (headline) {
+    headline.textContent = String(summary.total);
+    headline.classList.add("is-final");
+  }
+}
+
+async function animateRoulette(tool, summary, visual, token) {
+  const stage = visual.querySelector(".decision-stage");
+  const itemsKey = summary.items.join("");
+  let rotor = visual.querySelector("[data-roulette-rotor]");
+  if (!stage || !rotor || stage.dataset.itemsKey !== itemsKey) {
+    visual.innerHTML = decisionStageMarkup(tool, { items: summary.items });
+    visual.querySelector(".decision-stage").dataset.itemsKey = itemsKey;
+    rotor = visual.querySelector("[data-roulette-rotor]");
+    await wait(40);
+  }
+  const liveStage = visual.querySelector(".decision-stage");
+  const headline = liveStage.querySelector("[data-decision-headline]");
+  if (headline) {
+    headline.textContent = "…";
+    headline.classList.remove("is-final");
+  }
+  liveStage.classList.remove("has-result");
+  const count = summary.items.length;
+  const segment = 360 / count;
+  const winnerIndex = Math.max(0, summary.winnerIndex);
+  const winnerCenter = (winnerIndex + 0.5) * segment;
+  const jitter = ((randomInt(61) - 30) / 100) * segment * 0.7;
+  const current = Number(rotor.dataset.rotation || 0);
+  let target = current - (current % 360) + 5 * 360 - winnerCenter + jitter;
+  while (target < current + 3 * 360) target += 360;
+  rotor.style.transition = "transform 4s cubic-bezier(0.12, 0.76, 0.18, 1)";
+  rotor.style.transform = `rotate(${target}deg)`;
+  rotor.dataset.rotation = String(target);
+  await wait(4150);
+  if (decisionRunStale(token, tool.id) || !liveStage.isConnected) return;
+  liveStage.classList.add("has-result");
+  if (headline) {
+    headline.textContent = summary.pick;
+    headline.classList.add("is-final");
+  }
+}
+
+function refreshDecisionIdleStage() {
+  if (activeTool?.category !== "Decision" || decisionAnimating) return;
+  const visual = document.getElementById("decision-visual");
+  if (visual) {
+    visual.innerHTML = decisionStageMarkup(activeTool, {});
+  }
+  const button = document.querySelector("[data-decision-action]");
+  if (button) button.textContent = decisionActionLabel(activeTool);
 }
 
 function imageToolMarkup(tool) {
@@ -4719,19 +6668,20 @@ function renderImageTool(tool) {
     <article class="active-tool">
       <div class="active-tool-header">
         <div>
-          <span>${tool.category}</span>
-          <h2>${tool.title}</h2>
-          <p>${tool.description}</p>
+          <span>${localizedCategory(tool.category)}</span>
+          <h2>${localizedToolTitle(tool)}</h2>
+          <p>${localizedToolDescription(tool)}</p>
         </div>
+        ${shareButtonMarkup()}
       </div>
       ${privacyNotice(tool)}
       ${imageToolMarkup(tool)}
       <div class="how-to">
-        <h3>How to use</h3>
+        <h3>${textFor("howToUse")}</h3>
         <ol>
-          <li>Choose a PNG, JPG, WebP, or AVIF image from your device.</li>
-          <li>Adjust output settings for size, quality, format, or pixel style.</li>
-          <li>Download the processed image when the preview is ready.</li>
+          <li>${textFor("enterValues")}</li>
+          <li>${textFor("reviewResult")}</li>
+          <li>${textFor("copyOutput")}</li>
         </ol>
       </div>
     </article>
@@ -4801,19 +6751,20 @@ function renderFileTool(tool) {
     <article class="active-tool">
       <div class="active-tool-header">
         <div>
-          <span>${tool.category}</span>
-          <h2>${tool.title}</h2>
-          <p>${tool.description}</p>
+          <span>${localizedCategory(tool.category)}</span>
+          <h2>${localizedToolTitle(tool)}</h2>
+          <p>${localizedToolDescription(tool)}</p>
         </div>
+        ${shareButtonMarkup()}
       </div>
       ${privacyNotice(tool)}
       ${fileToolMarkup(tool)}
       <div class="how-to">
-        <h3>How to use</h3>
+        <h3>${textFor("howToUse")}</h3>
         <ol>
-          <li>Upload a file or paste content into the input box.</li>
-          <li>Adjust the options when available.</li>
-          <li>Copy or download the processed result.</li>
+          <li>${textFor("enterValues")}</li>
+          <li>${textFor("reviewResult")}</li>
+          <li>${textFor("copyOutput")}</li>
         </ol>
       </div>
     </article>
@@ -4825,10 +6776,11 @@ function renderQrTool(tool) {
     <article class="active-tool">
       <div class="active-tool-header">
         <div>
-          <span>${tool.category}</span>
-          <h2>${tool.title}</h2>
-          <p>${tool.description}</p>
+          <span>${localizedCategory(tool.category)}</span>
+          <h2>${localizedToolTitle(tool)}</h2>
+          <p>${localizedToolDescription(tool)}</p>
         </div>
+        ${shareButtonMarkup()}
       </div>
       ${privacyNotice(tool)}
       <form class="tool-form qr-tool-form" id="active-tool-form">
@@ -4864,11 +6816,11 @@ function renderQrTool(tool) {
       </form>
       <div class="tool-result" id="tool-result"></div>
       <div class="how-to">
-        <h3>How to use</h3>
+        <h3>${textFor("howToUse")}</h3>
         <ol>
-          <li>Enter a URL or any text.</li>
-          <li>Choose the QR size and error correction level.</li>
-          <li>Download the generated SVG file.</li>
+          <li>${textFor("enterValues")}</li>
+          <li>${textFor("reviewResult")}</li>
+          <li>${textFor("copyOutput")}</li>
         </ol>
       </div>
     </article>
@@ -4878,13 +6830,9 @@ function renderQrTool(tool) {
 function openTool(toolId, options = {}) {
   const tool = tools.find((item) => item.id === toolId) || tools[0];
   activeTool = tool;
-  document.querySelectorAll(".tool-card.is-active").forEach((card) => {
-    card.classList.remove("is-active");
-  });
 
   const triggerCard = options.card || document.querySelector(`[data-tool-card="${tool.id}"]`);
   if (triggerCard) {
-    triggerCard.classList.add("is-active");
     triggerCard.insertAdjacentElement("afterend", workspace);
     workspace.classList.add("is-inline");
   } else {
@@ -4898,25 +6846,28 @@ function openTool(toolId, options = {}) {
     renderFileTool(tool);
   } else if (tool.custom === "qr-code") {
     renderQrTool(tool);
+  } else if (tool.category === "Decision") {
+    renderDecisionTool(tool);
   } else {
     workspace.innerHTML = `
       <article class="active-tool">
         <div class="active-tool-header">
           <div>
-            <span>${tool.category}</span>
-            <h2>${tool.title}</h2>
-            <p>${tool.description}</p>
+            <span>${localizedCategory(tool.category)}</span>
+            <h2>${localizedToolTitle(tool)}</h2>
+            <p>${localizedToolDescription(tool)}</p>
           </div>
+          ${shareButtonMarkup()}
         </div>
         ${privacyNotice(tool)}
-        <form class="tool-form" id="active-tool-form">${tool.fields.map(fieldMarkup).join("")}</form>
+        <form class="tool-form" id="active-tool-form">${tool.fields.map(fieldMarkup).join("")}<div class="form-actions"><button type="reset" class="reset-button">${textFor("resetDefaults")}</button></div></form>
         <div class="tool-result" id="tool-result"></div>
         <div class="how-to">
-          <h3>How to use</h3>
+          <h3>${textFor("howToUse")}</h3>
           <ol>
-            <li>Enter your values in the tool fields.</li>
-            <li>Review the result that updates automatically.</li>
-            <li>Copy the output when you need to paste it elsewhere.</li>
+            <li>${textFor("enterValues")}</li>
+            <li>${textFor("reviewResult")}</li>
+            <li>${textFor("copyOutput")}</li>
           </ol>
         </div>
       </article>
@@ -4929,13 +6880,44 @@ function openTool(toolId, options = {}) {
     updateFileTool();
   } else if (tool.custom === "qr-code") {
     updateQrTool();
+  } else if (tool.category === "Decision") {
+    // Decision tools should wait for an explicit draw/flip/roll/spin action.
   } else {
     calculateActive(tool);
   }
+  syncToolCardStates();
   if (options.scroll) {
     const target = triggerCard || workspace;
     target.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
+}
+
+function closeTool() {
+  activeTool = null;
+  workspace.innerHTML = "";
+  workspace.classList.remove("is-inline");
+  releaseObjectUrls();
+  syncToolCardStates();
+}
+
+function toggleTool(toolId, options = {}) {
+  if (activeTool?.id === toolId) {
+    closeTool();
+    return;
+  }
+  openTool(toolId, options);
+}
+
+function syncToolCardStates() {
+  document.querySelectorAll(".tool-card").forEach((card) => {
+    const isActive = activeTool?.id === card.dataset.toolCard;
+    card.classList.toggle("is-active", isActive);
+    const button = card.querySelector("[data-tool-id]");
+    if (button) {
+      button.textContent = textFor(isActive ? "closeTool" : "openTool");
+      button.setAttribute("aria-expanded", String(isActive));
+    }
+  });
 }
 
 function calculateActive(tool) {
@@ -4980,6 +6962,7 @@ async function updateImageTool() {
     return;
   }
 
+  releaseObjectUrls();
   const imageUrl = URL.createObjectURL(file);
   const image = new Image();
   image.onload = () => {
@@ -5105,7 +7088,7 @@ async function updateImageTool() {
         spriteRows
       });
       pixelSvgName = `${baseName}-pixel-art-${outputWidth}x${outputHeight}.svg`;
-      pixelSvgUrl = URL.createObjectURL(new Blob([svgResult.svg], { type: "image/svg+xml" }));
+      pixelSvgUrl = trackObjectUrl(URL.createObjectURL(new Blob([svgResult.svg], { type: "image/svg+xml" })));
       pixelSvgRectCount = svgResult.rectCount;
       canvas.dataset.spriteFrame = JSON.stringify(spriteFrame);
     } else if (activeTool.custom === "image-square") {
@@ -5149,7 +7132,7 @@ async function updateImageTool() {
         return;
       }
 
-      const resizedUrl = URL.createObjectURL(blob);
+      const resizedUrl = trackObjectUrl(URL.createObjectURL(blob));
       const originalSize = formatBytes(file.size);
       const resizedSize = formatBytes(blob.size);
       const sizeChange = file.size > 0 ? ((1 - blob.size / file.size) * 100) : 0;
@@ -5462,7 +7445,7 @@ async function renderAssetPackItem(image, item, options, baseName, extension) {
     context.drawImage(image, drawX, drawY, drawWidth, drawHeight);
   }
   const blob = await canvasToBlob(canvas, options.format, options.quality);
-  const url = URL.createObjectURL(blob);
+  const url = trackObjectUrl(URL.createObjectURL(blob));
   return {
     id,
     label,
@@ -5870,7 +7853,7 @@ function renderJsonInspector(parsed, mode) {
         ["Scalars", typeCounts.scalar],
         ["Size", formatBytes(new Blob([formatted]).size)]
       ])}
-      <pre class="tool-output">${escapeHtml(formatted)}</pre>
+      <pre class="tool-output json-highlighted">${syntaxHighlightJson(formatted)}</pre>
       <div class="data-table-wrap">
         <table class="data-table">
           <thead><tr><th>Path</th><th>Type</th><th>Preview</th></tr></thead>
@@ -5885,6 +7868,24 @@ function renderJsonInspector(parsed, mode) {
       </div>
     </div>
   `;
+}
+
+function syntaxHighlightJson(json) {
+  const escaped = escapeHtml(json);
+  return escaped.replace(
+    /(&quot;(?:\\.|[^\\])*?&quot;(?:\s*:)?|\b(?:true|false)\b|\bnull\b|-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)/g,
+    (match) => {
+      let kind = "number";
+      if (match.startsWith("&quot;")) {
+        kind = match.endsWith(":") ? "key" : "string";
+      } else if (match === "true" || match === "false") {
+        kind = "boolean";
+      } else if (match === "null") {
+        kind = "null";
+      }
+      return `<span class="json-${kind}">${match}</span>`;
+    }
+  );
 }
 
 function renderTextFileStats(sourceText, result) {
@@ -6096,9 +8097,13 @@ function updateQrTool() {
   if (typeof qrcode !== "function") {
     result.innerHTML = `<div class="upload-empty">Loading QR generator...</div>`;
     loadQrLibrary()
-      .then(() => updateQrTool())
+      .then(() => {
+        if (activeTool?.custom === "qr-code") updateQrTool();
+      })
       .catch(() => {
-        result.innerHTML = error("QR code library could not be loaded. Reload the page and try again.");
+        if (activeTool?.custom === "qr-code" && result.isConnected) {
+          result.innerHTML = error("QR code library could not be loaded. Reload the page and try again.");
+        }
       });
     return;
   }
@@ -6125,12 +8130,36 @@ function updateQrTool() {
           <div><span>Characters</span><strong>${text.length}</strong></div>
           <div><span>Colors</span><strong>${foreground} / ${background}</strong></div>
         </div>
-        <a class="download-button" href="${href}" download="qr-code.svg">Download QR code</a>
+        <div class="download-actions">
+          <a class="download-button" href="${href}" download="qr-code.svg">Download SVG</a>
+          <a class="download-button secondary is-disabled" data-qr-png href="#" download="qr-code.png">Download PNG</a>
+        </div>
       </div>
     `;
+    attachQrPngDownload(svgWithSize, size, result);
   } catch (err) {
     result.innerHTML = error(err.message);
   }
+}
+
+function attachQrPngDownload(svgString, size, container) {
+  const img = new Image();
+  img.onload = () => {
+    const link = container.querySelector("[data-qr-png]");
+    if (!link || !link.isConnected) return;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const context = canvas.getContext("2d");
+    context.drawImage(img, 0, 0, size, size);
+    try {
+      link.href = canvas.toDataURL("image/png");
+      link.classList.remove("is-disabled");
+    } catch {
+      link.remove();
+    }
+  };
+  img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgString)}`;
 }
 
 function loadQrLibrary() {
@@ -6160,8 +8189,9 @@ function safeHexColor(value, fallback) {
 }
 
 function colorizeQrSvg(svg, size, foreground, background) {
+  // The vendored library already emits width/height; duplicates break strict XML parsing (e.g. loading the SVG as an image)
   return svg
-    .replace("<svg ", `<svg width="${size}" height="${size}" `)
+    .replace(/<svg([^>]*)>/, (match, attrs) => `<svg${attrs.replace(/\s(?:width|height)="[^"]*"/g, "")} width="${size}" height="${size}">`)
     .replace(/fill="#ffffff"/gi, `fill="${background}"`)
     .replace(/fill="#000000"/gi, `fill="${foreground}"`);
 }
@@ -6178,59 +8208,223 @@ function qrContentType(text) {
 function addRecent(toolId) {
   const recent = getRecent().filter((id) => id !== toolId);
   recent.unshift(toolId);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(recent.slice(0, 5)));
+  storageSet(STORAGE_KEY, JSON.stringify(recent.slice(0, 5)));
   renderRecent();
 }
 
 function getRecent() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    return JSON.parse(storageGet(STORAGE_KEY)) || [];
   } catch {
     return [];
   }
 }
 
+function getPinned() {
+  try {
+    return JSON.parse(storageGet(PINNED_STORAGE_KEY)) || [];
+  } catch {
+    return [];
+  }
+}
+
+function isPinned(toolId) {
+  return getPinned().includes(toolId);
+}
+
+function togglePinned(toolId) {
+  const activeToolId = activeTool?.id || "";
+  const pinned = getPinned();
+  const next = pinned.includes(toolId)
+    ? pinned.filter((id) => id !== toolId)
+    : [toolId, ...pinned].slice(0, 12);
+  storageSet(PINNED_STORAGE_KEY, JSON.stringify(next));
+  renderPinned();
+  renderCards(searchTools(search.value.trim()), { preserveOrder: Boolean(search.value.trim()) });
+  if (activeToolId) {
+    openTool(activeToolId, { scroll: false });
+  }
+}
+
+function renderPinned() {
+  if (!pinnedTools) return;
+  const pinned = getPinned().map((id) => tools.find((tool) => tool.id === id)).filter(Boolean);
+  pinnedTools.innerHTML = pinned.length
+    ? pinned.map((tool) => `<button type="button" data-tool-id="${tool.id}">${localizedToolTitle(tool)}</button>`).join("")
+    : textFor("noPinned");
+}
+
 function renderRecent() {
   const recent = getRecent().map((id) => tools.find((tool) => tool.id === id)).filter(Boolean);
   recentTools.innerHTML = recent.length
-    ? recent.map((tool) => `<button type="button" data-tool-id="${tool.id}">${tool.title}</button>`).join("")
-    : "No recently used tools yet.";
+    ? recent.map((tool) => `<button type="button" data-tool-id="${tool.id}">${localizedToolTitle(tool)}</button>`).join("")
+    : textFor("noRecent");
 }
 
 function initTheme() {
-  const saved = localStorage.getItem("utilitystack_theme");
+  const saved = storageGet("utilitystack_theme");
   if (saved === "dark") document.documentElement.classList.add("dark");
 }
 
-function lockAdFrames() {
-  const containers = document.querySelectorAll(".ad-frame, .ad-section, .ad-slot");
-  containers.forEach((element) => {
-    element.style.setProperty("height", "96px", "important");
-    element.style.setProperty("max-height", "96px", "important");
-    element.style.setProperty("overflow", "hidden", "important");
+function updateSidebarFrameHeight() {
+  const sidebar = document.querySelector(".sidebar");
+  if (!sidebar) return;
+  if (window.matchMedia("(max-width: 920px)").matches) {
+    sidebar.style.removeProperty("--sidebar-frame-height");
+    return;
+  }
+  const viewportHeight = window.visualViewport?.height || window.innerHeight || document.documentElement.clientHeight;
+  const top = Math.max(0, sidebar.getBoundingClientRect().top);
+  const height = Math.max(240, Math.floor(viewportHeight - top - 16));
+  sidebar.style.setProperty("--sidebar-frame-height", `${height}px`);
+}
+
+let sidebarFrameRaf = 0;
+
+function queueSidebarFrameHeightUpdate() {
+  if (sidebarFrameRaf) return;
+  sidebarFrameRaf = window.requestAnimationFrame(() => {
+    sidebarFrameRaf = 0;
+    updateSidebarFrameHeight();
   });
 }
 
+function scrollToCategory(anchor, options = {}) {
+  const normalized = String(anchor || "").replace(/^#/, "");
+  if (!normalized) return false;
+  if (search.value.trim()) {
+    search.value = "";
+    renderCards();
+  }
+  window.requestAnimationFrame(() => {
+    const target = document.getElementById(normalized);
+    if (target) {
+      target.scrollIntoView({
+        behavior: options.behavior || "smooth",
+        block: "start"
+      });
+    }
+  });
+  return Boolean(document.getElementById(normalized));
+}
+
 toolGrid.addEventListener("click", (event) => {
+  const pinButton = event.target.closest("[data-pin-tool-id]");
+  if (pinButton) {
+    togglePinned(pinButton.dataset.pinToolId);
+    return;
+  }
   const button = event.target.closest("[data-tool-id]");
   if (button) {
-    openTool(button.dataset.toolId, {
+    toggleTool(button.dataset.toolId, {
       card: button.closest(".tool-card"),
       scroll: true
     });
   }
 });
 
+pinnedTools?.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-tool-id]");
+  if (button) toggleTool(button.dataset.toolId, { scroll: true });
+});
+
 recentTools.addEventListener("click", (event) => {
   const button = event.target.closest("[data-tool-id]");
-  if (button) openTool(button.dataset.toolId, { scroll: true });
+  if (button) toggleTool(button.dataset.toolId, { scroll: true });
+});
+
+document.querySelector(".sidebar")?.addEventListener("click", (event) => {
+  const link = event.target.closest('a[href^="#"]');
+  if (!link) return;
+  const anchor = decodeURIComponent(link.getAttribute("href").slice(1));
+  event.preventDefault();
+  if (scrollToCategory(anchor)) {
+    history.replaceState(null, "", `#${anchor}`);
+  }
 });
 
 workspace.addEventListener("click", async (event) => {
+  const decisionButton = event.target.closest("[data-decision-action]");
+  if (decisionButton) {
+    updateDecisionTool({ animate: true });
+    return;
+  }
+  const shareButton = event.target.closest("[data-share-tool]");
+  if (shareButton && activeTool) {
+    const url = buildShareUrl(activeTool);
+    try {
+      await navigator.clipboard.writeText(url);
+      shareButton.textContent = textFor("shareCopied");
+    } catch {
+      window.prompt("Copy this link:", url);
+    }
+    window.clearTimeout(Number(shareButton.dataset.shareTimer || 0));
+    shareButton.dataset.shareTimer = String(window.setTimeout(() => {
+      shareButton.textContent = textFor("shareLink");
+    }, 2000));
+    return;
+  }
+  const clearButton = event.target.closest("[data-clear-field]");
+  if (clearButton) {
+    event.preventDefault();
+    const form = clearButton.closest("form");
+    const field = form?.elements[clearButton.dataset.clearField];
+    if (field) {
+      field.value = "";
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      field.focus();
+    }
+    return;
+  }
   const button = event.target.closest("[data-copy]");
   if (!button) return;
-  await navigator.clipboard.writeText(button.dataset.copy);
-  button.textContent = "Copied";
+  if (!button.dataset.copyLabel) {
+    button.dataset.copyLabel = button.textContent;
+  }
+  try {
+    await navigator.clipboard.writeText(button.dataset.copy);
+    button.textContent = "Copied";
+  } catch {
+    button.textContent = "Copy failed";
+  }
+  window.clearTimeout(Number(button.dataset.copyTimer || 0));
+  button.dataset.copyTimer = String(window.setTimeout(() => {
+    button.textContent = button.dataset.copyLabel;
+  }, 2000));
+});
+
+workspace.addEventListener("reset", (event) => {
+  if (!event.target.closest("#active-tool-form") || !activeTool) return;
+  window.setTimeout(() => {
+    if (activeTool.category === "Decision") {
+      refreshDecisionIdleStage();
+    } else if (!activeTool.custom) {
+      calculateActive(activeTool);
+    }
+  }, 0);
+});
+
+workspace.addEventListener("dragover", (event) => {
+  const zone = event.target.closest(".file-field");
+  if (!zone) return;
+  event.preventDefault();
+  zone.classList.add("is-drag-over");
+});
+
+workspace.addEventListener("dragleave", (event) => {
+  const zone = event.target.closest(".file-field");
+  if (zone) zone.classList.remove("is-drag-over");
+});
+
+workspace.addEventListener("drop", (event) => {
+  const zone = event.target.closest(".file-field");
+  if (!zone) return;
+  event.preventDefault();
+  zone.classList.remove("is-drag-over");
+  const input = zone.querySelector('input[type="file"]');
+  if (!input || !event.dataTransfer?.files?.length) return;
+  input.files = event.dataTransfer.files;
+  input.dispatchEvent(new Event("change", { bubbles: true }));
 });
 
 workspace.addEventListener("input", (event) => {
@@ -6246,12 +8440,31 @@ workspace.addEventListener("input", (event) => {
     updateQrTool();
     return;
   }
+  if (event.target.closest("#active-tool-form") && activeTool?.category === "Decision") {
+    refreshDecisionIdleStage();
+    return;
+  }
   if (event.target.closest("#active-tool-form") && activeTool) {
     calculateActive(activeTool);
   }
 });
 
+const REGEX_PRESETS = {
+  email: "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+  url: "https?:\\/\\/[^\\s\"'<>]+",
+  ipv4: "\\b(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\b",
+  date: "\\b\\d{4}-\\d{2}-\\d{2}\\b",
+  hexcolor: "#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\\b",
+  number: "-?\\d+(?:\\.\\d+)?"
+};
+
 workspace.addEventListener("change", (event) => {
+  if (activeTool?.id === "regex-tester" && event.target.name === "preset" && REGEX_PRESETS[event.target.value]) {
+    const form = document.getElementById("active-tool-form");
+    if (form?.elements.pattern) {
+      form.elements.pattern.value = REGEX_PRESETS[event.target.value];
+    }
+  }
   if (event.target.closest("#active-tool-form") && activeTool?.custom?.startsWith("image-")) {
     updateImageTool();
     return;
@@ -6262,6 +8475,9 @@ workspace.addEventListener("change", (event) => {
   }
   if (event.target.closest("#active-tool-form") && activeTool?.custom === "qr-code") {
     updateQrTool();
+    return;
+  }
+  if (event.target.closest("#active-tool-form") && activeTool?.category === "Decision") {
     return;
   }
   if (event.target.closest("#active-tool-form") && activeTool) {
@@ -6276,23 +8492,45 @@ search.addEventListener("input", () => {
 
 themeToggle.addEventListener("click", () => {
   document.documentElement.classList.toggle("dark");
-  localStorage.setItem("utilitystack_theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+  storageSet("utilitystack_theme", document.documentElement.classList.contains("dark") ? "dark" : "light");
+});
+
+languageSelect?.addEventListener("change", () => {
+  const activeToolId = activeTool?.id || "";
+  const nextLanguage = languageCodes.has(languageSelect.value) ? languageSelect.value : "en";
+  currentLanguage = nextLanguage;
+  storageSet(LANGUAGE_STORAGE_KEY, currentLanguage);
+  applyLocale();
+  renderCards(searchTools(search.value.trim()), { preserveOrder: Boolean(search.value.trim()) });
+  renderPinned();
+  renderRecent();
+  if (activeToolId) {
+    openTool(activeToolId, { scroll: false });
+  }
 });
 
 initTheme();
+populateLanguageSelect();
+applyLocale();
 renderCards();
+renderPinned();
 renderRecent();
-lockAdFrames();
+updateSidebarFrameHeight();
+window.addEventListener("resize", queueSidebarFrameHeightUpdate);
+window.addEventListener("scroll", queueSidebarFrameHeightUpdate, { passive: true });
+window.visualViewport?.addEventListener("resize", queueSidebarFrameHeightUpdate);
 const initialTool = findToolBySlug(initialToolSlugFromLocation());
 if (initialTool) {
   openTool(initialTool.id, { scroll: false });
+  applySharedStateFromUrl(initialTool);
 }
-if (!location.hash) {
-  window.scrollTo({ top: 0, left: 0 });
-  window.addEventListener("load", () => {
-    window.setTimeout(() => {
-      lockAdFrames();
-      window.scrollTo({ top: 0, left: 0 });
-    }, 0);
-  });
+if (location.hash) {
+  history.replaceState(null, "", `${location.pathname}${location.search}`);
 }
+window.scrollTo({ top: 0, left: 0 });
+window.addEventListener("load", () => {
+  window.setTimeout(() => {
+    updateSidebarFrameHeight();
+    window.scrollTo({ top: 0, left: 0 });
+  }, 0);
+});
