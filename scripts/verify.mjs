@@ -1414,6 +1414,9 @@ if (!indexSource.includes("pagead2.googlesyndication.com/pagead/js/adsbygoogle.j
 if (indexSource.includes("adsbygoogle\"") || indexSource.includes("ad-frame") || indexSource.includes("data-ad-slot")) fail("index.html should not reserve a manual AdSense slot.");
 if (appSource.includes("lockAdFrames") || appSource.includes(".ad-frame")) fail("App code should not reserve or clamp ad slot space.");
 ok("AdSense auto ads script found without reserved slots");
+if (!indexSource.includes("googletagmanager.com/gtag/js?id=G-Y7L09HLWY8")) fail("index.html should include the Google tag loader.");
+if (!indexSource.includes("gtag('config', 'G-Y7L09HLWY8')")) fail("index.html should configure the Google tag measurement ID.");
+ok("Google tag measurement script found");
 
 if (!indexSource.includes("application/ld+json")) fail("index.html is missing structured data.");
 else ok("structured data marker found");

@@ -423,6 +423,13 @@ ${alternateLinks}
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="${assetPrefix}styles.css?v=${stylesVersion}">
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-Y7L09HLWY8"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y7L09HLWY8');
+  </script>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4640178123605595" crossorigin="anonymous"></script>
 </head>
 <body>
