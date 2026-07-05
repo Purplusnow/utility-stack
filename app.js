@@ -6832,7 +6832,10 @@ function openTool(toolId, options = {}) {
   activeTool = tool;
 
   const triggerCard = options.card || document.querySelector(`[data-tool-card="${tool.id}"]`);
-  if (triggerCard) {
+  if (options.pinToTop) {
+    toolGrid.insertAdjacentElement("beforebegin", workspace);
+    workspace.classList.add("is-inline");
+  } else if (triggerCard) {
     triggerCard.insertAdjacentElement("afterend", workspace);
     workspace.classList.add("is-inline");
   } else {
@@ -8521,7 +8524,9 @@ window.addEventListener("scroll", queueSidebarFrameHeightUpdate, { passive: true
 window.visualViewport?.addEventListener("resize", queueSidebarFrameHeightUpdate);
 const initialTool = findToolBySlug(initialToolSlugFromLocation());
 if (initialTool) {
-  openTool(initialTool.id, { scroll: false });
+  // On a tool landing page the workspace sits above the grid, so visitors
+  // (including share-link recipients) see the tool without scrolling.
+  openTool(initialTool.id, { scroll: false, pinToTop: true });
   applySharedStateFromUrl(initialTool);
 }
 if (location.hash) {
