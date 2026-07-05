@@ -1504,29 +1504,53 @@ h1 {
 .file-picker-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: center;
   gap: 10px;
 }
 
+.file-field-title {
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .file-picker-button {
-  padding: 9px 14px;
-  border: 1px solid color-mix(in srgb, var(--accent) 70%, #ffffff);
+  padding: 10px 16px;
+  border: 1px solid #0b5f59;
   border-radius: 8px;
-  background: var(--accent);
+  background: #0b5f59;
   color: #ffffff;
-  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.22);
+  font-weight: 800;
 }
 
 .file-name,
 .file-field-hint {
-  color: var(--muted);
   font-size: 0.9rem;
 }
 
 .file-name {
   align-self: center;
   min-width: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 700;
   overflow-wrap: anywhere;
+}
+
+.file-field-hint {
+  color: color-mix(in srgb, var(--ink) 76%, var(--muted));
+  font-weight: 600;
+}
+
+:root.dark .file-picker-button {
+  border-color: #99f6e4;
+  background: #99f6e4;
+  color: #062a25;
+  box-shadow: 0 8px 22px rgba(45, 212, 191, 0.18);
 }
 
 .tool-form .check-field {
